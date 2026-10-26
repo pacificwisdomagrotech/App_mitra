@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14213d">
+<title>App Mitra – Ready-made apps for your business</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--muted:#55607a;--bg:#f4f6fb;--card:#fff;--line:#dfe4ef;--saffron:#ff9f1c;--wa:#1faa59}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Hind',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:16px}
+h1,h2,h3{font-family:'Baloo 2',system-ui,sans-serif;line-height:1.15}
+.wrap{max-width:1050px;margin:0 auto;padding:0 18px}
+header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:20}
+header .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:'Baloo 2';font-weight:800;font-size:22px}
+.logo span{color:var(--saffron)}
+.btn{display:inline-block;border:0;border-radius:10px;padding:12px 18px;font:600 15px 'Hind',sans-serif;cursor:pointer;text-decoration:none;text-align:center}
+.btn-wa{background:var(--wa);color:#fff}
+.btn-main{background:var(--saffron);color:var(--ink)}
+.btn-line{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
+.btn:focus-visible,.card:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+.hero{background:var(--ink);color:#fff;padding:34px 0 46px}
+.hero .wrap{display:grid;gap:30px;align-items:center}
+.hero h1{font-size:clamp(32px,7vw,52px);font-weight:800}
+.hero p{color:#c9d2ea;margin:14px 0 22px;max-width:460px}
+.hero .row{display:flex;gap:10px;flex-wrap:wrap}
+.phone{justify-self:center;width:230px;background:#0b1429;border:6px solid #2a3a63;border-radius:30px;padding:14px 12px 16px}
+.phone small{display:block;color:#9fb0d9;font-size:11px;margin-bottom:8px}
+.phone b{font-family:'Baloo 2';font-size:14px}
+.seats{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}
+.seats i{aspect-ratio:1;border-radius:5px;background:#2e7d5b}
+.seats i.o{background:#d6453d}
+.seats i.h{background:#e9a825}
+.legend{display:flex;gap:10px;font-size:11px;color:#9fb0d9;margin-top:10px}
+.legend u{text-decoration:none;display:flex;align-items:center;gap:4px}
+.legend u:before{content:"";width:9px;height:9px;border-radius:3px;background:#2e7d5b}
+.legend u:nth-child(2):before{background:#d6453d}
+.legend u:nth-child(3):before{background:#e9a825}
+section{padding:44px 0 6px}
+h2{font-size:28px;font-weight:800;margin-bottom:6px}
+.sub{color:var(--muted);margin-bottom:22px}
+.steps{display:grid;gap:12px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+.step em{font:800 26px 'Baloo 2';color:var(--saffron);font-style:normal;min-width:26px}
+.step h3{font-size:18px}
+.step p{color:var(--muted);font-size:15px}
+.grid{display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-left:7px solid var(--c);border-radius:6px 16px 16px 6px;padding:18px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;display:block}
+.card .ic{font-size:30px}
+.card h3{font-size:21px;margin:4px 0 2px}
+.card p{color:var(--muted);font-size:15px;margin-bottom:10px}
+.card .go{font-weight:600;color:var(--c)}
+.card:active{transform:scale(.99)}
+.pricebox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:6px}
+.pricebox ul{list-style:none;margin-top:8px}
+.pricebox li{padding:5px 0 5px 26px;position:relative}
+.pricebox li:before{content:"✓";position:absolute;left:0;color:var(--wa);font-weight:800}
+footer{margin-top:50px;background:var(--ink);color:#c9d2ea;padding:30px 0;text-align:center;font-size:14px}
+footer .btn{margin-bottom:14px}
+/* detail sheet */
+#sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;display:none}
+#sheet.open{display:block;animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.bar{position:sticky;top:0;background:var(--c);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:2}
+.bar button{background:rgba(255,255,255,.2);border:0;color:#fff;border-radius:8px;padding:7px 13px;font:600 15px 'Hind'}
+.bar b{font-family:'Baloo 2';font-size:19px}
+.shots{display:flex;gap:10px;overflow-x:auto;padding:16px 18px;scroll-snap-type:x mandatory}
+.shots img,.shots .ph{flex:0 0 62%;max-width:260px;aspect-ratio:9/16;object-fit:cover;border-radius:14px;border:1px solid var(--line);scroll-snap-align:start;background:#fff}
+.shots .ph{display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;color:var(--muted);font-size:13px;background:repeating-linear-gradient(45deg,#eef1f8,#eef1f8 10px,#e6eaf4 10px,#e6eaf4 20px)}
+.det{padding:0 18px 30px;max-width:700px;margin:0 auto}
+.det h2{margin-top:6px}
+.chips{display:grid;gap:8px;margin:14px 0 20px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.chip b{display:block}
+.chip span{color:var(--muted);font-size:14.5px}
+.feat{columns:1;list-style:none;margin:10px 0 22px}
+.feat li{padding:4px 0 4px 24px;position:relative;break-inside:avoid}
+.feat li:before{content:"•";position:absolute;left:6px;color:var(--c);font-weight:800}
+.cta{display:grid;gap:10px;position:sticky;bottom:0;background:var(--bg);padding:12px 0}
+.note{font-size:13.5px;color:var(--muted);text-align:center}
+@media(min-width:760px){
+.hero .wrap{grid-template-columns:1.3fr 1fr}
+.steps{grid-template-columns:repeat(3,1fr)}
+.grid{grid-template-columns:repeat(2,1fr)}
+.feat{columns:2}
+.cta{grid-template-columns:1fr 1fr}
+.shots img,.shots .ph{flex-basis:200px}
+}
+@media(prefers-reduced-motion:reduce){#sheet.open{animation:none}}
+</style>
+</head>
+<body>
+
+<header><div class="wrap"><div class="logo">App<span>Mitra</span></div><a class="btn btn-wa" id="waTop" href="#">WhatsApp us</a></div></header>
+
+<div class="hero"><div class="wrap">
+<div>
+<h1>Your business, ready on one app.</h1>
+<p>Library, society, institute and custom apps built in Nagpur. Try any app free for 3 days. Like it? Take the 1-year license.</p>
+<div class="row"><a class="btn btn-main" href="#apps">See the apps</a><a class="btn btn-line" style="background:transparent;color:#fff;border-color:#fff" href="#how">How it works</a></div>
+</div>
+<div class="phone" aria-hidden="true"><small>Library App · Seat Map</small><b>Diamond Hall</b>
+<div class="seats" id="seatDemo"></div>
+<div class="legend"><u>Vacant</u><u>Occupied</u><u>Expiring</u></div></div>
+</div></div>
+
+<div class="wrap">
+<section id="how"><h2>How it works</h2><p class="sub">Three simple steps. No payment to start.</p>
+<div class="steps">
+<div class="step"><em>1</em><div><h3>Pick an app</h3><p>Open any app below, see photos and benefits.</p></div></div>
+<div class="step"><em>2</em><div><h3>Try 3 days free</h3><p>Use the demo with sample data and check every feature.</p></div></div>
+<div class="step"><em>3</em><div><h3>Buy 1-year license</h3><p>Pay once, get your own app set up with your name and data.</p></div></div>
+</div></section>
+
+<section id="apps"><h2>Our apps</h2><p class="sub">Tap an app to see details and start the demo.</p><div class="grid" id="appGrid"></div></section>
+
+<section><h2>What you get with the license</h2>
+<div class="pricebox"><ul>
+<li>Your own app with your name, logo and colours</li>
+<li>Works on mobile like an installed app</li>
+<li>Setup help and training on WhatsApp</li>
+<li>1 year of support and fixes</li>
+</ul></div></section>
+</div>
+
+<footer><div class="wrap">
+<a class="btn btn-wa" id="waFoot" href="#">Chat on WhatsApp</a>
+<div>© App Mitra · Nagpur, Maharashtra</div></div></footer>
+
+<div id="sheet" role="dialog" aria-modal="true" aria-label="App details"></div>
+
+<script>
+/* ====== EDIT THIS PART ====== */
+var WHATSAPP = "917276124898"; // your number with country code, no + or spaces
+var APPS = [
+ {id:"library", icon:"📚", name:"Library & Study Circle App", color:"#1a3a6b",
+  tag:"Seats, fees and attendance without the register.",
+  demoUrl:"", /* paste library demo link here when ready */
+  images:["images/library-1.jpg","images/library-2.jpg","images/library-3.jpg"],
+  benefits:[["Save daily time","Attendance and seat status in a few taps."],["Never miss a fee","Due, expiring and expired lists with one-tap WhatsApp reminders."],["Know your profit","Income, expenses and monthly reports in one place."]],
+  features:["Hall-wise seat map","Student admission and ID card QR","Online admission form","Daily attendance","Fee receipts on WhatsApp","Expense and inventory tracking","Staff logins","Month-wise reports"]},
+ {id:"society", icon:"🏦", name:"Society & Credit App", color:"#1d6b4a",
+  tag:"Shares, loans and interest, always correct.",
+  demoUrl:"", images:["images/society-1.jpg","images/society-2.jpg","images/society-3.jpg"],
+  benefits:[["No calculation mistakes","Interest and instalments are calculated for you."],["Members stay informed","Hindi reminders for due dates."],["Clear records","Every share and loan entry is stored and searchable."]],
+  features:["Member and share register","Loan and interest tracking","Hindi reminders","Collection reports","Multiple staff logins","Backup of all data"]},
+ {id:"institute", icon:"🎓", name:"Institute Management App", color:"#5b3a9b",
+  tag:"Students, batches and certificates in one app.",
+  demoUrl:"", images:["images/institute-1.jpg","images/institute-2.jpg","images/institute-3.jpg"],
+  benefits:[["Organised batches","Admissions, batches and fees together."],["Instant certificates","Print a certificate in seconds."],["Stay in touch","Send updates to students on WhatsApp."]],
+  features:["Student admission","Batch and course management","Fee tracking and receipts","Certificate generator","WhatsApp updates","Reports"]},
+ {id:"custom", icon:"💌", name:"Custom App & Invitations", color:"#b3326b",
+  tag:"Wedding invitations and apps made for you.",
+  demoUrl:"", images:["images/custom-1.jpg","images/custom-2.jpg","images/custom-3.jpg"],
+  benefits:[["Made your way","Your design, your names, your language."],["Share anywhere","One link works on WhatsApp and every phone."],["Quick delivery","Invitations ready fast, apps built to your needs."]],
+  features:["Animated wedding invitations","Photo reveal and music","Visitor counter","Custom business apps","Hindi, Marathi and English"]}
+];
+/* ====== END EDIT ====== */
+
+function wa(msg){return "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg)}
+document.getElementById("waTop").href=wa("Hi, I want to know more about App Mitra apps.");
+document.getElementById("waFoot").href=wa("Hi, I want to know more about App Mitra apps.");
+
+// hero seat demo
+var s="",pat="oooxooo xooooxo ooxoooo oooooho xoooooo".replace(/ /g,"");
+for(var i=0;i<35;i++){var k=(i*7+3)%11;s+='<i class="'+(k<4?"o":k==5?"h":"")+'"></i>'}
+document.getElementById("seatDemo").innerHTML=s;
+
+// cards
+var grid=document.getElementById("appGrid");
+APPS.forEach(function(a){
+ var b=document.createElement("button");b.className="card";b.style.setProperty("--c",a.color);
+ b.innerHTML='<div class="ic">'+a.icon+'</div><h3>'+a.name+'</h3><p>'+a.tag+'</p><span class="go">View details and demo ›</span>';
+ b.onclick=function(){openApp(a.id)};grid.appendChild(b);
+});
+
+// detail sheet
+var sheet=document.getElementById("sheet");
+function openApp(id,fromHash){
+ var a=APPS.filter(function(x){return x.id===id})[0];if(!a)return;
+ var shots=a.images.map(function(src,i){return '<img src="'+src+'" alt="'+a.name+' screenshot '+(i+1)+'" loading="lazy" onerror="this.outerHTML=\'<div class=ph>Add photo:<br>'+src+'</div>\'">'}).join("");
+ var ben=a.benefits.map(function(x){return '<div class="chip"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join("");
+ var feat=a.features.map(function(x){return "<li>"+x+"</li>"}).join("");
+ var demo=a.demoUrl?'<a class="btn btn-main" href="'+a.demoUrl+'">Start 3-day demo</a>':'<a class="btn btn-main" href="'+wa("Hi, I want the 3-day demo of "+a.name)+'">Get 3-day demo</a>';
+ sheet.style.setProperty("--c",a.color);
+ sheet.innerHTML='<div class="bar"><button onclick="closeApp()">‹ Back</button><b>'+a.name+'</b></div>'+
+ '<div class="shots">'+shots+'</div><div class="det"><h2>'+a.tag+'</h2>'+
+ '<div class="chips">'+ben+'</div><h3>Features</h3><ul class="feat">'+feat+'</ul>'+
+ '<div class="cta">'+demo+'<a class="btn btn-wa" href="'+wa("Hi, I want to buy the 1-year license of "+a.name)+'">Buy 1-year license</a></div>'+
+ '<p class="note">Demo runs for 3 days with sample data.</p></div>';
+ sheet.className="open";sheet.scrollTop=0;document.body.style.overflow="hidden";
+ if(!fromHash)history.pushState(null,"","#"+id);
+}
+function closeApp(){sheet.className="";document.body.style.overflow="";if(location.hash)history.pushState(null,"",location.pathname)}
+window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(APPS.some(function(x){return x.id===h}))openApp(h,true);else if(h!=="how"&&h!=="apps"){sheet.className="";document.body.style.overflow=""}});
+if(APPS.some(function(x){return x.id===location.hash.slice(1)}))openApp(location.hash.slice(1),true);
+</script>
+</body>
+</html>
