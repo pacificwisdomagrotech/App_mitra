@@ -82,6 +82,18 @@ footer .btn{margin-bottom:14px}
 .feat li:before{content:"•";position:absolute;left:6px;color:var(--c);font-weight:800}
 .cta{display:grid;gap:10px;position:sticky;bottom:0;background:var(--bg);padding:12px 0}
 .note{font-size:13.5px;color:var(--muted);text-align:center}
+#form{position:fixed;inset:0;z-index:60;background:rgba(20,33,61,.6);display:none;align-items:flex-end;justify-content:center}
+#form.open{display:flex}
+.fbox{background:var(--bg);width:100%;max-width:520px;max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px 18px 24px}
+.fbox h2{font-size:23px}
+.fbox label{display:block;font-weight:600;font-size:14.5px;margin:12px 0 4px}
+.fbox input,.fbox select,.fbox textarea{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+.fbox textarea{min-height:76px;resize:vertical}
+.fbox input:focus,.fbox select:focus,.fbox textarea:focus{outline:3px solid var(--saffron);outline-offset:1px}
+.frow{display:flex;gap:10px;margin-top:16px}
+.frow .btn{flex:1}
+.err{color:#c0392b;font-size:14px;margin-top:8px;min-height:20px}
+@media(min-width:760px){#form{align-items:center}.fbox{border-radius:20px}}
 @media(min-width:760px){
 .hero .wrap{grid-template-columns:1.3fr 1fr}
 .steps{grid-template-columns:repeat(3,1fr)}
@@ -95,7 +107,7 @@ footer .btn{margin-bottom:14px}
 </head>
 <body>
 
-<header><div class="wrap"><div class="logo">App<span>Mitra</span></div><a class="btn btn-wa" id="waTop" href="#">WhatsApp us</a></div></header>
+<header><div class="wrap"><div class="logo">App<span>Mitra</span></div><a class="btn btn-wa" id="waTop" href="#" onclick="openForm('','general');return false">WhatsApp us</a></div></header>
 
 <div class="hero"><div class="wrap">
 <div>
@@ -128,10 +140,25 @@ footer .btn{margin-bottom:14px}
 </div>
 
 <footer><div class="wrap">
-<a class="btn btn-wa" id="waFoot" href="#">Chat on WhatsApp</a>
+<a class="btn btn-wa" id="waFoot" href="#" onclick="openForm('','general');return false">Chat on WhatsApp</a>
 <div>© App Mitra · Nagpur, Maharashtra</div></div></footer>
 
 <div id="sheet" role="dialog" aria-modal="true" aria-label="App details"></div>
+
+<div id="form" role="dialog" aria-modal="true" aria-label="Enquiry form"><div class="fbox">
+<h2 id="fTitle">Tell us what you need</h2>
+<p class="sub" style="margin-bottom:0">Takes 1 minute. We reply on WhatsApp.</p>
+<label for="fName">Your name *</label><input id="fName" autocomplete="name">
+<label for="fPhone">Mobile number *</label><input id="fPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit number">
+<label for="fApp">Which app? *</label><select id="fApp"></select>
+<label for="fBiz">Business name</label><input id="fBiz">
+<label for="fCity">City</label><input id="fCity" autocomplete="address-level2">
+<label for="fBudget">Budget</label>
+<select id="fBudget"><option value="">Select budget</option><option>Under ₹5,000</option><option>₹5,000–₹15,000</option><option>₹15,000–₹30,000</option><option>₹30,000 and above</option><option>Not sure yet</option></select>
+<label for="fReq">What do you need?</label><textarea id="fReq" placeholder="Example: 80 students, 3 halls, fee reminders on WhatsApp"></textarea>
+<div class="err" id="fErr" role="alert"></div>
+<div class="frow"><button class="btn btn-line" type="button" onclick="closeForm()">Cancel</button><button class="btn btn-wa" id="fSend" type="button" onclick="sendForm()">Send on WhatsApp</button></div>
+</div></div>
 
 <script>
 /* ====== EDIT THIS PART ====== */
@@ -162,8 +189,49 @@ var APPS = [
 /* ====== END EDIT ====== */
 
 function wa(msg){return "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg)}
-document.getElementById("waTop").href=wa("Hi, I want to know more about App Mitra apps.");
-document.getElementById("waFoot").href=wa("Hi, I want to know more about App Mitra apps.");
+
+/* Optional: paste Firebase details to save every enquiry in a leads list. Leave empty to skip. */
+var FIREBASE={projectId:"",apiKey:""};
+var fIntent="general";
+function $(id){return document.getElementById(id)}
+function greet(){var h=new Date().getHours();return h<12?"Good morning":h<17?"Good afternoon":"Good evening"}
+function openForm(appId,intent){
+ fIntent=intent||"general";
+ var sel=$("fApp");
+ sel.innerHTML='<option value="">Select app</option>'+APPS.map(function(a){return '<option value="'+a.name+'">'+a.name+'</option>'}).join("")+'<option value="Not sure yet">Not sure yet</option>';
+ var a=APPS.filter(function(x){return x.id===appId})[0];
+ if(a)sel.value=a.name;
+ $("fTitle").textContent=fIntent==="demo"?"Get your 3-day demo":fIntent==="buy"?"Buy the 1-year license":"Tell us what you need";
+ $("fErr").textContent="";
+ $("form").className="open";
+}
+function closeForm(){$("form").className=""}
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeForm()});
+function fail(m){$("fErr").textContent=m}
+function saveLead(d){
+ if(!FIREBASE.projectId||!FIREBASE.apiKey)return Promise.resolve();
+ var f={};Object.keys(d).forEach(function(k){f[k]={stringValue:d[k]}});
+ f.createdAt={timestampValue:new Date().toISOString()};
+ return fetch("https://firestore.googleapis.com/v1/projects/"+FIREBASE.projectId+"/databases/(default)/documents/leads?key="+FIREBASE.apiKey,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:f})}).catch(function(){});
+}
+function sendForm(){
+ var name=$("fName").value.trim(),ph=$("fPhone").value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,""),app=$("fApp").value;
+ if(!name)return fail("Please enter your name.");
+ if(!/^[6-9]\d{9}$/.test(ph))return fail("Enter a valid 10-digit mobile number.");
+ if(!app)return fail("Please select an app.");
+ var d={name:name,phone:ph,app:app,business:$("fBiz").value.trim(),city:$("fCity").value.trim(),budget:$("fBudget").value,requirement:$("fReq").value.trim(),intent:fIntent};
+ var what=fIntent==="demo"?"I want a 3-day demo of: "+app:fIntent==="buy"?"I want to buy the 1-year license of: "+app:"I want to know about: "+app;
+ var L=["Namaste App Mitra! "+greet()+".",what,"Name: "+name,"Mobile: "+ph];
+ if(d.business)L.push("Business: "+d.business);
+ if(d.city)L.push("City: "+d.city);
+ if(d.budget)L.push("Budget: "+d.budget);
+ if(d.requirement)L.push("Requirement: "+d.requirement);
+ var btn=$("fSend");btn.disabled=true;btn.textContent="Opening WhatsApp…";fail("");
+ Promise.race([saveLead(d),new Promise(function(r){setTimeout(r,1500)})]).then(function(){
+  btn.disabled=false;btn.textContent="Send on WhatsApp";closeForm();
+  location.href=wa(L.join("\n"));
+ });
+}
 
 // hero seat demo
 var s="",pat="oooxooo xooooxo ooxoooo oooooho xoooooo".replace(/ /g,"");
@@ -185,12 +253,12 @@ function openApp(id,fromHash){
  var shots=a.images.map(function(src,i){return '<img src="'+src+'" alt="'+a.name+' screenshot '+(i+1)+'" loading="lazy" onerror="this.outerHTML=\'<div class=ph>Add photo:<br>'+src+'</div>\'">'}).join("");
  var ben=a.benefits.map(function(x){return '<div class="chip"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join("");
  var feat=a.features.map(function(x){return "<li>"+x+"</li>"}).join("");
- var demo=a.demoUrl?'<a class="btn btn-main" href="'+a.demoUrl+'">Start 3-day demo</a>':'<a class="btn btn-main" href="'+wa("Hi, I want the 3-day demo of "+a.name)+'">Get 3-day demo</a>';
+ var demo=a.demoUrl?'<a class="btn btn-main" href="'+a.demoUrl+'">Start 3-day demo</a>':'<button class="btn btn-main" onclick="openForm(\''+a.id+'\',\'demo\')">Get 3-day demo</button>';
  sheet.style.setProperty("--c",a.color);
  sheet.innerHTML='<div class="bar"><button onclick="closeApp()">‹ Back</button><b>'+a.name+'</b></div>'+
  '<div class="shots">'+shots+'</div><div class="det"><h2>'+a.tag+'</h2>'+
  '<div class="chips">'+ben+'</div><h3>Features</h3><ul class="feat">'+feat+'</ul>'+
- '<div class="cta">'+demo+'<a class="btn btn-wa" href="'+wa("Hi, I want to buy the 1-year license of "+a.name)+'">Buy 1-year license</a></div>'+
+ '<div class="cta">'+demo+'<button class="btn btn-wa" onclick="openForm(\''+a.id+'\',\'buy\')">Buy 1-year license</button></div>'+
  '<p class="note">Demo runs for 3 days with sample data.</p></div>';
  sheet.className="open";sheet.scrollTop=0;document.body.style.overflow="hidden";
  if(!fromHash)history.pushState(null,"","#"+id);
