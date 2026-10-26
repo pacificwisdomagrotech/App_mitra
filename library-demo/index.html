@@ -1,1 +1,2871 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="theme-color" content="#1a3a6b"/>
+  <title>Demo Library & Study Circle</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --p:#1a3a6b;--pl:#2657a8;--pd:#0d1f3c;
+      --a:#e65c00;--al:#ff7b1f;
+      --bg:#eef2f8;--card:#fff;--text:#1a1a2e;--muted:#6b7280;
+      --ok:#16a34a;--err:#dc2626;--warn:#d97706;
+      --border:#e2e8f0;--shadow:0 2px 12px rgba(26,58,107,.10);--r:14px
+    }
+    body.theme-green{--p:#1b5e20;--pl:#388e3c;--pd:#0a3d0a;--a:#f9a825;--bg:#f1f8e9}
+    body.theme-purple{--p:#4a148c;--pl:#7b1fa2;--pd:#2a0057;--a:#e65100;--bg:#f3e5f5}
+    body.theme-dark{--p:#b71c1c;--pl:#e53935;--pd:#7f0000;--a:#ff6f00;--bg:#1a1a1a;--card:#2d2d2d;--text:#f0f0f0;--muted:#aaa;--border:#444}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px}
+
+    /* TOPBAR */
+    .topbar{background:linear-gradient(135deg,var(--pd),var(--p));color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+    .topbar-logo{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.4)}
+    .topbar-info{flex:1;margin-left:10px}
+    .topbar-title{font-size:15px;font-weight:700}
+    .topbar-sub{font-size:10px;opacity:.75}
+    .topbar-right{display:flex;align-items:center;gap:8px}
+    .user-badge{background:var(--a);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;cursor:pointer}
+    .icon-btn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:20px;padding:5px 9px;font-size:12px;cursor:pointer}
+
+    /* NAV */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,.08);overflow-x:auto}
+    .nav-item{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 2px;cursor:pointer;color:var(--muted);font-size:9px;gap:2px;border:none;background:none;white-space:nowrap}
+    .nav-item.active{color:var(--p)}
+    .nav-item svg{width:20px;height:20px}
+
+    /* PAGES */
+    .page{display:none;padding:14px}
+    .page.active{display:block}
+
+    /* CARDS */
+    .card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+    .card-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .stat-card{background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+    .stat-icon{font-size:20px;margin-bottom:4px}
+    .stat-value{font-size:24px;font-weight:800;color:var(--p)}
+    .stat-label{font-size:10px;color:var(--muted);font-weight:500}
+
+    /* SEAT MAP */
+    .seat-section{margin-bottom:10px}
+    .seat-section-title{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;padding:3px 8px;background:var(--bg);border-radius:6px}
+    .seat-map,.seat-map-g{display:grid;gap:3px;width:100%}
+    .seat-map{grid-template-columns:repeat(9,1fr)}
+    .seat-map-g{grid-template-columns:repeat(8,1fr)}
+    .seat{aspect-ratio:1;min-width:0;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;cursor:pointer;border:1.5px solid transparent;box-sizing:border-box}
+    .seat{aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;cursor:pointer;transition:transform .15s;border:1px solid transparent;-webkit-text-size-adjust:none;text-size-adjust:none}
+    .seat:active{transform:scale(.88)}
+    .seat.empty{background:#e8f5e9;color:#2e7d32;border-color:#a5d6a7}
+    .seat.full{background:var(--p);color:#fff}
+    .seat.morning{background:var(--a);color:#fff}
+    .seat.evening{background:#7b1fa2;color:#fff}
+    .seat.both{background:linear-gradient(135deg,var(--a) 50%,#7b1fa2 50%);color:#fff}
+    /* Hall colors for empty seats */
+    .hall-diamond .seat.empty{background:#e3f2fd;color:#1565c0;border-color:#90caf9}
+    .hall-achiever .seat.empty{background:#f3e5f5;color:#6a1b9a;border-color:#ce93d8}
+    .hall-gold .seat.empty{background:#fff8e1;color:#e65100;border-color:#ffcc02}
+    .hall-platinum .seat.empty{background:#e0f2f1;color:#00695c;border-color:#80cbc4}
+    .hall-vision .seat.empty{background:#fce4ec;color:#880e4f;border-color:#f48fb1}
+    /* Hall section title colors */
+    .hall-title-diamond{background:#e3f2fd;color:#1565c0;border-left:4px solid #1565c0}
+    .hall-title-achiever{background:#f3e5f5;color:#6a1b9a;border-left:4px solid #6a1b9a}
+    .hall-title-gold{background:#fff8e1;color:#e65100;border-left:4px solid #ffc107}
+    .hall-title-platinum{background:#e0f2f1;color:#00695c;border-left:4px solid #00897b}
+    .hall-title-vision{background:#fce4ec;color:#880e4f;border-left:4px solid #e91e63}
+    .hall-title-unreserved{background:#e0f2fe;color:#075985;border-left:4px solid #0284c7}
+    .hall-unreserved .seat.empty{background:#e0f2fe;color:#075985;border-color:#7dd3fc}
+    .seat.filled-ur{background:#0284c7;color:#fff}
+
+    /* FORMS */
+    .form-group{margin-bottom:12px}
+    .form-label{display:block;font-size:12px;font-weight:600;margin-bottom:5px}
+    .form-control{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:var(--card);color:var(--text);outline:none;transition:border-color .2s}
+    .form-control:focus{border-color:var(--p)}
+    select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%236b7280'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 16px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;width:100%;transition:all .2s}
+    .btn-p{background:var(--p);color:#fff}
+    .btn-a{background:var(--a);color:#fff}
+    .btn-ok{background:var(--ok);color:#fff}
+    .btn-err{background:var(--err);color:#fff}
+    .btn-warn{background:var(--warn);color:#fff}
+    .btn-wa{background:#25d366;color:#fff}
+    .btn-out{background:transparent;color:var(--p);border:2px solid var(--p)}
+    .btn-sm{padding:7px 12px;font-size:12px;width:auto;border-radius:8px}
+    .btn-xs{padding:4px 8px;font-size:10px;width:auto;border-radius:6px}
+
+    /* LISTS */
+    .list-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:var(--r);margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer}
+    .avatar{width:42px;height:42px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;overflow:hidden}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .item-info{flex:1;min-width:0}
+    .item-name{font-weight:700;font-size:13px}
+    .item-meta{font-size:10px;color:var(--muted);margin-top:2px}
+    .badge{padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;flex-shrink:0}
+    .b-full{background:#dbeafe;color:#1e40af}
+    .b-morning{background:#ffedd5;color:#9a3412}
+    .b-evening{background:#f3e8ff;color:#6b21a8}
+    .b-unreserved{background:#e0f2fe;color:#075985}
+    .b-paid{background:#dcfce7;color:#166534}
+    .b-due{background:#fee2e2;color:#991b1b}
+    .b-exp{background:#fef3c7;color:#92400e}
+    .b-pending{background:#e0e7ff;color:#3730a3}
+    .b-admin{background:#fee2e2;color:#991b1b}
+    .b-staff{background:#dbeafe;color:#1e40af}
+
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:16px;animation:slideUp .3s ease}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 12px}
+    .modal-title{font-size:16px;font-weight:800;margin-bottom:12px}
+
+    /* PHOTO UPLOAD */
+    .photo-wrap{display:flex;gap:10px;justify-content:center;margin-bottom:12px}
+    .photo-upload{width:80px;height:80px;border-radius:50%;border:3px dashed var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--bg);flex-direction:column;font-size:10px;color:var(--muted);text-align:center;gap:2px}
+    .photo-upload img{width:100%;height:100%;object-fit:cover}
+
+    /* LOGIN */
+    .login-page{min-height:100vh;background:linear-gradient(160deg,var(--pd),var(--p),var(--pl));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px}
+    .login-logo{width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid rgba(255,255,255,.4);margin-bottom:14px;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+    .login-title{font-size:22px;font-weight:800;color:#fff;text-align:center}
+    .login-sub{font-size:12px;color:rgba(255,255,255,.7);margin-bottom:24px;text-align:center}
+    .login-tabs{display:flex;background:rgba(255,255,255,.15);border-radius:12px;padding:4px;margin-bottom:20px;width:100%;max-width:360px}
+    .login-tab{flex:1;padding:9px;text-align:center;border-radius:9px;cursor:pointer;color:rgba(255,255,255,.7);font-weight:600;font-size:13px;transition:all .2s}
+    .login-tab.active{background:#fff;color:var(--p)}
+    .login-card{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:380px}
+
+    /* ATTENDANCE */
+    .att-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card);border-radius:10px;margin-bottom:6px;box-shadow:var(--shadow)}
+    .toggle{width:48px;height:25px;border-radius:13px;border:none;cursor:pointer;position:relative;transition:background .3s}
+    .toggle.on{background:var(--ok)}
+    .toggle.off{background:#cbd5e1}
+    .toggle::after{content:'';position:absolute;width:19px;height:19px;border-radius:50%;background:#fff;top:3px;transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+    .toggle.on::after{left:26px}
+    .toggle.off::after{left:3px}
+
+    /* ALERTS */
+    .alert{border-radius:var(--r);padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .alert-warn{background:#fef3c7;border-left:4px solid var(--warn)}
+    .alert-err{background:#fee2e2;border-left:4px solid var(--err)}
+    .alert-ok{background:#dcfce7;border-left:4px solid var(--ok)}
+    .alert-info{background:#dbeafe;border-left:4px solid #3b82f6}
+
+    /* RECEIPT */
+    .receipt{font-family:'Courier New',monospace;background:#fff;color:#000;padding:20px;border-radius:10px;border:2px dashed #ccc;margin-bottom:12px;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+    .receipt-title{text-align:center;font-size:14px;font-weight:bold;margin-bottom:2px}
+    .receipt-sub{text-align:center;font-size:10px;margin-bottom:10px;color:#555}
+    .receipt-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #ddd}
+    .receipt-total{display:flex;justify-content:space-between;font-size:13px;font-weight:bold;padding:5px 0;border-top:2px solid #000;margin-top:5px}
+    .receipt-logo{width:60px;height:60px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 8px}
+
+    /* INFO ROWS */
+    .info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+    .info-row:last-child{border-bottom:none}
+    .info-label{color:var(--muted);font-weight:500}
+    .info-value{font-weight:600;text-align:right;max-width:60%}
+
+    /* MISC */
+    .search-box{position:relative;margin-bottom:12px}
+    .search-box input{width:100%;padding:10px 12px 10px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:var(--card);color:var(--text);outline:none}
+    .search-box input:focus{border-color:var(--p)}
+    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .section-title{font-size:14px;font-weight:700}
+    .loading{display:flex;align-items:center;justify-content:center;padding:32px;color:var(--muted);gap:8px}
+    .spinner{width:20px;height:20px;border:3px solid var(--border);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .empty{text-align:center;padding:32px 16px;color:var(--muted)}
+    .empty .emo{font-size:40px;margin-bottom:8px}
+    .detail-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .detail-avatar{width:64px;height:64px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;overflow:hidden;flex-shrink:0}
+    .detail-avatar img{width:100%;height:100%;object-fit:cover}
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:10px 16px;border-radius:10px;font-size:12px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+    .toast.show{opacity:1}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+    .legend-item{display:flex;align-items:center;gap:4px;font-size:10px}
+    .legend-dot{width:10px;height:10px;border-radius:3px}
+    .report-btn{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:var(--r);margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer;border:none;width:100%;color:var(--text);text-align:left}
+    .chart-container{position:relative;height:180px}
+    .theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .theme-opt{border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;border:3px solid transparent;font-size:10px;font-weight:600}
+    .theme-opt.active{border-color:var(--p)}
+    .theme-dot{width:28px;height:28px;border-radius:50%;margin:0 auto 4px}
+    .qr-box{display:flex;justify-content:center;margin:12px 0}
+    .fee-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card);border-radius:var(--r);margin-bottom:8px;box-shadow:var(--shadow)}
+    .inv-count{font-size:22px;font-weight:800;color:var(--p)}
+    .pending-item{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border-radius:var(--r);margin-bottom:8px;box-shadow:var(--shadow)}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  </style>
+</head>
+<body>
+<script>
+(function(){
+var WA="917276124898", DEMO_DAYS=3, KEY="am_lib_demo_v1";
+/* Optional server check (stops a customer restarting the demo by clearing the browser): paste App Mitra Firebase details */
+var SRV={projectId:"",apiKey:""};
+var st=null;try{st=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+var css=document.createElement("style");
+css.textContent="#demoGate{position:fixed;inset:0;z-index:9999;background:#0d1f3c;display:none;align-items:center;justify-content:center;padding:18px;font-family:'Segoe UI',system-ui,sans-serif}#demoGate .b{background:#fff;color:#1a1a2e;border-radius:18px;padding:22px;max-width:380px;width:100%}#demoGate h2{font-size:21px;margin-bottom:6px}#demoGate p{color:#555;font-size:14px;margin-bottom:12px}#demoGate input{width:100%;padding:12px;border:1.5px solid #dfe4ef;border-radius:10px;font-size:15px;margin-bottom:10px}#demoGate button,#demoGate a.bt{display:block;width:100%;border:0;border-radius:10px;padding:13px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;color:#fff;background:#1a3a6b;cursor:pointer}#demoGate a.wa{background:#1faa59}#demoGate .e{color:#dc2626;font-size:13px;min-height:18px;margin-bottom:6px}#demoFloat{position:fixed;right:10px;bottom:84px;z-index:90;display:none;flex-direction:column;align-items:flex-end;gap:6px;font-family:'Segoe UI',system-ui,sans-serif}#demoFloat a{background:#1faa59;color:#fff;text-decoration:none;font-weight:600;font-size:13px;padding:9px 13px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,.25)}#demoFloat span{background:#ff9f1c;color:#14213d;font-size:12px;font-weight:600;padding:5px 10px;border-radius:12px}#demoFloat u{font-size:11px;color:#6b7280;cursor:pointer;background:#fff;padding:3px 8px;border-radius:10px}";
+document.head.appendChild(css);
+var gate=document.createElement("div");gate.id="demoGate";
+var fl=document.createElement("div");fl.id="demoFloat";
+document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(gate);document.body.appendChild(fl);init();});
+function wa(m){return "https://wa.me/"+WA+"?text="+encodeURIComponent(m)}
+function who(){return st?(" (Demo user: "+st.name+", "+st.phone+")"):""}
+function fsUrl(p){return "https://firestore.googleapis.com/v1/projects/"+SRV.projectId+"/databases/(default)/documents/demos"+p}
+function getSrv(phone){
+  if(!SRV.projectId||!SRV.apiKey)return Promise.resolve(null);
+  return Promise.race([fetch(fsUrl("/"+phone+"?key="+SRV.apiKey)).then(function(r){return r.status===200?r.json():null}).then(function(j){return j&&j.fields&&j.fields.start?Number(j.fields.start.integerValue):null}).catch(function(){return null}),new Promise(function(r){setTimeout(function(){r(null)},2500)})]);
+}
+function putSrv(n,p,t){
+  if(!SRV.projectId||!SRV.apiKey)return;
+  fetch(fsUrl("?documentId="+p+"&key="+SRV.apiKey),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:{name:{stringValue:n},phone:{stringValue:p},start:{integerValue:String(t)}}})}).catch(function(){});
+}
+function ask(){
+  gate.innerHTML='<div class="b"><h2>Start your 3-day demo</h2><p>Enter your details to try the Library App with sample data. No payment needed.</p><input id="dgN" placeholder="Your name" autocomplete="name"><input id="dgP" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel"><div class="e" id="dgE"></div><button id="dgB">Start demo</button></div>';
+  gate.style.display="flex";
+  document.getElementById("dgB").onclick=function(){
+    var n=document.getElementById("dgN").value.trim(),p=document.getElementById("dgP").value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    var e=document.getElementById("dgE");
+    if(!n){e.textContent="Please enter your name.";return}
+    if(!/^[6-9]\d{9}$/.test(p)){e.textContent="Enter a valid 10-digit mobile number.";return}
+    this.disabled=true;this.textContent="Starting...";
+    getSrv(p).then(function(prev){var t=prev||Date.now();st={name:n,phone:p,start:t};localStorage.setItem(KEY,JSON.stringify(st));if(!prev)putSrv(n,p,t);init();});
+  };
+}
+function expired(){
+  gate.innerHTML='<div class="b"><h2>Your 3-day demo has ended</h2><p>Thank you for trying the Library App. Take the 1-year license and we will set it up with your library name, logo and data.</p><a class="bt wa" href="'+wa("Hi, my 3-day demo of the Library App has ended. I want to buy the 1-year license."+who())+'">Buy 1-year license on WhatsApp</a></div>';
+  gate.style.display="flex";fl.style.display="none";
+}
+function init(){
+  if(!st||!st.phone){ask();return}
+  var left=st.start+DEMO_DAYS*DAY-Date.now();
+  if(left<=0){expired();return}
+  gate.style.display="none";
+  var d=Math.floor(left/DAY),h=Math.floor(left%DAY/36e5);
+  fl.innerHTML='<span>Demo: '+d+'d '+h+'h left</span><a href="'+wa("Hi, I want to buy the 1-year license of the Library App."+who())+'">Buy license</a><u id="dgR">Reset sample data</u>';
+  fl.style.display="flex";
+  document.getElementById("dgR").onclick=function(){if(confirm("Reset all sample data?")){localStorage.removeItem("am_lib_demo_db_v1");localStorage.removeItem("am_lib_demo_user_v1");location.reload()}};
+  var u=document.getElementById("loginUsername"),p=document.getElementById("loginPassword");
+  if(u&&!u.value){u.value="admin";p.value="demo123"}
+  setTimeout(init,60000);
+}
+var DAY=864e5;
+})();
+</script>
+
+
+<!-- LOGIN PAGE -->
+<div class="login-page" id="loginPage">
+  <img class="login-logo" id="loginLogo" src="" alt="Logo"/>
+  <div class="login-title">Demo Library</div>
+  <div class="login-sub">& Study Circle</div>
+  <div class="login-tabs" id="loginTabs">
+    <div class="login-tab active" onclick="switchLoginTab('staff',this)">馃懆鈥嶐煉� Staff Login</div>
+    <div class="login-tab" onclick="switchLoginTab('student',this)">馃帗 Student</div>
+  </div>
+  <div class="login-card" id="staffLoginCard">
+    <div class="form-group"><label class="form-label" style="color:#1a1a2e">Username</label><input type="text" class="form-control" id="loginUsername" placeholder="Enter username" style="color:#1a1a2e"/></div>
+    <div class="form-group"><label class="form-label" style="color:#1a1a2e">Password</label><input type="password" class="form-control" id="loginPassword" placeholder="Enter password" style="color:#1a1a2e"/></div>
+    <button class="btn btn-p" onclick="handleLogin()">Login</button>
+    <div style="text-align:center;margin-top:8px;font-size:12px;color:#dc2626" id="loginError"></div>
+    <div style="text-align:center;margin-top:10px;font-size:12px;color:#555">Demo login: <b>admin</b> / <b>demo123</b></div>
+  </div>
+  <div class="login-card" id="studentLoginCard" style="display:none">
+    <div style="text-align:center;font-size:13px;color:#555;margin-bottom:14px">New to Demo Library?<br>Fill the form to apply for admission!</div>
+    <button class="btn btn-p" onclick="openStudentRegistration()">馃摑 Apply for Admission</button>
+    <div style="text-align:center;margin-top:10px;font-size:11px;color:#888">Your application will be reviewed by admin</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none">
+  <div class="topbar">
+    <img class="topbar-logo" id="topbarLogo" src="" alt="Logo"/>
+    <div class="topbar-info">
+      <div class="topbar-title">Demo Library</div>
+      <div class="topbar-sub" id="topbarSub">Loading...</div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="openModal('themeModal')">馃帹</button>
+      <button class="icon-btn" onclick="openModal('qrModal')">馃摫</button>
+      <div class="user-badge" id="userBadge" onclick="handleLogout()">?</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div id="expiryAlerts"></div>
+    <div id="pendingApprovalAlert"></div>
+    <div class="stats-grid">
+      <div class="stat-card" onclick="showStatDetail('occupied')" style="cursor:pointer">
+        <div class="stat-icon">馃獞</div><div class="stat-value" id="statOcc">-</div>
+        <div class="stat-label">Occupied Seats</div><div style="font-size:9px;color:var(--p);margin-top:2px">tap to view 鈥�</div>
+      </div>
+      <div class="stat-card" onclick="showStatDetail('vacant')" style="cursor:pointer">
+        <div class="stat-icon">鉁�</div><div class="stat-value" id="statVac">-</div>
+        <div class="stat-label">Vacant Seats</div><div style="font-size:9px;color:var(--p);margin-top:2px">tap to view 鈥�</div>
+      </div>
+      <div class="stat-card" onclick="showStatDetail('students')" style="cursor:pointer">
+        <div class="stat-icon">馃懃</div><div class="stat-value" id="statStu">-</div>
+        <div class="stat-label">Total Students</div><div style="font-size:9px;color:var(--p);margin-top:2px">tap to view 鈥�</div>
+      </div>
+      <div class="stat-card" onclick="showStatDetail('collected')" style="cursor:pointer">
+        <div class="stat-icon">馃挵</div><div class="stat-value" id="statRev">-</div>
+        <div class="stat-label">This Month (鈧�)</div><div style="font-size:9px;color:var(--p);margin-top:2px">tap to view 鈥�</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Fee Status</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px;cursor:pointer" onclick="showStatDetail('paid')">
+          <div style="width:9px;height:9px;border-radius:50%;background:var(--ok)"></div>
+          <span style="font-size:11px;color:var(--ok);font-weight:700"><span id="statPaid">0</span> Paid 鈥�</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;cursor:pointer" onclick="showStatDetail('due')">
+          <div style="width:9px;height:9px;border-radius:50%;background:var(--err)"></div>
+          <span style="font-size:11px;color:var(--err);font-weight:700"><span id="statDue">0</span> Due 鈥�</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;cursor:pointer" onclick="showStatDetail('expiring')">
+          <div style="width:9px;height:9px;border-radius:50%;background:var(--warn)"></div>
+          <span style="font-size:11px;color:var(--warn);font-weight:700"><span id="statExp">0</span> Expiring 鈥�</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;cursor:pointer" onclick="showStatDetail('expired')">
+          <div style="width:9px;height:9px;border-radius:50%;background:#757575"></div>
+          <span style="font-size:11px;color:#757575;font-weight:700"><span id="statExpired">0</span> Expired 鈥�</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Income Chart (Last 6 Months)</div>
+      <div class="chart-container"><canvas id="incomeChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Seat Map</div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--p)"></div>Full</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--a)"></div>Morning</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#7b1fa2"></div>Evening</div>
+        <div class="legend-item"><div class="legend-dot" style="background:linear-gradient(135deg,var(--a) 50%,#7b1fa2 50%)"></div>Both</div>
+      </div>
+      <div class="legend" style="margin-top:4px">
+        <div class="legend-item"><div class="legend-dot" style="background:#e3f2fd;border:1px solid #90caf9"></div>Diamond</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f3e5f5;border:1px solid #ce93d8"></div>Achiever</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff8e1;border:1px solid #ffcc02"></div>Gold</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e0f2f1;border:1px solid #80cbc4"></div>Platinum</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fce4ec;border:1px solid #f48fb1"></div>Vision</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#e0f2fe;border:1px solid #7dd3fc"></div>Unreserved</div>
+      </div>
+      <div style="width:100%;overflow:hidden">
+        <div class="seat-section">
+          <div class="seat-section-title hall-title-diamond">馃拵 Diamond Hall (1鈥�45)</div>
+          <div class="seat-map hall-diamond" id="seatMapDiamond"></div>
+        </div>
+        <div class="seat-section">
+          <div class="seat-section-title hall-title-achiever">馃弳 Achiever Hall (46鈥�73)</div>
+          <div class="seat-map hall-achiever" id="seatMapAchiever"></div>
+        </div>
+        <div class="seat-section">
+          <div class="seat-section-title hall-title-gold">馃 Gold Hall (74鈥�83)</div>
+          <div class="seat-map hall-gold" id="seatMapGold"></div>
+        </div>
+        <div class="seat-section">
+          <div class="seat-section-title hall-title-platinum">馃挔 Platinum Hall (G1鈥揋24)</div>
+          <div class="seat-map-g hall-platinum" id="seatMapPlatinum"></div>
+        </div>
+        <div class="seat-section">
+          <div class="seat-section-title hall-title-vision">馃憗锔� Vision Hall (G25鈥揋45)</div>
+          <div class="seat-map-g hall-vision" id="seatMapVision"></div>
+        </div>
+        <div class="seat-section">
+          <div class="seat-section-title hall-title-unreserved">馃攧 Unreserved Hall (Floating)</div>
+          <div class="seat-map hall-unreserved" id="seatMapUnreserved"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDENTS -->
+  <div class="page" id="page-students">
+    <div class="search-box"><div class="search-icon">馃攳</div><input type="text" placeholder="Search name, seat, phone..." id="stuSearch" oninput="filterStudents()"/></div>
+    <div class="section-header">
+      <div class="section-title">Students</div>
+      <button class="btn btn-a btn-sm" onclick="openAddStudent()">+ Add</button>
+    </div>
+    <div id="studentList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+  </div>
+
+  <!-- PENDING APPROVALS -->
+  <div class="page" id="page-pending">
+    <div class="section-header">
+      <div class="section-title">鈴� Pending Approvals</div>
+      <button class="btn btn-p btn-sm" onclick="loadPending()">馃攧 Refresh</button>
+    </div>
+    <div id="pendingList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div class="page" id="page-attendance">
+    <div class="card">
+      <div class="card-title">Select Date</div>
+      <input type="date" class="form-control" id="attDate" onchange="loadAttendance()"/>
+    </div>
+    <div class="section-header">
+      <div class="section-title">Attendance 鈥� <span id="presentCount">0</span> Present</div>
+      <div style="display:flex;gap:5px">
+        <button class="btn btn-ok btn-sm" onclick="markAllPresent()">All 鉁�</button>
+        <button class="btn btn-p btn-sm" onclick="saveAttendance()">Save</button>
+      </div>
+    </div>
+    <div id="attList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+  </div>
+
+  <!-- FEES -->
+  <div class="page" id="page-fees">
+    <div class="card">
+      <div class="two-col">
+        <select class="form-control" id="feeFilter" onchange="filterFees()">
+          <option value="all">All Students</option>
+          <option value="due">Fee Due</option>
+          <option value="paid">Fee Paid</option>
+          <option value="expiring">Expiring (3 days)</option>
+        </select>
+        <select class="form-control" id="feeMonth" onchange="filterFees()">
+          <option value="">All Months</option>
+        </select>
+      </div>
+    </div>
+    <div id="feeList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="page" id="page-reports">
+    <div class="card">
+      <div class="card-title">馃搮 Select Month for Reports</div>
+      <input type="month" class="form-control" id="reportMonth"/>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Leave empty for all-time report</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Outstanding Dues</div>
+      <div id="duesList"></div>
+    </div>
+    <div class="section-title" style="margin-bottom:10px">馃摜 Month-wise Reports</div>
+    <button class="report-btn" onclick="dlReport('students')">
+      <span style="font-size:24px">馃懃</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Students Report</div>
+        <div style="font-size:11px;color:var(--muted)">Students joined in selected month</div>
+      </div>
+    </button>
+    <button class="report-btn" onclick="dlReport('fees')">
+      <span style="font-size:24px">馃挵</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Fee Collection Report</div>
+        <div style="font-size:11px;color:var(--muted)">Fees paid in selected month</div>
+      </div>
+    </button>
+    <button class="report-btn" onclick="dlReport('expenses')">
+      <span style="font-size:24px">馃Ь</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Expenses Report</div>
+        <div style="font-size:11px;color:var(--muted)">Expenses in selected month</div>
+      </div>
+    </button>
+    <button class="report-btn" onclick="dlReport('income')">
+      <span style="font-size:24px">馃搳</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Income vs Expense</div>
+        <div style="font-size:11px;color:var(--muted)">Net profit for selected month</div>
+      </div>
+    </button>
+    <button class="report-btn" onclick="dlReport('dues')">
+      <span style="font-size:24px">鈿狅笍</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Outstanding Dues</div>
+        <div style="font-size:11px;color:var(--muted)">Students with pending fees</div>
+      </div>
+    </button>
+    <button class="report-btn" onclick="dlReport('attendance')">
+      <span style="font-size:24px">馃搵</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Attendance Report</div>
+        <div style="font-size:11px;color:var(--muted)">Today's attendance</div>
+      </div>
+    </button>
+    <button class="report-btn" onclick="dlReport('inventory')">
+      <span style="font-size:24px">馃摝</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">Inventory Report</div>
+        <div style="font-size:11px;color:var(--muted)">Equipment status</div>
+      </div>
+    </button>
+
+    <!-- EXPENSES ENTRY -->
+    <div style="margin-top:14px">
+      <div class="section-header">
+        <div class="section-title">馃捀 Add Expense</div>
+        <button class="btn btn-err btn-sm" onclick="deleteOldExpenses()">馃棏锔� Delete Old</button>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-control" id="expCat">
+            <option value="WiFi">WiFi</option>
+            <option value="Newspaper">Newspaper</option>
+            <option value="Library Rent">Library Rent</option>
+            <option value="Electricity">Electricity Bill</option>
+            <option value="Caretaker">Caretaker Salary</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Amount (鈧�)</label><input type="number" class="form-control" id="expAmount" placeholder="Enter amount"/></div>
+        <div class="form-group"><label class="form-label">Date</label><input type="date" class="form-control" id="expDate"/></div>
+        <div class="form-group"><label class="form-label">Note</label><input type="text" class="form-control" id="expNote" placeholder="Optional note"/></div>
+        <button class="btn btn-p" onclick="saveExpense()">Save Expense</button>
+      </div>
+      <div class="section-header" style="margin-top:8px"><div class="section-title">Recent Expenses</div></div>
+      <div id="expList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- MORE -->
+  <div class="page" id="page-more">
+    <div class="section-header"><div class="section-title">馃摝 Inventory</div><button class="btn btn-a btn-sm" onclick="openAddInv()">+ Add</button></div>
+    <div id="invList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+    <div style="margin-top:14px">
+      <div class="section-header"><div class="section-title">馃懃 Staff</div><button class="btn btn-a btn-sm" onclick="openAddStaff()">+ Add</button></div>
+      <div id="staffList"><div class="loading"><div class="spinner"></div> Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="switchPage('dashboard',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Home</button>
+    <button class="nav-item" onclick="switchPage('students',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Students</button>
+    <button class="nav-item" onclick="switchPage('pending',this);loadPending()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Pending</button>
+    <button class="nav-item" onclick="switchPage('attendance',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Attend</button>
+    <button class="nav-item" onclick="switchPage('fees',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Fees</button>
+    <button class="nav-item" onclick="switchPage('reports',this);loadExpenses()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Reports</button>
+    <button class="nav-item" onclick="switchPage('more',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>More</button>
+  </div>
+</div>
+
+<!-- STUDENT REGISTRATION MODAL (Public) -->
+<div class="modal-overlay" id="stuRegModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">馃摑 Apply for Admission</div>
+    <div class="photo-wrap">
+      <div class="photo-upload" id="regPhotoDiv" onclick="triggerCamera('gallery')">
+        <span style="font-size:22px">馃柤锔�</span><span>Gallery</span>
+        <input type="file" id="regPhotoGallery" accept="image/*" style="display:none" onchange="handleRegPhoto(event,'gallery')"/>
+      </div>
+      <div class="photo-upload" onclick="triggerCamera('camera')">
+        <span style="font-size:22px">馃摲</span><span>Camera</span>
+        <input type="file" id="regPhotoCamera" accept="image/*" capture="user" style="display:none" onchange="handleRegPhoto(event,'camera')"/>
+      </div>
+    </div>
+    <div id="regPhotoPreview" style="display:none;text-align:center;margin-bottom:10px">
+      <img id="regPhotoImg" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--p)"/>
+    </div>
+    <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-control" id="regName" placeholder="Your full name"/></div>
+    <div class="form-group"><label class="form-label">Phone Number *</label><input type="tel" class="form-control" id="regPhone" placeholder="10-digit number" maxlength="10"/></div>
+    <div class="form-group"><label class="form-label">Alternate Phone</label><input type="tel" class="form-control" id="regAltPhone" placeholder="Alternate mobile (optional)" maxlength="10"/></div>
+    <div class="form-group"><label class="form-label">Address *</label><input type="text" class="form-control" id="regAddress" placeholder="Your full address"/></div>
+    <div class="form-group">
+      <label class="form-label">Preferred Slot *</label>
+      <select class="form-control" id="regSlot">
+        <option value="">Select slot</option>
+        <option value="full">Full Time (7AM鈥�11PM) 鈥� Admin will set fee</option>
+        <option value="morning">Morning Half (7AM鈥�2PM) 鈥� Admin will set fee</option>
+        <option value="evening">Evening Half (2PM鈥�11PM) 鈥� Admin will set fee</option>
+        <option value="unreserved">Unreserved (No Fixed Seat) 鈥� Admin will set fee</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ID Proof Type *</label>
+      <select class="form-control" id="regIdType">
+        <option value="">Select ID</option>
+        <option value="Aadhar">Aadhar Card</option>
+        <option value="PAN">PAN Card</option>
+        <option value="Voter">Voter ID</option>
+        <option value="Driving">Driving License</option>
+        <option value="Passport">Passport</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">ID Number *</label><input type="text" class="form-control" id="regIdNum" placeholder="ID document number"/></div>
+    <div class="form-group"><label class="form-label">Purpose / Goal</label><input type="text" class="form-control" id="regPurpose" placeholder="e.g. UPSC preparation, study"/></div>
+    <button class="btn btn-p" onclick="submitRegistration()">Submit Application</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('stuRegModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD/EDIT STUDENT MODAL (Admin) -->
+<div class="modal-overlay" id="addStudentModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="addStuTitle">Add New Student</div>
+    <div class="photo-wrap">
+      <div class="photo-upload" id="stuPhotoDiv" onclick="document.getElementById('stuPhotoGallery').click()">
+        <span style="font-size:22px">馃柤锔�</span><span style="font-size:9px">Gallery</span>
+        <input type="file" id="stuPhotoGallery" accept="image/*" style="display:none" onchange="handleStuPhoto(event)"/>
+      </div>
+      <div class="photo-upload" onclick="document.getElementById('stuPhotoCamera').click()">
+        <span style="font-size:22px">馃摲</span><span style="font-size:9px">Camera</span>
+        <input type="file" id="stuPhotoCamera" accept="image/*" capture="user" style="display:none" onchange="handleStuPhoto(event)"/>
+      </div>
+    </div>
+    <div id="stuPhotoPreview" style="display:none;text-align:center;margin-bottom:10px">
+      <img id="stuPhotoImg" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--p)"/>
+    </div>
+    <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-control" id="stuName" placeholder="Full name"/></div>
+    <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-control" id="stuPhone" placeholder="10-digit" maxlength="10"/></div>
+    <div class="form-group"><label class="form-label">Alternate Phone</label><input type="tel" class="form-control" id="stuAltPhone" placeholder="Alternate mobile (optional)" maxlength="10"/></div>
+    <div class="form-group"><label class="form-label">Address</label><input type="text" class="form-control" id="stuAddress" placeholder="Address"/></div>
+    <div class="form-group">
+      <label class="form-label">Slot Type *</label>
+      <select class="form-control" id="stuSlot" onchange="onSlotChange()">
+        <option value="">Select slot first</option>
+        <option value="full">Full Time (7AM鈥�11PM)</option>
+        <option value="morning">Morning Half (7AM鈥�2PM)</option>
+        <option value="evening">Evening Half (2PM鈥�11PM)</option>
+        <option value="unreserved">Unreserved (No Fixed Seat)</option>
+      </select>
+    </div>
+    <div class="form-group" id="stuSeatGroup">
+      <label class="form-label">Seat Number *</label>
+      <select class="form-control" id="stuSeat">
+        <option value="">Select seat</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Monthly Fee (鈧�) *</label><input type="number" class="form-control" id="stuFee" placeholder="Enter fee amount"/></div>
+    <div class="form-group"><label class="form-label">Admission From *</label><input type="date" class="form-control" id="stuFrom"/></div>
+    <div class="form-group"><label class="form-label">Admission To *</label><input type="date" class="form-control" id="stuTo"/></div>
+    <div class="form-group"><label class="form-label">ID Proof Type</label>
+      <select class="form-control" id="stuIdType">
+        <option value="">Select ID</option>
+        <option value="Aadhar">Aadhar Card</option>
+        <option value="PAN">PAN Card</option>
+        <option value="Voter">Voter ID</option>
+        <option value="Driving">Driving License</option>
+        <option value="Passport">Passport</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">ID Number</label><input type="text" class="form-control" id="stuIdNum" placeholder="ID number"/></div>
+    <button class="btn btn-p" onclick="saveStudent()" id="saveStuBtn">Save Student</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('addStudentModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- STUDENT DETAIL MODAL -->
+<div class="modal-overlay" id="stuDetailModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="detail-header">
+      <div class="detail-avatar" id="detailAvatar">?</div>
+      <div><div style="font-size:17px;font-weight:800" id="detailName">-</div><div style="font-size:11px;color:var(--muted)" id="detailSeat">-</div></div>
+    </div>
+    <div class="card" style="margin-bottom:10px"><div id="detailInfo"></div></div>
+    <div class="detail-actions">
+      <button class="btn btn-ok btn-sm" onclick="markFeePaid()">鉁� Fee Paid</button>
+      <button class="btn btn-err btn-sm" onclick="markFeeUnpaid()">鈫╋笍 Mark Unpaid</button>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-wa btn-sm" onclick="sendWA()">馃敂 Reminder</button>
+      <button class="btn btn-a btn-sm" onclick="showReceipt()">馃Ь Receipt</button>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-err btn-sm" onclick="sendFinalReminder()" style="background:#b91c1c">馃毃 Final Reminder</button>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-out btn-sm" onclick="editStudent()">鉁忥笍 Edit</button>
+
+    </div>
+    <button class="btn btn-err btn-sm" onclick="deleteStudent()" style="margin-bottom:8px">馃棏锔� Delete Student</button>
+    <button class="btn btn-out" onclick="closeModal('stuDetailModal')">Close</button>
+  </div>
+</div>
+
+<!-- APPROVAL MODAL -->
+<div class="modal-overlay" id="approvalModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">馃搵 Approve Application</div>
+    <div class="card" style="margin-bottom:10px"><div id="approvalInfo"></div></div>
+    <div class="form-group" id="approvalSeatGroup">
+      <label class="form-label">Allot Seat Number *</label>
+      <select class="form-control" id="approvalSeat"><option value="">Select available seat</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Monthly Fee (鈧�) *</label><input type="number" class="form-control" id="approvalFee" placeholder="Enter fee amount"/></div>
+    <div class="form-group"><label class="form-label">Admission From *</label><input type="date" class="form-control" id="approvalFrom"/></div>
+    <div class="form-group"><label class="form-label">Admission To *</label><input type="date" class="form-control" id="approvalTo"/></div>
+    <button class="btn btn-ok" onclick="approveApplication()">鉁� Approve & Send WhatsApp</button>
+    <button class="btn btn-err" style="margin-top:8px" onclick="rejectApplication()">鉂� Reject Application</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('approvalModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receiptModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">馃Ь Fee Receipt</div>
+    <div class="receipt" id="receiptContent"></div>
+    <button class="btn btn-p" onclick="dlReceipt()">猬囷笍 Step 1: Download Receipt PNG</button>
+    <button class="btn btn-wa" style="margin-top:8px" onclick="sendReceiptWA()">馃挰 Step 2: Send via WhatsApp</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('receiptModal')">Close</button>
+  </div>
+</div>
+
+<!-- STUDENT QR MODAL -->
+<div class="modal-overlay" id="stuQRModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">馃搵 Student ID Card QR</div>
+    <div class="qr-box" id="stuQRBox"></div>
+    <div id="stuQRInfo" style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:12px"></div>
+    <button class="btn btn-out" onclick="closeModal('stuQRModal')">Close</button>
+  </div>
+</div>
+
+<!-- APP QR MODAL -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">馃摫 Share App</div>
+    <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px">Scan to open Demo Library app</div>
+    <div class="qr-box" id="appQRBox"></div>
+    <div style="text-align:center;margin:10px 0">
+      <div style="font-size:12px;color:var(--muted)">App Link:</div>
+      <div style="font-size:11px;color:var(--p);word-break:break-all" id="appLinkText"></div>
+    </div>
+    <button class="btn btn-wa" onclick="shareAppLink()">馃挰 Share App Link</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('qrModal')">Close</button>
+  </div>
+</div>
+
+<!-- EXPIRE CONFIRM MODAL -->
+<div class="modal-overlay" id="expireModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">鈿狅笍 Admission Expired</div>
+    <div id="expireInfo" style="margin-bottom:14px;font-size:13px;color:var(--muted)"></div>
+    <button class="btn btn-err" onclick="vacateSeat()">馃棏锔� Vacate Seat & Delete</button>
+    <button class="btn btn-warn" style="margin-top:8px" onclick="extendAdmission()">鈴� Extend Admission</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('expireModal')">Keep for Now</button>
+  </div>
+</div>
+
+<!-- ADD STAFF MODAL -->
+<div class="modal-overlay" id="addStaffModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Staff Login</div>
+    <div class="form-group"><label class="form-label">Name *</label><input type="text" class="form-control" id="sfName" placeholder="Staff name"/></div>
+    <div class="form-group"><label class="form-label">Username *</label><input type="text" class="form-control" id="sfUsername" placeholder="Login username"/></div>
+    <div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-control" id="sfEmail" placeholder="Email"/></div>
+    <div class="form-group"><label class="form-label">Password *</label><input type="password" class="form-control" id="sfPassword" placeholder="Min 6 characters"/></div>
+    <div class="form-group"><label class="form-label">Role</label>
+      <select class="form-control" id="sfRole"><option value="staff">Staff</option><option value="admin">Admin</option></select>
+    </div>
+    <button class="btn btn-p" onclick="saveStaff()">Add Staff</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('addStaffModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD INVENTORY MODAL -->
+<div class="modal-overlay" id="addInvModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="invModalTitle">Add Inventory Item</div>
+    <div class="form-group"><label class="form-label">Item Name *</label><input type="text" class="form-control" id="invName" placeholder="e.g. Chair, Fan"/></div>
+    <div class="form-group"><label class="form-label">Quantity *</label><input type="number" class="form-control" id="invQty" placeholder="e.g. 10" min="0"/></div>
+    <div class="form-group"><label class="form-label">Condition</label>
+      <select class="form-control" id="invCond"><option value="Good">Good</option><option value="Fair">Fair</option><option value="Poor">Poor (Needs repair)</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><input type="text" class="form-control" id="invNotes" placeholder="Optional notes"/></div>
+    <button class="btn btn-p" onclick="saveInv()" id="saveInvBtn">Save Item</button>
+    <button class="btn btn-out" style="margin-top:8px" onclick="closeModal('addInvModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- THEME MODAL -->
+<div class="modal-overlay" id="themeModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">馃帹 Choose Theme</div>
+    <div class="theme-grid">
+      <div class="theme-opt active" id="theme-navy" onclick="setTheme('navy')"><div class="theme-dot" style="background:linear-gradient(135deg,#1a3a6b,#e65c00)"></div>Navy</div>
+      <div class="theme-opt" id="theme-green" onclick="setTheme('green')"><div class="theme-dot" style="background:linear-gradient(135deg,#1b5e20,#f9a825)"></div>Green</div>
+      <div class="theme-opt" id="theme-purple" onclick="setTheme('purple')"><div class="theme-dot" style="background:linear-gradient(135deg,#4a148c,#e65100)"></div>Purple</div>
+      <div class="theme-opt" id="theme-dark" onclick="setTheme('dark')"><div class="theme-dot" style="background:linear-gradient(135deg,#b71c1c,#ff6f00)"></div>Dark</div>
+    </div>
+    <button class="btn btn-out" style="margin-top:12px" onclick="closeModal('themeModal')">Done</button>
+  </div>
+</div>
+
+<!-- STAT DETAIL MODAL -->
+<div class="modal-overlay" id="statDetailModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="statDetailTitle">Details</div>
+    <div id="statDetailContent" style="max-height:60vh;overflow-y:auto"></div>
+    <button class="btn btn-out" style="margin-top:10px" onclick="closeModal('statDetailModal')">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// All non-module functions accessible from HTML onclick
+function switchLoginTab(tab, el) {
+  document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('staffLoginCard').style.display = tab === 'staff' ? 'block' : 'none';
+  document.getElementById('studentLoginCard').style.display = tab === 'student' ? 'block' : 'none';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function switchPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  el.classList.add('active');
+  if (page === 'fees' && window._filterFees) window._filterFees();
+  if (page === 'attendance' && window._loadAttendance) window._loadAttendance();
+  if (page === 'reports' && window._loadReports) window._loadReports();
+  if (page === 'pending' && window._loadPending) window._loadPending();
+}
+function setTheme(theme) {
+  document.body.className = theme === 'navy' ? '' : 'theme-' + theme;
+  localStorage.setItem('gl-theme', theme);
+  document.querySelectorAll('.theme-opt').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('theme-' + theme);
+  if (el) el.classList.add('active');
+  if (window._redrawChart) window._redrawChart();
+}
+// Proxy functions 鈥� delegate to module functions via window.*
+function handleLogin() { if(window._handleLogin) window._handleLogin(); }
+function handleLogout() { if(window._handleLogout) window._handleLogout(); }
+function openStudentRegistration() { if(window._openStudentRegistration) window._openStudentRegistration(); }
+function submitRegistration() { if(window._submitRegistration) window._submitRegistration(); }
+function triggerCamera(t) { if(window._triggerCamera) window._triggerCamera(t); }
+function handleRegPhoto(e,t) { if(window._handleRegPhoto) window._handleRegPhoto(e,t); }
+function openAddStudent() { if(window._openAddStudent) window._openAddStudent(); }
+function saveStudent() { if(window._saveStudent) window._saveStudent(); }
+function handleStuPhoto(e) { if(window._handleStuPhoto) window._handleStuPhoto(e); }
+function onSlotChange() { if(window._onSlotChange) window._onSlotChange(); }
+function filterStudents() { if(window._filterStudents) window._filterStudents(); }
+function openStuDetail(id) { if(window._openStuDetail) window._openStuDetail(id); }
+function markFeePaid() { if(window._markFeePaid) window._markFeePaid(); }
+function markFeeUnpaid() { if(window._markFeeUnpaid) window._markFeeUnpaid(); }
+function sendWA() { if(window._sendWA) window._sendWA(); }
+function sendFinalReminder() { if(window._sendFinalReminder) window._sendFinalReminder(); }
+function sendWADirect(p,n,f,s) { if(window._sendWADirect) window._sendWADirect(p,n,f,s); }
+function showReceipt() { if(window._showReceipt) window._showReceipt(); }
+function sendReceiptWA() { if(window._sendReceiptWA) window._sendReceiptWA(); }
+function dlReceipt() { if(window._dlReceipt) window._dlReceipt(); }
+function dlReceiptPNG() { if(window._dlReceiptPNG) window._dlReceiptPNG(); }
+function dlReceiptPNGAndWA() { if(window._dlReceiptPNGAndWA) window._dlReceiptPNGAndWA(); }
+function shareReceiptPNG() { if(window._sendReceiptWA) window._sendReceiptWA(); }
+function editStudent() { if(window._editStudent) window._editStudent(); }
+function deleteStudent() { if(window._deleteStudent) window._deleteStudent(); }
+function showStudentQR() { if(window._showStudentQR) window._showStudentQR(); }
+function shareAppLink() { if(window._shareAppLink) window._shareAppLink(); }
+function loadPending() { if(window._loadPending) window._loadPending(); }
+function openApproval(id) { if(window._openApproval) window._openApproval(id); }
+function approveApplication() { if(window._approveApplication) window._approveApplication(); }
+function rejectApplication() { if(window._rejectApplication) window._rejectApplication(); }
+function loadAttendance() { if(window._loadAttendance) window._loadAttendance(); }
+function toggleAtt(id) { if(window._toggleAtt) window._toggleAtt(id); }
+function markAllPresent() { if(window._markAllPresent) window._markAllPresent(); }
+function saveAttendance() { if(window._saveAttendance) window._saveAttendance(); }
+function filterFees() { if(window._filterFees) window._filterFees(); }
+function quickPay(id) { if(window._quickPay) window._quickPay(id); }
+function saveExpense() { if(window._saveExpense) window._saveExpense(); }
+function delExpense(id) { if(window._delExpense) window._delExpense(id); }
+function deleteOldExpenses() { if(window._deleteOldExpenses) window._deleteOldExpenses(); }
+function dlReport(t) { if(window._dlReport) window._dlReport(t); }
+function openAddInv() { if(window._openAddInv) window._openAddInv(); }
+function editInv(id) { if(window._editInv) window._editInv(id); }
+function saveInv() { if(window._saveInv) window._saveInv(); }
+function delInv(id) { if(window._delInv) window._delInv(id); }
+function openAddStaff() { if(window._openAddStaff) window._openAddStaff(); }
+function saveStaff() { if(window._saveStaff) window._saveStaff(); }
+function seatClick(n,p) { if(window._seatClick) window._seatClick(n,p); }
+function vacateSeat() { if(window._vacateSeat) window._vacateSeat(); }
+function extendAdmission() { if(window._extendAdmission) window._extendAdmission(); }
+function showStatDetail(type) { if(window._showStatDetail) window._showStatDetail(type); }
+</script>
+
+<script type="module">
+// ===== DEMO MODE: local sample database (no real data, no Firebase) =====
+const DB_KEY='am_lib_demo_db_v1', USER_KEY='am_lib_demo_user_v1';
+const DAY=864e5, pad=n=>String(n).padStart(2,'0');
+const dmy=d=>pad(d.getDate())+'-'+pad(d.getMonth()+1)+'-'+d.getFullYear();
+const isoD=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const addD=n=>new Date(Date.now()+n*DAY);
+const rid=()=>'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const clone=o=>JSON.parse(JSON.stringify(o));
+function seed(){
+  const S={staff:{},students:{},payments:{},expenses:{},inventory:{},attendance:{},applications:{},_auth:{}};
+  const now=new Date().toISOString();
+  S.staff.u_admin={name:'Demo Admin',username:'admin',email:'admin@demo.app',role:'Admin',createdAt:now};
+  S.staff.u_staff={name:'Demo Staff',username:'staff',email:'staff@demo.app',role:'Staff',createdAt:now};
+  S._auth['admin@demo.app']={uid:'u_admin',pw:'demo123'};
+  S._auth['staff@demo.app']={uid:'u_staff',pw:'demo123'};
+  const names=['Rahul Patil','Sneha Deshmukh','Amit Wankhede','Pooja Meshram','Rohit Bhoyar','Neha Ingole','Kunal Raut','Priya Thakre','Sachin Gawande','Komal Borkar','Vikas Dhoke','Ankita Moon','Nikhil Sonkusare','Shweta Kale','Gaurav Lanjewar','Rutuja Nimje','Mayur Khobragade','Divya Bagde','Harshal Dongre','Sakshi Pande','Tushar Zade','Mansi Wasnik','Yash Kawle','Ritika Shende'];
+  const seats=[[1,''],[2,''],[3,''],[4,''],[5,''],[6,''],[7,''],[8,''],[46,''],[47,''],[48,''],[49,''],[74,''],[75,''],[76,''],[1,'G'],[2,'G'],[3,'G'],[25,'G'],[26,'G'],[27,'G'],['',''],['',''],['','']];
+  const slots=['full','morning','evening','full','full','evening','morning','full'];
+  const fees={full:1200,morning:800,evening:800,unreserved:600};
+  const exp=[25,18,12,2,28,9,22,3,15,26,7,20];
+  names.forEach((n,i)=>{
+    const id='s'+(i+1), unres=(seats[i][0]===''), slot=unres?'unreserved':slots[i%slots.length];
+    const admTo=addD(exp[i%exp.length]), admFrom=new Date(admTo.getTime()-30*DAY);
+    const paid=(i%3!==0);
+    S.students[id]={name:n,phone:'98765'+String(10000+i*37),altPhone:'',seat:seats[i][0],seatPrefix:seats[i][1],slot,fee:fees[slot],
+      admFrom:dmy(admFrom),admTo:dmy(admTo),address:'Sample Nagar, Nagpur',idType:'Aadhar Card',idNumber:'XXXX XXXX '+String(1000+i),
+      photoUrl:'',feeStatus:paid?'paid':'due',createdAt:addD(-120+i*3).toISOString(),updatedAt:now};
+    if(paid){for(let m=0;m<4;m++){const pd=addD(-30*m-(i%9)-1);
+      S.payments['p'+id+'_'+m]={studentId:id,studentName:n,seat:unres?'Unreserved':seats[i][1]+seats[i][0],fee:fees[slot],paidDate:dmy(pd),
+        admFrom:dmy(new Date(pd.getTime())),admTo:dmy(new Date(pd.getTime()+30*DAY)),slot};}}
+    if(i%5!==4){S.attendance[isoD(new Date())+'_'+id]={studentId:id,date:isoD(new Date()),present:true};}
+  });
+  [['WiFi',900,-5,'Monthly broadband'],['Newspaper',450,-9,'Newspapers and magazines'],['Library Rent',15000,-2,'Monthly rent'],['Electricity Bill',3200,-12,'Electricity'],['Caretaker Salary',8000,-3,'Caretaker'],['Other',650,-15,'Cleaning supplies'],['WiFi',900,-35,'Monthly broadband'],['Library Rent',15000,-32,'Monthly rent']].forEach((e,i)=>{
+    S.expenses['e'+i]={cat:e[0],amount:e[1],date:dmy(addD(e[2])),note:e[3],createdAt:now};});
+  [['Study Chair',90,'Good','Across all halls'],['Study Table',45,'Good',''],['Ceiling Fan',12,'Fair','Two fans need service'],['Water Cooler',2,'Good',''],['Locker',30,'Good','']].forEach((x,i)=>{
+    S.inventory['i'+i]={name:x[0],qty:x[1],condition:x[2],notes:x[3]};});
+  [['Aniket Rathod','Evening','Competitive exams'],['Pallavi Meshram','full','UPSC preparation']].forEach((a,i)=>{
+    S.applications['a'+i]={name:a[0],phone:'9822'+String(300100+i*17),altPhone:'',address:'Sample Colony, Nagpur',slot:a[1].toLowerCase()==='evening'?'evening':'full',idType:'Aadhar Card',idNumber:'XXXX XXXX 55'+i+'0',purpose:a[2],photoUrl:'',status:'pending',submittedAt:now};});
+  return S;
+}
+let store=null;
+try{store=JSON.parse(localStorage.getItem(DB_KEY)||'null');}catch(e){}
+if(!store||!store.students){store=seed();}
+function persist(){try{localStorage.setItem(DB_KEY,JSON.stringify(store));}catch(e){}}
+persist();
+function initializeApp(){return {};}
+function getFirestore(){return {kind:'db'};}
+function collection(db,name){return {__col:name};}
+function doc(a,b,c){ if(a&&a.__col) return {col:a.__col,id:rid()}; return {col:b,id:c}; }
+function where(f,op,v){return {__w:[f,op,v]};}
+function orderBy(){return {__o:true};}
+function query(c,...cs){return {__col:c.__col,ws:cs.filter(x=>x&&x.__w).map(x=>x.__w)};}
+function snapOf(arr){const docs=arr.map(([id,d])=>({id,exists:()=>true,data:()=>clone(d)}));return {docs,empty:docs.length===0,size:docs.length,forEach:f=>docs.forEach(f)};}
+async function getDocs(q){
+  const col=store[q.__col]||{};
+  let rows=Object.entries(col);
+  (q.ws||[]).forEach(([f,op,v])=>{rows=rows.filter(([id,d])=>d[f]===v);});
+  return snapOf(rows);
+}
+async function getDoc(r){const d=(store[r.col]||{})[r.id];return {id:r.id,exists:()=>!!d,data:()=>d?clone(d):undefined};}
+async function setDoc(r,d){store[r.col]=store[r.col]||{};store[r.col][r.id]=clone(d);persist();}
+async function addDoc(c,d){const id=rid();await setDoc({col:c.__col,id},d);return {id};}
+async function updateDoc(r,d){const cur=(store[r.col]||{})[r.id];if(!cur)throw new Error('not-found');Object.assign(cur,clone(d));persist();}
+async function deleteDoc(r){if(store[r.col])delete store[r.col][r.id];persist();}
+const auth={currentUser:null}, authCbs=[];
+function getAuth(){return auth;}
+function emitAuth(){authCbs.forEach(f=>f(auth.currentUser));}
+function onAuthStateChanged(a,cb){authCbs.push(cb);try{auth.currentUser=JSON.parse(localStorage.getItem(USER_KEY)||'null');}catch(e){}setTimeout(()=>cb(auth.currentUser),0);return ()=>{};}
+async function signInWithEmailAndPassword(a,email,pw){
+  const c=store._auth[(email||'').toLowerCase()];
+  if(!c||c.pw!==pw)throw new Error('auth/invalid-credential');
+  auth.currentUser={uid:c.uid,email};localStorage.setItem(USER_KEY,JSON.stringify(auth.currentUser));emitAuth();return {user:auth.currentUser};
+}
+async function signOut(){auth.currentUser=null;localStorage.removeItem(USER_KEY);emitAuth();}
+async function createUserWithEmailAndPassword(a,email,pw){
+  email=(email||'').toLowerCase();
+  if(store._auth[email])throw new Error('auth/email-already-in-use');
+  const uid='u_'+rid();store._auth[email]={uid,pw};persist();return {user:{uid,email}};
+}
+const app=initializeApp({}); const db=getFirestore(app);
+
+
+// LOGO
+const LOGO_B64 = '';
+const LOGO_SRC = 'data:image/svg+xml;utf8,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='#1a3a6b'/><path d='M22 30h24c4 0 4 3 4 3v38s0-3-4-3H22z M78 30H54c-4 0-4 3-4 3v38s0-3 4-3h24z' fill='#fff'/></svg>");
+document.getElementById('loginLogo').src = LOGO_SRC;
+document.getElementById('topbarLogo').src = LOGO_SRC;
+
+// UPI
+const UPI_ID = 'demo@upi';
+const UPI_NAME = 'Demo Library & Study Circle';
+
+// GLOBALS
+window._db=db; window._auth=auth;
+window._students=[]; window._curStuId=null;
+window._curUser=null; window._att={};
+window._editMode=false; window._inv=[];
+window._curInvId=null; window._photo=null;
+window._chart=null; window._curAppId=null;
+window._curExpireId=null; window._expenses=[];
+
+// ===== FORMAT DATE =====
+function fmtDate(str){
+  if(!str) return '-';
+  if(str.includes('-')&&str.length===10){
+    const p=str.split('-');
+    if(p[0].length===4) return `${p[2]}-${p[1]}-${p[0]}`; // yyyy-mm-dd to dd-mm-yyyy
+    return str; // already dd-mm-yyyy
+  }
+  return str;
+}
+function toISO(str){
+  // Convert dd-mm-yyyy to yyyy-mm-dd for comparisons
+  if(!str) return '';
+  const p=str.split('-');
+  if(p.length===3&&p[0].length===2) return `${p[2]}-${p[1]}-${p[0]}`;
+  return str;
+}
+function todayDDMMYYYY(){
+  const d=new Date();
+  return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+}
+
+// ===== AUTH =====
+onAuthStateChanged(auth, async(user)=>{
+  if(user){
+    window._curUser=user;
+    const snap=await getDoc(doc(db,'staff',user.uid));
+    const data=snap.exists()?snap.data():{};
+    const name=data.name||user.email;
+    document.getElementById('userBadge').textContent=name[0].toUpperCase();
+    document.getElementById('topbarSub').textContent=`Welcome, ${name}`;
+    document.getElementById('loginPage').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('loginPage').style.display='flex';
+    document.getElementById('mainApp').style.display='none';
+  }
+});
+
+// switchLoginTab is defined in non-module script above
+
+handleLogin=async()=>{
+  const username=document.getElementById('loginUsername').value.trim();
+  const pw=document.getElementById('loginPassword').value;
+  const errEl=document.getElementById('loginError');
+  errEl.textContent='';
+  if(!username||!pw){errEl.textContent='Enter username and password';return;}
+  try{
+    const snap=await getDocs(query(collection(db,'staff'),where('username','==',username)));
+    if(snap.empty){errEl.textContent='Username not found';return;}
+    const email=snap.docs[0].data().email;
+    await signInWithEmailAndPassword(auth,email,pw);
+  } catch(e){errEl.textContent='Invalid username or password';}
+};
+
+handleLogout=async()=>{if(confirm('Logout?')) await signOut(auth);};
+
+// ===== INIT =====
+function initApp(){
+  buildSeatMap();
+  loadStudents();
+  loadStaff();
+  loadInventory();
+  document.getElementById('attDate').value=new Date().toISOString().split('T')[0];
+  loadTheme();
+  generateAppQR();
+  populateMonthFilter();
+  loadExpenses();
+}
+
+// ===== SEAT MAP =====
+function buildSeatMap(){
+  // Diamond Hall: 1-45
+  const mD=document.getElementById('seatMapDiamond'); mD.innerHTML='';
+  for(let i=1;i<=45;i++){
+    const s=document.createElement('div');
+    s.className='seat empty'; s.id='seat-'+i;
+    s.textContent=i; s.onclick=()=>seatClick(i,'');
+    mD.appendChild(s);
+  }
+  // Achiever Hall: 46-73
+  const mA=document.getElementById('seatMapAchiever'); mA.innerHTML='';
+  for(let i=46;i<=73;i++){
+    const s=document.createElement('div');
+    s.className='seat empty'; s.id='seat-'+i;
+    s.textContent=i; s.onclick=()=>seatClick(i,'');
+    mA.appendChild(s);
+  }
+  // Gold Hall: 74-83
+  const mG=document.getElementById('seatMapGold'); mG.innerHTML='';
+  for(let i=74;i<=83;i++){
+    const s=document.createElement('div');
+    s.className='seat empty'; s.id='seat-'+i;
+    s.textContent=i; s.onclick=()=>seatClick(i,'');
+    mG.appendChild(s);
+  }
+  // Platinum Hall: G1-G24
+  const mP=document.getElementById('seatMapPlatinum'); mP.innerHTML='';
+  for(let i=1;i<=24;i++){
+    const s=document.createElement('div');
+    s.className='seat empty'; s.id='seatG-'+i;
+    s.textContent='G'+i; s.onclick=()=>seatClick(i,'G');
+    mP.appendChild(s);
+  }
+  // Vision Hall: G25-G45
+  const mV=document.getElementById('seatMapVision'); mV.innerHTML='';
+  for(let i=25;i<=45;i++){
+    const s=document.createElement('div');
+    s.className='seat empty'; s.id='seatG-'+i;
+    s.textContent='G'+i; s.onclick=()=>seatClick(i,'G');
+    mV.appendChild(s);
+  }
+}
+
+function updateSeatMap(){
+  // Reset all seats to empty first
+  for(let i=1;i<=83;i++){
+    const el=document.getElementById('seat-'+i);
+    if(el){el.className='seat empty';el.title='';}
+  }
+  for(let i=1;i<=45;i++){
+    const el=document.getElementById('seatG-'+i);
+    if(el){el.className='seat empty';el.title='';}
+  }
+
+  // Group students by seat - normalize key carefully
+  const seatGroups={};
+  window._students.forEach(s=>{
+    if(s.slot==='unreserved') return; // unreserved students don't occupy a seat
+    // seatPrefix is 'G' or '' and seat is a number
+    const prefix = s.seatPrefix || '';
+    const num = parseInt(s.seat);
+    const key = prefix + num; // e.g. "5" or "G12"
+    if(!seatGroups[key]) seatGroups[key]=[];
+    seatGroups[key].push(s);
+  });
+
+  // Apply colors
+  Object.entries(seatGroups).forEach(([key,students])=>{
+    const isG = key.startsWith('G');
+    const num = isG ? key.substring(1) : key;
+    const elId = (isG ? 'seatG-' : 'seat-') + num;
+    const el = document.getElementById(elId);
+    if(!el) return;
+
+    const slots = students.map(s=>s.slot);
+    const names = students.map(s=>s.name+' ('+s.slot+')').join(' | ');
+
+    if(slots.includes('full')){
+      el.className='seat full';
+    } else if(slots.includes('morning') && slots.includes('evening')){
+      el.className='seat both';
+    } else if(slots.includes('morning')){
+      el.className='seat morning';
+    } else if(slots.includes('evening')){
+      el.className='seat evening';
+    }
+    el.title=names;
+  });
+
+  // Unreserved Hall - dynamic boxes, one per floating student (no fixed seat)
+  const mU = document.getElementById('seatMapUnreserved');
+  if(mU){
+    mU.innerHTML='';
+    const unreservedStudents = window._students.filter(s=>s.slot==='unreserved');
+    if(unreservedStudents.length===0){
+      mU.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:11px;padding:8px">No unreserved students</div>';
+    } else {
+      unreservedStudents.forEach((s,idx)=>{
+        const b=document.createElement('div');
+        b.className='seat filled-ur';
+        b.textContent='UR'+(idx+1);
+        b.title=s.name+' (Unreserved)';
+        b.onclick=()=>openStuDetail(s.id);
+        mU.appendChild(b);
+      });
+    }
+  }
+}
+
+seatClick=function(num,prefix){
+  const students=window._students.filter(s=>s.seat==num&&(s.seatPrefix||'')==prefix);
+  if(students.length===1) openStuDetail(students[0].id);
+  else if(students.length>1){
+    // Both morning and evening occupied
+    showToast(`Seat ${prefix}${num}: ${students.map(s=>s.name+' ('+s.slot+')').join(', ')}`);
+  } else {
+    document.getElementById('stuSeat').value=prefix+num;
+    populateSeatSelect();
+    openAddStudent();
+  }
+};
+
+// ===== POPULATE SEAT DROPDOWN =====
+function populateSeatSelect(currentSeat=''){
+  const sel=document.getElementById('stuSeat');
+  const slot=document.getElementById('stuSlot').value;
+  const seatGroup=document.getElementById('stuSeatGroup');
+  if(slot==='unreserved'){
+    if(seatGroup) seatGroup.style.display='none';
+    sel.innerHTML='<option value="">Select seat</option>';
+    sel.value='';
+    return;
+  } else if(seatGroup){
+    seatGroup.style.display='';
+  }
+  sel.innerHTML='<option value="">Select seat</option>';
+  
+  // Build occupied map - group by seat key (normalized)
+  const occupied={};
+  window._students.forEach(s=>{
+    if(window._editMode && s.id===window._curStuId) return;
+    if(s.slot==='unreserved') return; // unreserved students don't occupy a seat
+    const prefix=s.seatPrefix||'';
+    const num=parseInt(s.seat);
+    const key=prefix+num;
+    if(!occupied[key]) occupied[key]=[];
+    occupied[key].push(s.slot);
+  });
+  
+  function isSeatAvailable(key){
+    const slots=occupied[key]||[];
+    if(!slot) return slots.length===0; // no slot selected - show all empty
+    if(slot==='full') return slots.length===0; // full time needs completely empty seat
+    if(slot==='morning') return !slots.includes('full') && !slots.includes('morning'); // morning ok if no full or morning
+    if(slot==='evening') return !slots.includes('full') && !slots.includes('evening'); // evening ok if no full or evening
+    return slots.length===0;
+  }
+
+  // Add seats 1-83 (84 removed)
+  for(let i=1;i<=83;i++){
+    const key=String(i);
+    const slots=occupied[key]||[];
+    const avail=isSeatAvailable(key);
+    const status=slots.length===0?'':slots.includes('morning')?' [PM free]':slots.includes('evening')?' [AM free]':'';
+    if(avail||key===currentSeat){
+      const opt=document.createElement('option');
+      opt.value=key;
+      opt.textContent='Seat '+i+status;
+      sel.appendChild(opt);
+    }
+  }
+  // Add G seats G1-G45 (G46,G47 removed)
+  for(let i=1;i<=45;i++){
+    const key='G'+i;
+    const slots=occupied[key]||[];
+    const avail=isSeatAvailable(key);
+    const status=slots.length===0?'':slots.includes('morning')?' [PM free]':slots.includes('evening')?' [AM free]':'';
+    if(avail||key===currentSeat){
+      const opt=document.createElement('option');
+      opt.value=key;
+      opt.textContent='G'+i+' (Ground)'+status;
+      sel.appendChild(opt);
+    }
+  }
+  if(currentSeat) sel.value=currentSeat;
+}
+
+onSlotChange=function(){populateSeatSelect();};
+
+// ===== LOAD STUDENTS =====
+async function loadStudents(){
+  try{
+    const snap=await getDocs(collection(db,'students'));
+    window._students=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderStudentList(window._students);
+    updateDashboard();
+    updateSeatMap();
+    renderDuesList();
+    filterFees();
+    checkExpiredAdmissions();
+  } catch(e){showToast('Error loading data');}
+}
+
+filterStudents=function(){
+  const q=document.getElementById('stuSearch').value.toLowerCase();
+  const f=window._students.filter(s=>
+    s.name.toLowerCase().includes(q)||
+    String(s.seat).includes(q)||
+    (s.phone||'').includes(q)||
+    (seatLabelOf(s)).toLowerCase().includes(q)
+  );
+  renderStudentList(f);
+};
+
+function renderStudentList(list){
+  const el=document.getElementById('studentList');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="emo">馃懃</div><div>No students found</div></div>';return;}
+  el.innerHTML=list.map(s=>{
+    const seatLabel=seatLabelOf(s);
+    const slotLabel=slotNameOf(s);
+    const slotBadge=slotBadgeOf(s);
+    const feeBadge=s.feeStatus==='paid'?'b-paid':isExpiring(s)?'b-exp':'b-due';
+    const feeLabel=s.feeStatus==='paid'?'Paid':isExpiring(s)?'Soon':'Due';
+    return `<div class="list-item" onclick="openStuDetail('${s.id}')">
+      <div class="avatar">${s.photoUrl?`<img src="${s.photoUrl}"/>`:'<span>'+s.name[0].toUpperCase()+'</span>'}</div>
+      <div class="item-info">
+        <div class="item-name">${s.name}</div>
+        <div class="item-meta">${seatLabel==="Unreserved"?"Unreserved":"Seat "+seatLabel} 鈥� ${s.phone||''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">
+        <span class="badge ${slotBadge}">${slotLabel}</span>
+        <span class="badge ${feeBadge}">${feeLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function seatLabelOf(s){ return s.slot==='unreserved' ? 'Unreserved' : (s.seatPrefix||'')+s.seat; }
+function slotNameOf(s,style){
+  // style: 'short' -> Full/Morning AM/Evening PM ; 'ampm' -> Full/AM/PM ; 'long' -> Full Time/Morning Half/Evening Half
+  if(s.slot==='unreserved') return 'Unreserved';
+  if(style==='ampm') return s.slot==='full'?'Full':s.slot==='morning'?'AM':'PM';
+  if(style==='long') return s.slot==='full'?'Full Time':s.slot==='morning'?'Morning Half':'Evening Half';
+  return s.slot==='full'?'Full':s.slot==='morning'?'Morning AM':'Evening PM';
+}
+function slotBadgeOf(s){ return s.slot==='unreserved'?'b-unreserved':s.slot==='full'?'b-full':s.slot==='morning'?'b-morning':'b-evening'; }
+function slotTimeOf(s){ return s.slot==='unreserved'?'Flexible':s.slot==='full'?'7AM鈥�11PM':s.slot==='morning'?'7AM鈥�2PM':'2PM鈥�11PM'; }
+function isExpiring(s){
+  if(!s.admTo) return false;
+  const iso=toISO(s.admTo);
+  const diff=(new Date(iso)-new Date())/(1000*60*60*24);
+  return diff>=0&&diff<=3;
+}
+
+function isExpired(s){
+  if(!s.admTo) return false;
+  const iso=toISO(s.admTo);
+  return new Date(iso)<new Date();
+}
+
+// ===== CHECK EXPIRED =====
+function checkExpiredAdmissions(){
+  const expired=window._students.filter(s=>isExpired(s));
+  const expiring=window._students.filter(s=>isExpiring(s)&&!isExpired(s));
+  // Show expired modals first, then expiring
+  if(expired.length){
+    showNextExpired(expired,0,expiring);
+  } else if(expiring.length){
+    showNextExpiring(expiring,0);
+  }
+}
+
+function showNextExpiring(list,idx){
+  if(idx>=list.length) return;
+  const s=list[idx];
+  window._curExpireId=s.id;
+  const days=Math.ceil((new Date(toISO(s.admTo))-new Date())/(1000*60*60*24));
+  document.getElementById('expireInfo').innerHTML=
+    '鈿狅笍 <strong>'+s.name+'</strong> (Seat '+seatLabelOf(s)+') admission is expiring in <strong>'+days+' day(s)</strong> on <strong>'+s.admTo+'</strong>.<br><br>What would you like to do?';
+  document.getElementById('expireModal').classList.add('open');
+  window._expireNext=function(){showNextExpiring(list,idx+1);};
+}
+
+function showNextExpired(list,idx,expiringList){
+  if(idx>=list.length){
+    // After all expired, show expiring ones
+    if(expiringList&&expiringList.length) showNextExpiring(expiringList,0);
+    return;
+  }
+  const s=list[idx];
+  window._curExpireId=s.id;
+  document.getElementById('expireInfo').innerHTML=
+    '馃敶 <strong>'+s.name+'</strong> (Seat '+seatLabelOf(s)+') admission <strong>expired</strong> on <strong>'+s.admTo+'</strong>.<br><br>What would you like to do?';
+  document.getElementById('expireModal').classList.add('open');
+  window._expireNext=function(){showNextExpired(list,idx+1,expiringList);};
+}
+
+vacateSeat=async function(){
+  if(!window._curExpireId) return;
+  await deleteDoc(doc(db,'students',window._curExpireId));
+  showToast('Seat vacated!');
+  closeModal('expireModal');
+  loadStudents();
+  if(window._expireNext) window._expireNext();
+};
+
+extendAdmission=async function(){
+  if(!window._curExpireId) return;
+  const s=window._students.find(x=>x.id===window._curExpireId);
+  const nextMonth=new Date(); nextMonth.setMonth(nextMonth.getMonth()+1);
+  const newTo=`${String(nextMonth.getDate()).padStart(2,'0')}-${String(nextMonth.getMonth()+1).padStart(2,'0')}-${nextMonth.getFullYear()}`;
+  await updateDoc(doc(db,'students',window._curExpireId),{admTo:newTo,feeStatus:'due'});
+  showToast('Admission extended by 1 month');
+  closeModal('expireModal');
+  loadStudents();
+  if(window._expireNext) window._expireNext();
+};
+
+// ===== DASHBOARD =====
+function updateDashboard(){
+  const total=128;
+  const totalStudents=window._students.length;
+
+  // Count unique occupied seats (a seat with morning+evening = 1 occupied seat)
+  const uniqueSeats=new Set(
+    window._students.map(s=>(s.seatPrefix||'')+parseInt(s.seat))
+  );
+  const occ=uniqueSeats.size;
+
+  // Monthly paid/due - based on current month
+  const nowM=new Date();
+  const curMM2=String(nowM.getMonth()+1).padStart(2,'0');
+  const curYY2=String(nowM.getFullYear());
+  function pdMonth(dateStr){
+    if(!dateStr) return false;
+    const p=String(dateStr).replace(/[./]/g,'-').split('-');
+    if(p.length!==3) return false;
+    if(p[0].length===4) return p[1].padStart(2,'0')===curMM2&&p[0]===curYY2;
+    return p[1].padStart(2,'0')===curMM2&&p[2]===curYY2;
+  }
+  // Paid this month = lastPaid in current month
+  const paid=window._students.filter(s=>pdMonth(s.lastPaid)).length;
+  // Due this month = not paid this month AND admission active (not expired)
+  const due=window._students.filter(s=>!pdMonth(s.lastPaid)&&!isExpired(s)).length;
+  const exp=window._students.filter(s=>isExpiring(s)).length;
+  // Current month income
+  const now2=new Date();
+  const curMM=String(now2.getMonth()+1).padStart(2,'0');
+  const curYYYY=String(now2.getFullYear());
+
+  function parseDtD(s){
+    if(!s) return null;
+    const p=String(s).replace(/[./]/g,'-').split('-');
+    if(p.length!==3) return null;
+    return p[0].length===4?{mm:p[1].padStart(2,'0'),yyyy:p[0]}:{mm:p[1].padStart(2,'0'),yyyy:p[2]};
+  }
+
+  // Single source: lastPaid from students only (matches chart)
+  const rev=window._students
+    .filter(s=>{
+      if(!s.lastPaid) return false;
+      const p=String(s.lastPaid).replace(/[.]/g,'-').split('-');
+      if(p.length!==3) return false;
+      const mm=p[0].length===4?p[1].padStart(2,'0'):p[1].padStart(2,'0');
+      const yy=p[0].length===4?p[0]:p[2];
+      return mm===curMM&&yy===curYYYY;
+    })
+    .reduce((s,st)=>s+(parseFloat(st.fee)||0),0);
+
+  document.getElementById('statOcc').textContent=occ;
+  document.getElementById('statVac').textContent=total-occ;
+  document.getElementById('statStu').textContent=totalStudents;
+  document.getElementById('statRev').textContent=rev.toLocaleString('en-IN');
+  const expired=window._students.filter(s=>isExpired(s)).length;
+  document.getElementById('statPaid').textContent=paid;
+  document.getElementById('statDue').textContent=due;
+  document.getElementById('statExp').textContent=exp;
+  document.getElementById('statExpired').textContent=expired;
+
+  // Expiry alerts
+  const expiringStudents=window._students.filter(s=>isExpiring(s));
+  const alertEl=document.getElementById('expiryAlerts');
+  alertEl.innerHTML=expiringStudents.map(s=>{
+    const days=Math.ceil((new Date(toISO(s.admTo))-new Date())/(1000*60*60*24));
+    return `<div class="alert alert-warn">
+      <div><div style="font-weight:700;font-size:12px">${s.name}</div><div style="font-size:10px">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)} 鈥� Due in ${days} day(s) (${s.admTo})</div></div>
+      <button class="btn btn-wa btn-xs" onclick="sendWADirect('${s.phone}','${s.name}',${s.fee||0},'${seatLabelOf(s)}')">馃敂</button>
+    </div>`;
+  }).join('');
+
+  // Pending approvals alert
+  loadPendingCount();
+  drawChart(); // async - runs in background
+}
+
+async function loadPendingCount(){
+  const snap=await getDocs(collection(db,'applications'));
+  const pending=snap.docs.filter(d=>d.data().status==='pending');
+  const el=document.getElementById('pendingApprovalAlert');
+  if(pending.length){
+    el.innerHTML=`<div class="alert alert-info" onclick="switchPage('pending',document.querySelectorAll('.nav-item')[2]);loadPending()" style="cursor:pointer">
+      <div><div style="font-weight:700;font-size:12px">鈴� ${pending.length} Pending Approval(s)</div><div style="font-size:10px">Tap to review student applications</div></div>
+      <span style="font-size:18px">鈫�</span>
+    </div>`;
+  } else el.innerHTML='';
+}
+
+function drawChart(){
+  setTimeout(async function(){
+    const canvasEl=document.getElementById('incomeChart');
+    if(!canvasEl||typeof Chart==='undefined') return;
+    const now=new Date();
+    const months=[];const monthKeys=[];const incomes=[];const expData=[];
+    for(let i=5;i>=0;i--){
+      const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+      months.push(d.toLocaleString('default',{month:'short'})+"'"+(d.getFullYear()+'').slice(2));
+      monthKeys.push({mm:String(d.getMonth()+1).padStart(2,'0'),yyyy:String(d.getFullYear())});
+    }
+    function pdC(s){
+      if(!s) return null;
+      const p=String(s).split('-');
+      if(p.length!==3) return null;
+      return p[0].length===4?{mm:p[1].padStart(2,'0'),yyyy:p[0]}:{mm:p[1].padStart(2,'0'),yyyy:p[2]};
+    }
+    // Income from lastPaid only - single source of truth
+    monthKeys.forEach(({mm,yyyy})=>{
+      const inc=window._students
+        .filter(s=>{const d=pdC(s.lastPaid);return d&&d.mm===mm&&d.yyyy===yyyy;})
+        .reduce((s,st)=>s+(parseFloat(st.fee)||0),0);
+      incomes.push(inc);
+    });
+    // Expenses from Firebase
+    let exps=[];
+    try{const snap=await getDocs(collection(db,'expenses'));exps=snap.docs.map(d=>d.data());}catch(e){}
+    monthKeys.forEach(({mm,yyyy})=>{
+      const exp=exps.filter(e=>{const d=pdC(e.date);return d&&d.mm===mm&&d.yyyy===yyyy;})
+        .reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+      expData.push(exp);
+    });
+    if(window._chart){try{window._chart.destroy();}catch(e){}}
+    try{
+      window._chart=new Chart(canvasEl,{
+        type:'bar',
+        data:{labels:months,datasets:[
+          {label:'Income (鈧�)',data:incomes,backgroundColor:'rgba(26,58,107,.85)',borderRadius:6},
+          {label:'Expenses (鈧�)',data:expData,backgroundColor:'rgba(230,92,0,.7)',borderRadius:6}
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{labels:{font:{size:10}}},
+            tooltip:{callbacks:{label:ctx=>'鈧�'+ctx.parsed.y.toLocaleString('en-IN')}}},
+          scales:{x:{ticks:{font:{size:9}}},
+            y:{beginAtZero:true,ticks:{callback:v=>'鈧�'+v.toLocaleString('en-IN'),font:{size:9}}}}}
+      });
+    }catch(err){console.error('Chart:',err);}
+  },500);
+}
+
+// ===== ADD/EDIT STUDENT =====
+openAddStudent=function(){
+  window._editMode=false; window._curStuId=null; window._photo=null;
+  document.getElementById('addStuTitle').textContent='Add New Student';
+  document.getElementById('saveStuBtn').textContent='Save Student';
+  ['stuName','stuPhone','stuAltPhone','stuAddress','stuIdNum'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('stuSlot').value='';
+  document.getElementById('stuIdType').value='';
+  document.getElementById('stuFee').value='';
+  document.getElementById('stuFrom').value=new Date().toISOString().split('T')[0];
+  const nxt=new Date(); nxt.setMonth(nxt.getMonth()+1);
+  document.getElementById('stuTo').value=nxt.toISOString().split('T')[0];
+  document.getElementById('stuPhotoDiv').innerHTML='<span style="font-size:22px">馃柤锔�</span><span style="font-size:9px">Gallery</span><input type="file" id="stuPhotoGallery" accept="image/*" style="display:none" onchange="handleStuPhoto(event)"/>';
+  document.getElementById('stuPhotoPreview').style.display='none';
+  populateSeatSelect();
+  document.getElementById('addStudentModal').classList.add('open');
+};
+
+handleStuPhoto=function(e){
+  const file=e.target.files[0]; if(!file) return;
+  compressPhoto(file,data=>{
+    window._photo=data;
+    document.getElementById('stuPhotoImg').src=data;
+    document.getElementById('stuPhotoPreview').style.display='block';
+  });
+};
+
+function compressPhoto(file,cb){
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      const max=200; let w=img.width,h=img.height;
+      if(w>h){if(w>max){h*=max/w;w=max;}}else{if(h>max){w*=max/h;h=max;}}
+      c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',.7));
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+function parseSeatValue(val){
+  // val like "G5" or "12"
+  if(val.startsWith('G')) return {seat:parseInt(val.substring(1)),seatPrefix:'G'};
+  return {seat:parseInt(val),seatPrefix:''};
+}
+
+saveStudent=async function(){
+  const name=document.getElementById('stuName').value.trim();
+  const phone=document.getElementById('stuPhone').value.trim();
+  const seatVal=document.getElementById('stuSeat').value;
+  const slot=document.getElementById('stuSlot').value;
+  const fee=parseFloat(document.getElementById('stuFee').value);
+  const admFromRaw=document.getElementById('stuFrom').value;
+  const admToRaw=document.getElementById('stuTo').value;
+  const seatRequired=slot!=='unreserved';
+  if(!name||!phone||(seatRequired&&!seatVal)||!slot||!fee||!admFromRaw||!admToRaw){showToast('Fill all required fields');return;}
+  // Convert ISO to DD-MM-YYYY for storage
+  function isoToDDMMYYYY(iso){
+    if(!iso) return '';
+    const p=iso.split('-');
+    if(p.length===3&&p[0].length===4) return p[2]+'-'+p[1]+'-'+p[0];
+    return iso;
+  }
+  const admFrom=isoToDDMMYYYY(admFromRaw);
+  const admTo=isoToDDMMYYYY(admToRaw);
+  if(phone.length!==10){showToast('Enter valid 10-digit phone');return;}
+  if(!window._photo&&!window._editMode){showToast('馃摲 Photo is required!');return;}
+
+  let seat='',seatPrefix='';
+  if(slot!=='unreserved'){
+    ({seat,seatPrefix}=parseSeatValue(seatVal));
+    // Check seat conflict (unreserved students never conflict - they hold no seat)
+    const conflict=window._students.find(s=>{
+      if(s.id===window._curStuId) return false;
+      if(s.slot==='unreserved') return false;
+      if(s.seat!=seat||(s.seatPrefix||'')!==seatPrefix) return false;
+      if(slot==='full'||s.slot==='full') return true;
+      return slot===s.slot;
+    });
+    if(conflict){showToast(`Seat ${seatVal} already has ${conflict.name} (${conflict.slot})`);return;}
+  }
+
+  const data={
+    name,phone,altPhone:document.getElementById('stuAltPhone').value.trim(),seat,seatPrefix,slot,fee,admFrom,admTo,
+    address:document.getElementById('stuAddress').value.trim(),
+    idType:document.getElementById('stuIdType').value,
+    idNumber:document.getElementById('stuIdNum').value.trim(),
+    photoUrl:window._photo||'',
+    feeStatus:'due',
+    updatedAt:new Date().toISOString()
+  };
+  if(!window._editMode) data.createdAt=new Date().toISOString();
+
+  try{
+    if(window._editMode&&window._curStuId){
+      await updateDoc(doc(db,'students',window._curStuId),data);
+      showToast('Student updated! 鉁�');
+    } else {
+      await setDoc(doc(collection(db,'students')),data);
+      showToast('Student added! 鉁�');
+    }
+    closeModal('addStudentModal');
+    window._photo=null;
+    loadStudents();
+  } catch(e){showToast('Error saving student');}
+};
+
+// ===== STUDENT DETAIL =====
+openStuDetail=function(id){
+  const s=window._students.find(x=>x.id===id); if(!s) return;
+  window._curStuId=id;
+  const seatLabel=seatLabelOf(s);
+  const avatar=document.getElementById('detailAvatar');
+  avatar.innerHTML=s.photoUrl?`<img src="${s.photoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`:'<span>'+s.name[0].toUpperCase()+'</span>';
+  document.getElementById('detailName').textContent=s.name;
+  document.getElementById('detailSeat').textContent=`${seatLabel==="Unreserved"?"Unreserved":"Seat "+seatLabel} 鈥� ${slotNameOf(s,'long')}`;
+  const slotTime=slotTimeOf(s);
+  document.getElementById('detailInfo').innerHTML=`
+    <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${s.phone||'-'}</span></div>
+    ${s.altPhone?`<div class="info-row"><span class="info-label">Alt Phone</span><span class="info-value">${s.altPhone}</span></div>`:''}
+    <div class="info-row"><span class="info-label">Address</span><span class="info-value">${s.address||'-'}</span></div>
+    <div class="info-row"><span class="info-label">Seat</span><span class="info-value">${seatLabel}</span></div>
+    <div class="info-row"><span class="info-label">Slot</span><span class="info-value">${slotNameOf(s,'long')} (${slotTime})</span></div>
+    <div class="info-row"><span class="info-label">Monthly Fee</span><span class="info-value">鈧�${(s.fee||0).toLocaleString('en-IN')}</span></div>
+    <div class="info-row"><span class="info-label">Fee Status</span><span class="info-value"><span class="badge ${s.feeStatus==='paid'?'b-paid':isExpiring(s)?'b-exp':'b-due'}">${s.feeStatus==='paid'?'Paid':isExpiring(s)?'Expiring':'Due'}</span></span></div>
+    <div class="info-row"><span class="info-label">Admission From</span><span class="info-value">${s.admFrom||'-'}</span></div>
+    <div class="info-row"><span class="info-label">Admission To</span><span class="info-value">${s.admTo||'-'}</span></div>
+    <div class="info-row"><span class="info-label">ID Proof</span><span class="info-value">${s.idType||'-'} ${s.idNumber?'('+s.idNumber+')':''}</span></div>`;
+  document.getElementById('stuDetailModal').classList.add('open');
+};
+
+markFeePaid=async function(){
+  if(!window._curStuId) return;
+  const s=window._students.find(x=>x.id===window._curStuId);
+  if(!s) return;
+
+  // Extend from admTo date (not today)
+  function addOneMonth(ddmmyyyy){
+    if(!ddmmyyyy) return todayDDMMYYYY();
+    const parts=ddmmyyyy.split('-');
+    if(parts.length!==3) return todayDDMMYYYY();
+    const d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+    d.setMonth(d.getMonth()+1);
+    return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
+  }
+
+  const newTo=addOneMonth(s.admTo);
+  const today=todayDDMMYYYY();
+
+  // Save payment record permanently in payments collection
+  await setDoc(doc(collection(db,'payments')),{
+    studentId:s.id,
+    studentName:s.name,
+    seat:seatLabelOf(s),
+    fee:s.fee||0,
+    paidDate:today,
+    admFrom:s.admTo||today, // new period starts from old admTo
+    admTo:newTo,
+    slot:s.slot
+  });
+
+  await updateDoc(doc(db,'students',window._curStuId),{
+    feeStatus:'paid',
+    admTo:newTo,
+    lastPaid:today
+  });
+  showToast('Fee paid! Renewed till '+newTo+' 鉁�');
+  closeModal('stuDetailModal');
+  loadStudents();
+};
+
+markFeeUnpaid=async function(){
+  if(!window._curStuId) return;
+  if(!confirm('Mark fee as unpaid/due? This will subtract the amount from this month\'s collection.')) return;
+  const s=window._students.find(x=>x.id===window._curStuId);
+  if(!s) return;
+
+  // Save reversal record (negative amount) to payments
+  await setDoc(doc(collection(db,'payments')),{
+    studentId:s.id,
+    studentName:s.name,
+    seat:seatLabelOf(s),
+    fee:-(s.fee||0), // negative = reversal
+    paidDate:todayDDMMYYYY(),
+    type:'reversal',
+    slot:s.slot
+  });
+
+  // Revert admTo back by one month
+  function subtractOneMonth(ddmmyyyy){
+    if(!ddmmyyyy) return '';
+    const parts=ddmmyyyy.split('-');
+    if(parts.length!==3) return ddmmyyyy;
+    const d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+    d.setMonth(d.getMonth()-1);
+    return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
+  }
+
+  const revertedTo=subtractOneMonth(s.admTo);
+  await updateDoc(doc(db,'students',window._curStuId),{
+    feeStatus:'due',
+    admTo:revertedTo,
+    lastPaid:''
+  });
+  showToast('Fee marked as due. Amount subtracted from collection.');
+  closeModal('stuDetailModal');
+  loadStudents();
+};
+
+sendWA=function(){
+  const s=window._students.find(x=>x.id===window._curStuId);
+  if(!s) return;
+  sendWADirect(s.phone,s.name,s.fee||(s.slot==='full'?1000:600),seatLabelOf(s));
+};
+
+sendWADirect=function(phone,name,fee,seat){
+  const msg='馃檹 *Demo Library & Study Circle*\n*Fee Reminder*\n\nDear '+name+',\n\nYour library membership fee of *鈧�'+fee+'* is due.\nSeat No: *'+seat+'*\n\nPlease pay at the earliest to continue using the library.\n\n馃挸 UPI ID: *'+UPI_ID+'*\n\nThank You!\nDemo Library & Study Circle, Nagpur';
+  window.open('https://wa.me/91'+phone+'?text='+encodeURIComponent(msg),'_blank');
+};
+
+sendFinalReminder=function(){
+  const s=window._students.find(x=>x.id===window._curStuId);
+  if(!s) return;
+  const fee=s.fee||(s.slot==='full'?1000:600);
+  const seat=seatLabelOf(s);
+  const seatLine=s.slot==='unreserved'?'':('Seat No: *'+seat+'*\n');
+  const msg='馃檹 *Demo Library & Study Circle*\n*鈿狅笍 Final Reminder*\n\nDear '+s.name+',\n\nThis is a final reminder that your library membership fee of *鈧�'+fee+'* is still due.\n'+seatLine+'\n*If the fee is not paid TODAY, your registration at Demo Library will be cancelled and your seat will be allotted to another candidate.*\n\nPlease pay immediately to avoid cancellation.\n\n馃挸 UPI ID: *'+UPI_ID+'*\n\nThank You!\nDemo Library & Study Circle, Nagpur';
+  if(!confirm('Send FINAL reminder to '+s.name+'? This message warns that their seat/registration will be cancelled if unpaid today.')) return;
+  window.open('https://wa.me/91'+s.phone+'?text='+encodeURIComponent(msg),'_blank');
+};
+
+editStudent=function(){
+  const s=window._students.find(x=>x.id===window._curStuId); if(!s) return;
+  window._editMode=true;
+  document.getElementById('addStuTitle').textContent='Edit Student';
+  document.getElementById('saveStuBtn').textContent='Update Student';
+  document.getElementById('stuName').value=s.name;
+  document.getElementById('stuPhone').value=s.phone||'';
+  document.getElementById('stuAltPhone').value=s.altPhone||'';
+  document.getElementById('stuAddress').value=s.address||'';
+  document.getElementById('stuSlot').value=s.slot;
+  document.getElementById('stuFee').value=s.fee||'';
+  // Convert DD-MM-YYYY to ISO for date picker
+  function ddmmToISO(dd){
+    if(!dd) return '';
+    const p=dd.split('-');
+    if(p.length===3&&p[0].length===2) return p[2]+'-'+p[1]+'-'+p[0];
+    return dd;
+  }
+  document.getElementById('stuFrom').value=ddmmToISO(s.admFrom||'');
+  document.getElementById('stuTo').value=ddmmToISO(s.admTo||'');
+  document.getElementById('stuIdType').value=s.idType||'';
+  document.getElementById('stuIdNum').value=s.idNumber||'';
+  if(s.photoUrl){window._photo=s.photoUrl;document.getElementById('stuPhotoImg').src=s.photoUrl;document.getElementById('stuPhotoPreview').style.display='block';}
+  const seatVal=seatLabelOf(s);
+  populateSeatSelect(seatVal);
+  closeModal('stuDetailModal');
+  document.getElementById('addStudentModal').classList.add('open');
+};
+
+deleteStudent=async function(){
+  if(!window._curStuId) return;
+  const s=window._students.find(x=>x.id===window._curStuId);
+  if(!s) return;
+  if(!confirm('Delete '+s.name+'?\n\nNote: Payment history will be preserved in records.')) return;
+  // Only delete from students collection
+  // Payments collection is NOT deleted - history preserved
+  await deleteDoc(doc(db,'students',window._curStuId));
+  showToast('Student deleted. Payment history preserved. 鉁�');
+  closeModal('stuDetailModal');
+  loadStudents();
+};
+
+// ===== RECEIPT =====
+showReceipt=function(){
+  const s=window._students.find(x=>x.id===window._curStuId); if(!s) return;
+  const seatLabel=seatLabelOf(s);
+  const slotTime=slotTimeOf(s);
+  document.getElementById('receiptContent').innerHTML=`
+    <img src="${LOGO_SRC}" class="receipt-logo" alt="Logo"/>
+    <div class="receipt-title">DEMO LIBRARY & STUDY CIRCLE</div>
+    <div class="receipt-sub">Nagpur, Maharashtra | Fee Receipt</div>
+    <div class="receipt-row"><span>Date</span><span>${todayDDMMYYYY()}</span></div>
+    <div class="receipt-row"><span>Student</span><span>${s.name}</span></div>
+    <div class="receipt-row"><span>Phone</span><span>${s.phone||'-'}</span></div>
+    <div class="receipt-row"><span>Seat No.</span><span>${seatLabel}</span></div>
+    <div class="receipt-row"><span>Slot</span><span>${slotNameOf(s,'long')} (${slotTime})</span></div>
+    <div class="receipt-row"><span>Period</span><span>${s.admFrom||'-'} to ${s.admTo||'-'}</span></div>
+    <div class="receipt-total"><span>TOTAL PAID</span><span>鈧�${(s.fee||0).toLocaleString('en-IN')}</span></div>
+    <div style="text-align:center;font-size:10px;margin-top:8px;color:#555">Demo Library welcomes you! 馃檹<br>Thank you for your payment for Seat No. ${seatLabel}</div>`;
+  closeModal('stuDetailModal');
+  document.getElementById('receiptModal').classList.add('open');
+};
+
+async function renderReceiptCanvas(){
+  const el=document.getElementById('receiptContent');
+  el.style.background='#ffffff';
+  el.style.color='#000000';
+  await new Promise(r=>setTimeout(r,400));
+  try{
+    const canvas=await html2canvas(el,{
+      scale:3,
+      backgroundColor:'#ffffff',
+      useCORS:true,
+      allowTaint:true,
+      logging:false,
+      imageTimeout:8000
+    });
+    el.style.background='';
+    el.style.color='';
+    return canvas;
+  }catch(e){
+    el.style.background='';
+    el.style.color='';
+    console.error('Canvas error:',e);
+    return null;
+  }
+}
+
+sendReceiptWA=function(){
+  const s=window._students.find(x=>x.id===window._curStuId); if(!s) return;
+  const seatLabel=seatLabelOf(s);
+  const slotTime=slotTimeOf(s);
+  const slotName=slotNameOf(s,'long');
+  const caption='馃檹 *Demo Library & Study Circle*\n*Fee Receipt*\n\nDemo Library welcomes you! 馃檹\n\nWe have received your payment for:\n\n馃懁 Name: '+s.name+'\n馃獞 Seat No: '+seatLabel+'\n鈴� Slot: '+slotName+' ('+slotTime+')\n馃搮 Period: '+(s.admFrom||'-')+' to '+(s.admTo||'-')+'\n馃挵 Amount Paid: Rs.'+(s.fee||0)+'\n\nPlease attach the downloaded receipt image.\n\nThank You!\nDemo Library & Study Circle, Nagpur';
+  window.open('https://wa.me/91'+s.phone+'?text='+encodeURIComponent(caption),'_blank');
+};
+
+dlReceipt=async function(){
+  const s=window._students.find(x=>x.id===window._curStuId);
+  const name=s?s.name.replace(/ /g,'_'):'Student';
+  showToast('Generating receipt image...');
+  try{
+    const canvas=await renderReceiptCanvas();
+    if(!canvas){showToast('Error generating receipt. Try again.');return;}
+    const dataURL=canvas.toDataURL('image/png');
+    const a=document.createElement('a');
+    a.href=dataURL;
+    a.download='Receipt-'+name+'.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('鉁� Receipt downloaded! Now tap Step 2.');
+  }catch(err){
+    showToast('Error: '+err.message);
+    console.error(err);
+  }
+};
+
+// ===== STUDENT QR =====
+showStudentQR=function(){
+  const s=window._students.find(x=>x.id===window._curStuId); if(!s) return;
+  const seatLabel=seatLabelOf(s);
+  const slotTime=slotTimeOf(s);
+  const data=`DEMO LIBRARY\nName: ${s.name}\nSeat: ${seatLabel}\nSlot: ${slotTime}\nPhone: ${s.phone||''}\nFee: 鈧�${s.fee||0}/month\nValid: ${s.admFrom||''} to ${s.admTo||''}`;
+  const box=document.getElementById('stuQRBox');
+  box.innerHTML='';
+  new QRCode(box,{text:data,width:200,height:200,colorDark:'#1a3a6b',colorLight:'#ffffff'});
+  document.getElementById('stuQRInfo').textContent=`${s.name} | ${seatLabel==="Unreserved"?"Unreserved":"Seat "+seatLabel}`;
+  closeModal('stuDetailModal');
+  document.getElementById('stuQRModal').classList.add('open');
+};
+
+// ===== APP QR =====
+function generateAppQR(){
+  const appURL=window.location.href;
+  document.getElementById('appLinkText').textContent=appURL;
+  const box=document.getElementById('appQRBox');
+  box.innerHTML='';
+  new QRCode(box,{text:appURL,width:200,height:200,colorDark:'#1a3a6b',colorLight:'#ffffff'});
+}
+
+shareAppLink=function(){
+  const url=window.location.href;
+  const msg=`馃摎 *Demo Library & Study Circle*\n\nLibrary Management App:\n${url}\n\nScan QR or click link to access!`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+};
+
+// ===== STUDENT REGISTRATION (Public) =====
+openStudentRegistration=function(){
+  document.getElementById('regAltPhone').value='';
+  document.getElementById('stuRegModal').classList.add('open');
+};
+
+triggerCamera=function(type){
+  document.getElementById(type==='gallery'?'regPhotoGallery':'regPhotoCamera').click();
+};
+
+handleRegPhoto=function(e,type){
+  const file=e.target.files[0]; if(!file) return;
+  compressPhoto(file,data=>{
+    window._regPhoto=data;
+    document.getElementById('regPhotoImg').src=data;
+    document.getElementById('regPhotoPreview').style.display='block';
+  });
+};
+
+submitRegistration=async function(){
+  const name=document.getElementById('regName').value.trim();
+  const phone=document.getElementById('regPhone').value.trim();
+  const address=document.getElementById('regAddress').value.trim();
+  const slot=document.getElementById('regSlot').value;
+  const idType=document.getElementById('regIdType').value;
+  const idNum=document.getElementById('regIdNum').value.trim();
+  if(!name||!phone||!address||!slot||!idType||!idNum){showToast('Please fill all required fields');return;}
+  if(phone.length!==10){showToast('Enter valid 10-digit phone');return;}
+  if(!window._regPhoto){showToast('馃摲 Photo is required! Please upload your photo.');return;}
+  try{
+    await setDoc(doc(collection(db,'applications')),{
+      name,phone,altPhone:document.getElementById('regAltPhone').value.trim(),address,slot,idType,idNumber:idNum,
+      purpose:document.getElementById('regPurpose').value.trim(),
+      photoUrl:window._regPhoto||'',
+      status:'pending',
+      submittedAt:new Date().toISOString()
+    });
+    showToast('Application submitted! Admin will contact you soon. 鉁�');
+    closeModal('stuRegModal');
+    window._regPhoto=null;
+  } catch(e){showToast('Error submitting. Try again.');}
+};
+
+// ===== PENDING APPROVALS =====
+loadPending=async function(){
+  const el=document.getElementById('pendingList');
+  el.innerHTML='<div class="loading"><div class="spinner"></div> Loading...</div>';
+  const snap=await getDocs(collection(db,'applications'));
+  const pending=snap.docs.filter(d=>d.data().status==='pending').map(d=>({id:d.id,...d.data()}));
+  if(!pending.length){el.innerHTML='<div class="empty"><div class="emo">鉁�</div><div>No pending applications</div></div>';return;}
+  el.innerHTML=pending.map(p=>`
+    <div class="pending-item">
+      <div class="avatar">${p.photoUrl?`<img src="${p.photoUrl}"/>`:'<span>'+p.name[0].toUpperCase()+'</span>'}</div>
+      <div class="item-info">
+        <div class="item-name">${p.name}</div>
+        <div class="item-meta">${p.phone} 鈥� ${p.slot==='unreserved'?'Unreserved':p.slot==='full'?'Full Time':p.slot==='morning'?'Morning Half':'Evening Half'}</div>
+        <div class="item-meta">${p.idType}: ${p.idNumber}</div>
+      </div>
+      <button class="btn btn-ok btn-xs" onclick="openApproval('${p.id}')">Review</button>
+    </div>`).join('');
+};
+
+openApproval=async function(id){
+  const snap=await getDoc(doc(db,'applications',id));
+  if(!snap.exists()) return;
+  const p=snap.data();
+  window._curAppId=id;
+  const slotTime=p.slot==='unreserved'?'Flexible':p.slot==='full'?'7AM鈥�11PM':p.slot==='morning'?'7AM鈥�2PM':'2PM鈥�11PM';
+  const slotDisplayName=p.slot==='unreserved'?'Unreserved (No Fixed Seat)':p.slot==='full'?'Full Time':p.slot==='morning'?'Morning Half':'Evening Half';
+  document.getElementById('approvalInfo').innerHTML=`
+    <div class="info-row"><span class="info-label">Name</span><span class="info-value">${p.name}</span></div>
+    <div class="info-row"><span class="info-label">Phone</span><span class="info-value">${p.phone}</span></div>
+    <div class="info-row"><span class="info-label">Address</span><span class="info-value">${p.address||'-'}</span></div>
+    <div class="info-row"><span class="info-label">Slot</span><span class="info-value">${slotDisplayName}${p.slot==='unreserved'?'':' ('+slotTime+')'}</span></div>
+    <div class="info-row"><span class="info-label">ID Proof</span><span class="info-value">${p.idType}: ${p.idNumber}</span></div>
+    <div class="info-row"><span class="info-label">Purpose</span><span class="info-value">${p.purpose||'-'}</span></div>`;
+  
+  // Populate available seats for this slot (unreserved applicants don't need a seat)
+  const approvalSel=document.getElementById('approvalSeat');
+  const approvalSeatGroup=document.getElementById('approvalSeatGroup');
+  approvalSel.innerHTML='<option value="">Select seat</option>';
+  if(p.slot==='unreserved'){
+    if(approvalSeatGroup) approvalSeatGroup.style.display='none';
+  } else {
+    if(approvalSeatGroup) approvalSeatGroup.style.display='';
+    const occupied={};
+    window._students.forEach(s=>{if(s.slot==='unreserved')return;const k=seatLabelOf(s);if(!occupied[k])occupied[k]=[];occupied[k].push(s.slot);});
+    for(let i=1;i<=83;i++){
+      const k=String(i); const slots=occupied[k]||[];
+      let avail=p.slot==='full'?slots.length===0:!slots.includes('full')&&!slots.includes(p.slot);
+      if(avail){const o=document.createElement('option');o.value=k;o.textContent='Seat '+i;approvalSel.appendChild(o);}
+    }
+    for(let i=1;i<=45;i++){
+      const k='G'+i; const slots=occupied[k]||[];
+      let avail=p.slot==='full'?slots.length===0:!slots.includes('full')&&!slots.includes(p.slot);
+      if(avail){const o=document.createElement('option');o.value=k;o.textContent='G'+i+' (Ground)';approvalSel.appendChild(o);}
+    }
+  }
+  
+  document.getElementById('approvalFrom').value=new Date().toISOString().split('T')[0];
+  const nxt2=new Date(); nxt2.setMonth(nxt2.getMonth()+1);
+  document.getElementById('approvalTo').value=nxt2.toISOString().split('T')[0];
+  document.getElementById('approvalModal').classList.add('open');
+  window._curAppData=p;
+};
+
+approveApplication=async function(){
+  const p=window._curAppData;
+  const seatRequired=p.slot!=='unreserved';
+  const seatVal=document.getElementById('approvalSeat').value;
+  const fee=parseFloat(document.getElementById('approvalFee').value);
+  const admFromRaw2=document.getElementById('approvalFrom').value;
+  const admToRaw2=document.getElementById('approvalTo').value;
+  if((seatRequired&&!seatVal)||!fee||!admFromRaw2||!admToRaw2){showToast('Fill all fields');return;}
+  function isoToDD(iso){
+    if(!iso) return '';
+    const p=iso.split('-');
+    if(p.length===3&&p[0].length===4) return p[2]+'-'+p[1]+'-'+p[0];
+    return iso;
+  }
+  const admFrom=isoToDD(admFromRaw2);
+  const admTo=isoToDD(admToRaw2);
+  
+  let seat='',seatPrefix='';
+  if(seatRequired){ ({seat,seatPrefix}=parseSeatValue(seatVal)); }
+  
+  // Create student
+  await setDoc(doc(collection(db,'students')),{
+    name:p.name,phone:p.phone,address:p.address||'',
+    seat,seatPrefix,slot:p.slot,fee,admFrom,admTo,
+    idType:p.idType,idNumber:p.idNumber,
+    photoUrl:p.photoUrl||'',
+    feeStatus:'paid',
+    createdAt:new Date().toISOString(),
+    updatedAt:new Date().toISOString()
+  });
+  
+  // Update application status
+  await updateDoc(doc(db,'applications',window._curAppId),{status:'approved',approvedAt:new Date().toISOString()});
+  
+  // Send WhatsApp
+  const slotTime=p.slot==='unreserved'?'Flexible':p.slot==='full'?'7AM鈥�11PM':p.slot==='morning'?'7AM鈥�2PM':'2PM鈥�11PM';
+  const slotName=p.slot==='unreserved'?'Unreserved (No Fixed Seat)':p.slot==='full'?'Full Time':p.slot==='morning'?'Morning Half':'Evening Half';
+  const seatLine=seatRequired?('馃獞 Seat No: *'+seatVal+'*\n'):'';
+  const msg='馃檹 *Demo Library & Study Circle*\n\n鉁� *Admission Confirmed!*\n\nDear '+p.name+',\n\nYour admission has been confirmed!\n\n'+seatLine+'鈴� Slot: '+slotName+(p.slot==='unreserved'?'':' ('+slotTime+')')+'\n馃搮 Admission Period: *'+admFrom+' to '+admTo+'*\n馃挵 Monthly Fee: Rs.'+fee+'\n\nPlease arrive on time. Library timings: '+slotTime+'.\n\nThank You!\nDemo Library & Study Circle, Nagpur';
+  // iPhone compatible - use location.href for WhatsApp
+  setTimeout(function(){
+    window.location.href='https://wa.me/91'+p.phone+'?text='+encodeURIComponent(msg);
+  }, 500);
+  showToast('Approved! Opening WhatsApp... 鉁�');
+  closeModal('approvalModal');
+  loadStudents();
+  loadPending();
+};
+
+rejectApplication=async function(){
+  if(!window._curAppId) return;
+  if(!confirm('Reject this application?')) return;
+  const p=window._curAppData;
+  await updateDoc(doc(db,'applications',window._curAppId),{status:'rejected',rejectedAt:new Date().toISOString()});
+  const msg=`馃檹 *Demo Library & Study Circle*\n\nDear ${p.name},\n\nWe regret to inform that your admission application has not been approved at this time.\n\nPlease visit or contact the library for more information.\n\nThank You!\nDemo Library & Study Circle, Nagpur`;
+  window.open(`https://wa.me/91${p.phone}?text=${encodeURIComponent(msg)}`,'_blank');
+  showToast('Application rejected');
+  closeModal('approvalModal');
+  loadPending();
+};
+
+// ===== ATTENDANCE =====
+loadAttendance=async function(){
+  const date=document.getElementById('attDate').value; if(!date) return;
+  const snap=await getDocs(query(collection(db,'attendance'),where('date','==',date)));
+  window._att={};
+  snap.docs.forEach(d=>{window._att[d.data().studentId]=d.data().present;});
+  renderAttendance();
+};
+
+function renderAttendance(){
+  const el=document.getElementById('attList');
+  if(!window._students.length){el.innerHTML='<div class="empty"><div class="emo">馃搵</div><div>No students yet</div></div>';return;}
+  el.innerHTML=window._students.map(s=>`
+    <div class="att-item">
+      <div>
+        <div style="font-weight:600;font-size:13px">${s.name}</div>
+        <div style="font-size:10px;color:var(--muted)">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)}</div>
+      </div>
+      <button class="toggle ${window._att[s.id]?'on':'off'}" id="att-${s.id}" onclick="toggleAtt('${s.id}')"></button>
+    </div>`).join('');
+  updatePresent();
+}
+
+toggleAtt=function(id){
+  window._att[id]=!window._att[id];
+  const btn=document.getElementById('att-'+id);
+  btn.className='toggle '+(window._att[id]?'on':'off');
+  updatePresent();
+};
+
+markAllPresent=function(){
+  window._students.forEach(s=>{window._att[s.id]=true;});
+  renderAttendance();
+  showToast('All marked present!');
+};
+
+function updatePresent(){
+  document.getElementById('presentCount').textContent=Object.values(window._att).filter(Boolean).length;
+}
+
+saveAttendance=async function(){
+  const date=document.getElementById('attDate').value;
+  await Promise.all(window._students.map(s=>
+    setDoc(doc(db,'attendance',`${date}_${s.id}`),{studentId:s.id,date,present:!!window._att[s.id]})
+  ));
+  showToast('Attendance saved! 鉁�');
+};
+
+// ===== FEES =====
+function populateMonthFilter(){
+  const sel=document.getElementById('feeMonth');
+  const now=new Date();
+  for(let i=0;i<12;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=`${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+    const label=d.toLocaleString('default',{month:'long',year:'numeric'});
+    const opt=document.createElement('option');
+    opt.value=val; opt.textContent=label;
+    sel.appendChild(opt);
+  }
+}
+
+filterFees=function(){
+  const filter=document.getElementById('feeFilter')?.value||'all';
+  let list=window._students;
+  if(filter==='due') list=list.filter(s=>s.feeStatus!=='paid');
+  if(filter==='paid') list=list.filter(s=>s.feeStatus==='paid');
+  if(filter==='expiring') list=list.filter(s=>isExpiring(s));
+  if(filter==='expired') list=list.filter(s=>isExpired(s));
+  renderFeeList(list);
+};
+
+function renderFeeList(list){
+  const el=document.getElementById('feeList');
+  if(!list.length){el.innerHTML='<div class="empty"><div class="emo">馃挵</div><div>No records</div></div>';return;}
+  el.innerHTML=list.map(s=>{
+    const seatLabel=seatLabelOf(s);
+    return `<div class="fee-row">
+      <div>
+        <div style="font-weight:600;font-size:13px">${s.name}</div>
+        <div style="font-size:10px;color:var(--muted)">${seatLabel==="Unreserved"?"Unreserved":"Seat "+seatLabel} 鈥� 鈧�${(s.fee||0).toLocaleString('en-IN')}/mo</div>
+        <div style="font-size:10px;color:var(--muted)">Valid: ${s.admFrom||'-'} 鈫� ${s.admTo||'-'}</div>
+      </div>
+      <div style="text-align:right;display:flex;flex-direction:column;gap:3px;align-items:flex-end">
+        <span class="badge ${s.feeStatus==='paid'?'b-paid':isExpiring(s)?'b-exp':'b-due'}">${s.feeStatus==='paid'?'Paid':isExpiring(s)?'Expiring':'Due'}</span>
+        <div style="display:flex;gap:3px">
+          ${s.feeStatus!=='paid'?`<button class="btn btn-ok btn-xs" onclick="quickPay('${s.id}')">Collect</button>`:''}
+          <button class="btn btn-wa btn-xs" onclick="sendWADirect('${s.phone}','${s.name}',${s.fee||0},'${seatLabel}')">馃敂</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+quickPay=async function(id){
+  const s=window._students.find(x=>x.id===id);
+  if(!s) return;
+
+  function addOneMonthQ(ddmmyyyy){
+    if(!ddmmyyyy) return todayDDMMYYYY();
+    const parts=ddmmyyyy.split('-');
+    if(parts.length!==3) return todayDDMMYYYY();
+    const d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+    d.setMonth(d.getMonth()+1);
+    return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
+  }
+
+  const newTo=addOneMonthQ(s.admTo);
+  const today=todayDDMMYYYY();
+
+  // Save to payments collection
+  await setDoc(doc(collection(db,'payments')),{
+    studentId:id,
+    studentName:s.name,
+    seat:seatLabelOf(s),
+    fee:s.fee||0,
+    paidDate:today,
+    admFrom:s.admTo||today,
+    admTo:newTo,
+    slot:s.slot
+  });
+
+  await updateDoc(doc(db,'students',id),{feeStatus:'paid',admTo:newTo,lastPaid:today});
+  showToast('Fee collected! Renewed till '+newTo+' 鉁�');
+  await loadStudents(); filterFees();
+};
+
+// ===== DUES LIST =====
+function renderDuesList(){
+  const el=document.getElementById('duesList');
+  const dues=window._students.filter(s=>s.feeStatus!=='paid');
+  if(!dues.length){el.innerHTML='<div style="color:var(--ok);font-weight:600;text-align:center;padding:10px">馃帀 No outstanding dues!</div>';return;}
+  el.innerHTML=dues.map(s=>{
+    const seatLabel=seatLabelOf(s);
+    return `<div class="fee-row">
+      <div><div style="font-weight:600;font-size:13px">${s.name}</div><div style="font-size:10px;color:var(--muted)">${seatLabel==="Unreserved"?"Unreserved":"Seat "+seatLabel} 鈥� 鈧�${(s.fee||0).toLocaleString('en-IN')}</div></div>
+      <button class="btn btn-wa btn-xs" onclick="sendWADirect('${s.phone}','${s.name}',${s.fee||0},'${seatLabel}')">馃敂 Remind</button>
+    </div>`;
+  }).join('');
+}
+
+// ===== EXPENSES =====
+saveExpense=async function(){
+  const cat=document.getElementById('expCat').value;
+  const amount=parseFloat(document.getElementById('expAmount').value);
+  const dateRaw=document.getElementById('expDate').value;
+  const note=document.getElementById('expNote').value.trim();
+  if(!amount||!dateRaw){showToast('Enter amount and date');return;}
+  function isoToDDExp(iso){
+    if(!iso) return '';
+    const p=iso.split('-');
+    if(p.length===3&&p[0].length===4) return p[2]+'-'+p[1]+'-'+p[0];
+    return iso;
+  }
+  const date=isoToDDExp(dateRaw);
+  await setDoc(doc(collection(db,'expenses')),{cat,amount,date,note,createdAt:new Date().toISOString()});
+  showToast('Expense saved! 鉁�');
+  document.getElementById('expAmount').value='';
+  document.getElementById('expNote').value='';
+  document.getElementById('expDate').value='';
+  loadExpenses();
+};
+
+window.loadExpenses=async function(){
+  const snap=await getDocs(collection(db,'expenses'));
+  window._expenses=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  const el=document.getElementById('expList');
+  if(!window._expenses.length){el.innerHTML='<div class="empty"><div class="emo">馃捀</div><div>No expenses yet</div></div>';return;}
+  el.innerHTML=window._expenses.slice(0,10).map(e=>`
+    <div class="fee-row">
+      <div><div style="font-weight:600;font-size:13px">${e.cat}</div><div style="font-size:10px;color:var(--muted)">${e.date} ${e.note?'鈥� '+e.note:''}</div></div>
+      <div style="text-align:right">
+        <div style="font-weight:700;color:var(--err)">鈧�${(e.amount||0).toLocaleString('en-IN')}</div>
+        <button class="btn btn-err btn-xs" onclick="delExpense('${e.id}')">Del</button>
+      </div>
+    </div>`).join('');
+};
+
+delExpense=async function(id){
+  if(!confirm('Delete this expense?')) return;
+  await deleteDoc(doc(db,'expenses',id));
+  showToast('Deleted');
+  loadExpenses();
+};
+
+// ===== REPORTS =====
+dlReport=function(type){
+  const monthVal=document.getElementById('reportMonth').value; // format: YYYY-MM
+  let mm='',yyyy='',monthLabel='All Time';
+  if(monthVal){
+    const parts=monthVal.split('-');
+    yyyy=parts[0]; mm=parts[1];
+    const d=new Date(parseInt(yyyy),parseInt(mm)-1,1);
+    monthLabel=d.toLocaleString('default',{month:'long'})+' '+yyyy;
+  }
+
+  function matchMonth(dateStr){
+    if(!monthVal) return true; // no filter = all
+    if(!dateStr) return false;
+    const p=String(dateStr).replace(/[./]/g,'-').split('-');
+    if(p.length!==3) return false;
+    const dMM=p[0].length===4?p[1]:p[1];
+    const dYY=p[0].length===4?p[0]:p[2];
+    return dMM.padStart(2,'0')===mm&&dYY===yyyy;
+  }
+
+  let csv=''; let filename='';
+
+  if(type==='students'){
+    filename=(monthVal?monthLabel+'_':'')+'students.csv';
+    csv='Month,Name,Phone,Alt Phone,Seat,Slot,Fee(Rs),Fee Status,Admission From,Admission To,Address\n';
+    let list=window._students;
+    if(monthVal) list=list.filter(s=>matchMonth(s.admFrom)||matchMonth(s.createdAt));
+    const total=list.reduce((s,st)=>s+(parseFloat(st.fee)||0),0);
+    csv+=list.map(s=>`"${monthLabel}","${s.name}","${s.phone||''}","${s.altPhone||''}","${seatLabelOf(s)}","${s.slot}",${s.fee||0},"${s.feeStatus||'due'}","${s.admFrom||''}","${s.admTo||''}","${s.address||''}"`).join('\n');
+    csv+=`
+
+Total Students,${list.length}
+Total Fee,${total}`;
+
+  } else if(type==='fees'){
+    filename=(monthVal?monthLabel+'_':'')+'fee_collection.csv';
+    csv='Month,Name,Phone,Seat,Slot,Fee(Rs),Last Paid,Admission Period\n';
+    let list=window._students.filter(s=>matchMonth(s.lastPaid));
+    const total=list.reduce((s,st)=>s+(parseFloat(st.fee)||0),0);
+    csv+=list.map(s=>`"${monthLabel}","${s.name}","${s.phone||''}","${seatLabelOf(s)}","${s.slot}",${s.fee||0},"${s.lastPaid||''}","${s.admFrom||''} to ${s.admTo||''}"`).join('\n');
+    csv+=`
+
+Total Collected,${total}
+Number of Students,${list.length}`;
+
+  } else if(type==='expenses'){
+    filename=(monthVal?monthLabel+'_':'')+'expenses.csv';
+    csv='Month,Date,Category,Amount(Rs),Note\n';
+    let list=window._expenses.filter(e=>matchMonth(e.date));
+    const total=list.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+    csv+=list.map(e=>`"${monthLabel}","${e.date}","${e.cat}",${e.amount||0},"${e.note||''}"`).join('\n');
+    csv+=`
+
+Total Expenses,${total}
+Number of Entries,${list.length}`;
+
+  } else if(type==='income'){
+    filename=(monthVal?monthLabel+'_':'')+'income_vs_expense.csv';
+    const paidList=window._students.filter(s=>matchMonth(s.lastPaid));
+    const totalIncome=paidList.reduce((s,st)=>s+(parseFloat(st.fee)||0),0);
+    const expList=window._expenses.filter(e=>matchMonth(e.date));
+    const totalExp=expList.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+    const profit=totalIncome-totalExp;
+    csv=`Month,Category,Amount(Rs)
+`;
+    csv+=`"${monthLabel}","Total Income",${totalIncome}
+`;
+    csv+=`"${monthLabel}","Total Expenses",${totalExp}
+`;
+    csv+=`"${monthLabel}","Net Profit",${profit}
+
+`;
+    csv+=`Income Details
+Name,Seat,Fee Paid
+`;
+    csv+=paidList.map(s=>`"${s.name}","${seatLabelOf(s)}",${s.fee||0}`).join('\n');
+    csv+=`
+
+Expense Details
+Date,Category,Amount
+`;
+    csv+=expList.map(e=>`"${e.date}","${e.cat}",${e.amount||0}`).join('\n');
+
+  } else if(type==='dues'){
+    filename=(monthVal?monthLabel+'_':'')+'outstanding_dues.csv';
+    csv='Name,Phone,Seat,Fee(Rs),Admission To,Status\n';
+    const list=window._students.filter(s=>!matchMonth(s.lastPaid)&&!isExpired(s));
+    csv+=list.map(s=>`"${s.name}","${s.phone||''}","${seatLabelOf(s)}",${s.fee||0},"${s.admTo||''}","Due"`).join('\n');
+    csv+=`
+
+Total Due Students,${list.length}`;
+
+  } else if(type==='attendance'){
+    filename='attendance_today.csv';
+    csv='Name,Seat,Present\n';
+    csv+=window._students.map(s=>`"${s.name}","${seatLabelOf(s)}","${window._att[s.id]?'Yes':'No'}"`).join('\n');
+
+  } else if(type==='inventory'){
+    filename='inventory.csv';
+    csv='Item,Quantity,Condition,Notes\n';
+    csv+=window._inv.map(i=>`"${i.name}",${i.qty},"${i.condition||'Good'}","${i.notes||''}"`).join('\n');
+  }
+
+  const blob=new Blob(['锘�'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+  showToast('Report downloaded! 鉁�');
+};
+
+// ===== INVENTORY =====
+async function loadInventory(){
+  const snap=await getDocs(collection(db,'inventory'));
+  window._inv=snap.docs.map(d=>({id:d.id,...d.data()}));
+  renderInventory();
+}
+
+function renderInventory(){
+  const el=document.getElementById('invList');
+  if(!window._inv.length){el.innerHTML='<div class="empty"><div class="emo">馃摝</div><div>No items yet</div></div>';return;}
+  el.innerHTML=window._inv.map(item=>`
+    <div class="list-item">
+      <div style="font-size:24px">馃摝</div>
+      <div class="item-info">
+        <div class="item-name">${item.name}</div>
+        <div class="item-meta">${item.condition||'Good'} ${item.notes?'鈥� '+item.notes:''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="inv-count">${item.qty}</div>
+        <div style="display:flex;gap:3px">
+          <button class="btn btn-out btn-xs" onclick="editInv('${item.id}')">Edit</button>
+          <button class="btn btn-err btn-xs" onclick="delInv('${item.id}')">Del</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+openAddInv=function(){
+  window._curInvId=null;
+  document.getElementById('invModalTitle').textContent='Add Item';
+  document.getElementById('saveInvBtn').textContent='Save Item';
+  ['invName','invNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('invQty').value='';
+  document.getElementById('invCond').value='Good';
+  document.getElementById('addInvModal').classList.add('open');
+};
+
+editInv=function(id){
+  const item=window._inv.find(i=>i.id===id); if(!item) return;
+  window._curInvId=id;
+  document.getElementById('invModalTitle').textContent='Edit Item';
+  document.getElementById('saveInvBtn').textContent='Update Item';
+  document.getElementById('invName').value=item.name;
+  document.getElementById('invQty').value=item.qty;
+  document.getElementById('invCond').value=item.condition||'Good';
+  document.getElementById('invNotes').value=item.notes||'';
+  document.getElementById('addInvModal').classList.add('open');
+};
+
+saveInv=async function(){
+  const name=document.getElementById('invName').value.trim();
+  const qty=parseInt(document.getElementById('invQty').value);
+  if(!name||isNaN(qty)){showToast('Enter name and quantity');return;}
+  const data={name,qty,condition:document.getElementById('invCond').value,notes:document.getElementById('invNotes').value.trim()};
+  if(window._curInvId){
+    await updateDoc(doc(db,'inventory',window._curInvId),data);
+    showToast('Updated! 鉁�');
+  } else {
+    await setDoc(doc(collection(db,'inventory')),data);
+    showToast('Added! 鉁�');
+  }
+  closeModal('addInvModal'); loadInventory();
+};
+
+delInv=async function(id){
+  if(!confirm('Delete item?')) return;
+  await deleteDoc(doc(db,'inventory',id));
+  showToast('Deleted'); loadInventory();
+};
+
+// ===== STAFF =====
+async function loadStaff(){
+  const snap=await getDocs(collection(db,'staff'));
+  const staff=snap.docs.map(d=>({id:d.id,...d.data()}));
+  const el=document.getElementById('staffList');
+  if(!staff.length){el.innerHTML='<div class="empty"><div class="emo">馃懁</div><div>No staff yet</div></div>';return;}
+  el.innerHTML=staff.map(s=>`
+    <div class="list-item">
+      <div class="avatar" style="width:40px;height:40px;font-size:14px">${s.name[0].toUpperCase()}</div>
+      <div class="item-info">
+        <div class="item-name">${s.name}</div>
+        <div class="item-meta">@${s.username||''} 鈥� ${s.email}</div>
+      </div>
+      <span class="badge ${s.role==='admin'?'b-admin':'b-staff'}">${s.role||'staff'}</span>
+    </div>`).join('');
+}
+
+openAddStaff=function(){
+  ['sfName','sfUsername','sfEmail','sfPassword'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sfRole').value='staff';
+  document.getElementById('addStaffModal').classList.add('open');
+};
+
+saveStaff=async function(){
+  const name=document.getElementById('sfName').value.trim();
+  const username=document.getElementById('sfUsername').value.trim();
+  const email=document.getElementById('sfEmail').value.trim();
+  const password=document.getElementById('sfPassword').value;
+  const role=document.getElementById('sfRole').value;
+  if(!name||!username||!email||!password){showToast('Fill all fields');return;}
+  if(password.length<6){showToast('Password must be 6+ chars');return;}
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,password);
+    await setDoc(doc(db,'staff',cred.user.uid),{name,username,email,role,createdAt:new Date().toISOString()});
+    showToast('Staff added! 鉁�'); closeModal('addStaffModal'); loadStaff();
+  } catch(e){showToast(e.code==='auth/email-already-in-use'?'Email exists':'Error creating staff');}
+};
+
+// Theme redraw hook
+window._redrawChart=function(){if(window._chart){window._chart.destroy();window._chart=null;}drawChart();};
+
+function loadTheme(){
+  const saved=localStorage.getItem('gl-theme')||'navy';
+  setTheme(saved);
+}
+
+// ===== RECEIPT PNG GENERATION =====
+async function generateReceiptPNG(){
+  const el=document.getElementById('receiptContent');
+  el.style.background='#ffffff';
+  el.style.color='#000';
+  try{
+    await new Promise(r=>setTimeout(r,500));
+    const canvas=await html2canvas(el,{
+      scale:2,
+      backgroundColor:'#ffffff',
+      useCORS:true,
+      allowTaint:true,
+      logging:false
+    });
+    el.style.background='';
+    el.style.color='';
+    return canvas;
+  } catch(e){
+    el.style.background='';
+    el.style.color='';
+    console.error('Canvas error:',e);
+    return null;
+  }
+}
+
+dlReceiptPNG=async function(){
+  showToast('Generating image...');
+  const canvas=await generateReceiptPNG();
+  if(!canvas){showToast('Error generating image');return;}
+  const s=window._students.find(x=>x.id===window._curStuId);
+  const a=document.createElement('a');
+  a.href=canvas.toDataURL('image/png');
+  a.download='Receipt-'+(s?s.name.replace(/ /g,'_'):'Student')+'.png';
+  a.click();
+  showToast('Receipt image downloaded! 鉁�');
+};
+
+dlReceiptPNGAndWA=async function(){
+  const s=window._students.find(x=>x.id===window._curStuId);
+  if(!s){showToast('Error: Student not found');return;}
+  showToast('Generating image...');
+  const png=await generateReceiptPNG();
+  if(png){
+    // Download the image
+    const a=document.createElement('a');
+    a.href=png;
+    a.download=`Receipt-${s.name.replace(/ /g,'_')}.png`;
+    a.click();
+  }
+  // Wait briefly then open WhatsApp
+  setTimeout(()=>{
+    const seatLabel=seatLabelOf(s);
+    const msg=`馃檹 *Demo Library & Study Circle*\n*Fee Receipt*\n\nDemo Library welcomes you! 馃檹\n\n鉁� Payment received for:\n馃懁 ${s.name}\n馃獞 Seat No: ${seatLabel}\n馃挵 Amount: Rs.${(s.fee||0).toLocaleString('en-IN')}\n馃搮 Period: ${s.admFrom||''} to ${s.admTo||''}\n\n馃搸 Receipt image has been downloaded.\nPlease attach it to this message.\n\nThank You!\nDemo Library & Study Circle, Nagpur`;
+    window.open('https://wa.me/91'+s.phone+'?text='+encodeURIComponent(msg),'_blank');
+    showToast('Image downloaded! Attach it in WhatsApp 馃搸');
+  },1500);
+};
+
+shareReceiptPNG=async function(){
+  const s=window._students.find(x=>x.id===window._curStuId);
+  if(!s){showToast('Student not found');return;}
+  showToast('Generating receipt image...');
+  try{
+    const canvas=await generateReceiptPNG();
+    if(!canvas){showToast('Error generating image. Try again.');return;}
+    const filename='Receipt-'+s.name.replace(/ /g,'_')+'.png';
+    // Use toDataURL - most reliable method
+    const dataURL=canvas.toDataURL('image/png');
+    if(!dataURL||dataURL==='data:,'){showToast('Error: Could not capture image');return;}
+    // Convert to blob using XMLHttpRequest (most compatible)
+    const xhr=new XMLHttpRequest();
+    xhr.open('GET',dataURL,true);
+    xhr.responseType='blob';
+    xhr.onload=async function(){
+      const blob=xhr.response;
+      const file=new File([blob],filename,{type:'image/png'});
+      // Try Web Share API
+      if(navigator.share){
+        try{
+          if(navigator.canShare && navigator.canShare({files:[file]})){
+            await navigator.share({files:[file],title:'Fee Receipt - Demo Library'});
+            showToast('Shared! 鉁�');
+            return;
+          }
+        } catch(shareErr){
+          if(shareErr.name==='AbortError') return;
+        }
+      }
+      // Fallback: auto download
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=filename; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+      showToast('Receipt saved! Open gallery to share 馃搸');
+    };
+    xhr.send();
+  } catch(e){
+    showToast('Error: '+e.message);
+    console.error(e);
+  }
+};
+
+
+showStatDetail=function(type){
+  const titles={
+    occupied:'馃獞 Occupied Seats',
+    vacant:'鉁� Vacant Seats',
+    students:'馃懃 All Students',
+    collected:'馃挵 This Month Collection',
+    paid:'鉁� Fee Paid Students',
+    due:'鉂� Fee Due Students',
+    expiring:'鈿狅笍 Expiring Soon (3 days)',
+    expired:'馃敶 Expired Admissions'
+  };
+  document.getElementById('statDetailTitle').textContent=titles[type]||'Details';
+  const el=document.getElementById('statDetailContent');
+
+  // Build occupied seat set
+  const occSeats=new Set(window._students.map(s=>(s.seatPrefix||'')+parseInt(s.seat)));
+
+  let list=[];
+  let html='';
+
+  if(type==='occupied'){
+    list=window._students;
+    html=list.length?list.map(s=>`
+      <div class="fee-row" onclick="openStuDetail('${s.id}');closeModal('statDetailModal')">
+        <div>
+          <div style="font-weight:700;font-size:13px">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)} 鈥� ${slotNameOf(s)}</div>
+        </div>
+        <span class="badge ${s.feeStatus==='paid'?'b-paid':'b-due'}">${s.feeStatus==='paid'?'Paid':'Due'}</span>
+      </div>`).join(''):'<div class="empty"><div class="emo">馃獞</div><div>No occupied seats</div></div>';
+
+  } else if(type==='vacant'){
+    const allSeats=[];
+    for(let i=1;i<=83;i++) if(!occSeats.has(String(i))) allSeats.push(String(i));
+    for(let i=1;i<=45;i++) if(!occSeats.has('G'+i)) allSeats.push('G'+i);
+    html=allSeats.length?`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:4px">`+
+      allSeats.map(s=>`<div style="background:var(--bg);border-radius:8px;padding:8px;text-align:center;font-weight:700;font-size:13px;color:var(--ok);border:1px solid #a5d6a7">${s}</div>`).join('')+
+      '</div>':
+      '<div class="empty"><div class="emo">鉁�</div><div>No vacant seats!</div></div>';
+
+  } else if(type==='students'){
+    list=window._students;
+    html=list.length?list.map(s=>`
+      <div class="fee-row" onclick="openStuDetail('${s.id}');closeModal('statDetailModal')">
+        <div>
+          <div style="font-weight:700;font-size:13px">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)} 鈥� ${s.phone||''}</div>
+        </div>
+        <span class="badge ${slotBadgeOf(s)}">${slotNameOf(s,'ampm')}</span>
+      </div>`).join(''):'<div class="empty"><div class="emo">馃懃</div><div>No students yet</div></div>';
+
+  } else if(type==='collected'){
+    const now3=new Date();
+    const cMM=String(now3.getMonth()+1).padStart(2,'0');
+    const cYYYY=String(now3.getFullYear());
+    list=window._students.filter(s=>{
+      if(!s.lastPaid) return false;
+      const parts=s.lastPaid.split('-');
+      if(parts.length!==3) return false;
+      return parts[1]===cMM && parts[2]===cYYYY;
+    });
+    const total=list.reduce((sum,s)=>sum+(s.fee||0),0);
+    const monthName=now3.toLocaleString('default',{month:'long'});
+    html=`<div style="text-align:center;padding:10px;margin-bottom:10px;background:var(--bg);border-radius:10px">
+      <div style="font-size:11px;color:var(--muted)">${monthName} ${cYYYY} Collection</div>
+      <div style="font-size:26px;font-weight:800;color:var(--ok)">鈧�${total.toLocaleString('en-IN')}</div>
+    </div>`+
+    (list.length?list.map(s=>`
+      <div class="fee-row">
+        <div>
+          <div style="font-weight:700;font-size:13px">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)} 鈥� Paid: ${s.lastPaid||'-'}</div>
+        </div>
+        <div style="font-weight:700;color:var(--ok)">鈧�${(s.fee||0).toLocaleString('en-IN')}</div>
+      </div>`).join(''):'<div class="empty"><div class="emo">馃挵</div><div>No payments this month yet</div></div>');
+
+  } else if(type==='paid'){
+    const nowP=new Date();
+    const pMM=String(nowP.getMonth()+1).padStart(2,'0');
+    const pYY=String(nowP.getFullYear());
+    const mName=nowP.toLocaleString('default',{month:'long'});
+    function isPaidThisMonth(s){
+      if(!s.lastPaid) return false;
+      const p=String(s.lastPaid).replace(/[./]/g,'-').split('-');
+      if(p.length!==3) return false;
+      if(p[0].length===4) return p[1].padStart(2,'0')===pMM&&p[0]===pYY;
+      return p[1].padStart(2,'0')===pMM&&p[2]===pYY;
+    }
+    list=window._students.filter(s=>isPaidThisMonth(s));
+    html=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600">${mName} ${pYY} 鈥� ${list.length} students paid</div>`+
+    (list.length?list.map(s=>`
+      <div class="fee-row" onclick="openStuDetail('${s.id}');closeModal('statDetailModal')">
+        <div>
+          <div style="font-weight:700;font-size:13px">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)} 鈥� Paid: ${s.lastPaid||'-'}</div>
+        </div>
+        <div style="font-weight:700;color:var(--ok)">鈧�${s.fee||0}</div>
+      </div>`).join(''):'<div class="empty"><div class="emo">鉁�</div><div>No payments this month yet</div></div>');
+
+  } else if(type==='due'){
+    const nowD=new Date();
+    const dMM=String(nowD.getMonth()+1).padStart(2,'0');
+    const dYY=String(nowD.getFullYear());
+    const dName=nowD.toLocaleString('default',{month:'long'});
+    function isNotPaidThisMonth(s){
+      if(!s.lastPaid) return true;
+      const p=String(s.lastPaid).replace(/[./]/g,'-').split('-');
+      if(p.length!==3) return true;
+      if(p[0].length===4) return !(p[1].padStart(2,'0')===dMM&&p[0]===dYY);
+      return !(p[1].padStart(2,'0')===dMM&&p[2]===dYY);
+    }
+    list=window._students.filter(s=>isNotPaidThisMonth(s)&&!isExpired(s));
+    html=`<div style="font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600">${dName} ${dYY} 鈥� ${list.length} students due</div>`+
+    (list.length?list.map(s=>`
+      <div class="fee-row" onclick="openStuDetail('${s.id}');closeModal('statDetailModal')">
+        <div>
+          <div style="font-weight:700;font-size:13px">${s.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)} 鈥� 鈧�${s.fee||0}</div>
+          <div style="font-size:10px;color:var(--err)">Due till: ${s.admTo||'-'}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">
+          <span class="badge b-due">Due</span>
+          <button class="btn btn-wa btn-xs" onclick="event.stopPropagation();sendWADirect('${s.phone}','${s.name}',${s.fee||0},'${seatLabelOf(s)}')">馃敂</button>
+        </div>
+      </div>`).join(''):'<div class="empty"><div class="emo">馃帀</div><div>No dues this month!</div></div>');
+
+  } else if(type==='expiring'){
+    list=window._students.filter(s=>isExpiring(s));
+    html=list.length?list.map(s=>{
+      const days=Math.ceil((new Date(toISO(s.admTo))-new Date())/(1000*60*60*24));
+      return `<div class="fee-row" onclick="openStuDetail('${s.id}');closeModal('statDetailModal')">
+        <div>
+          <div style="font-weight:700;font-size:13px">${s.name}</div>
+          <div style="font-size:11px;color:var(--warn)">Expires in ${days} day(s) 鈥� ${s.admTo}</div>
+        </div>
+        <button class="btn btn-wa btn-xs" onclick="event.stopPropagation();sendWADirect('${s.phone}','${s.name}',${s.fee||0},'${seatLabelOf(s)}')">馃敂</button>
+      </div>`;
+    }).join(''):'<div class="empty"><div class="emo">鉁�</div><div>No expiring admissions</div></div>';
+
+  } else if(type==='expired'){
+    list=window._students.filter(s=>isExpired(s));
+    html=list.length?list.map(s=>`
+      <div class="fee-row" onclick="openStuDetail('${s.id}');closeModal('statDetailModal')" style="border-left:3px solid #757575">
+        <div>
+          <div style="font-weight:700;font-size:13px">${s.name}</div>
+          <div style="font-size:11px;color:#757575">${seatLabelOf(s)==="Unreserved"?"Unreserved":"Seat "+seatLabelOf(s)} 鈥� Expired: ${s.admTo||'-'}</div>
+          <div style="font-size:10px;color:var(--err)">Admission expired 鈥� action needed!</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">
+          <span class="badge" style="background:#e0e0e0;color:#424242">Expired</span>
+          <button class="btn btn-wa btn-xs" onclick="event.stopPropagation();sendWADirect('${s.phone}','${s.name}',${s.fee||0},'${seatLabelOf(s)}')">馃敂</button>
+        </div>
+      </div>`).join(''):'<div class="empty"><div class="emo">鉁�</div><div>No expired admissions</div></div>';
+  }
+
+  el.innerHTML=html;
+  openModal('statDetailModal');
+};
+
+deleteOldExpenses=async function(){
+  // Show month picker to select which months to delete
+  const now=new Date();
+  const currentMonth=String(now.getMonth()+1).padStart(2,'0')+'-'+now.getFullYear();
+  const lastMonth=new Date(now.getFullYear(),now.getMonth()-1,1);
+  const lastMonthKey=String(lastMonth.getMonth()+1).padStart(2,'0')+'-'+lastMonth.getFullYear();
+
+  const choice=confirm(
+    'Delete old expense records?\n\n'+
+    'This will delete ALL expenses EXCEPT current month ('+currentMonth+').\n\n'+
+    'Tap OK to confirm deletion.'
+  );
+  if(!choice) return;
+
+  showToast('Deleting old expenses...');
+  const snap=await getDocs(collection(db,'expenses'));
+  const toDelete=snap.docs.filter(d=>{
+    const e=d.data();
+    if(!e.date) return true;
+    const parts=e.date.split('-');
+    if(parts.length!==3) return true;
+    const key=parts[1]+'-'+parts[2]; // MM-YYYY
+    return key!==currentMonth; // delete everything except current month
+  });
+
+  await Promise.all(toDelete.map(d=>deleteDoc(doc(db,'expenses',d.id))));
+  showToast('Deleted '+toDelete.length+' old expense records! 鉁�');
+  loadExpenses();
+  drawChart();
+};
+
+
+async function loadPaymentsCache(){
+  try{
+    const snap=await getDocs(collection(db,'payments'));
+    window._cachedPayments=snap.docs.map(d=>d.data());
+  }catch(e){
+    window._cachedPayments=[];
+  }
+}
+
+// ===== WIRE UP ALL GLOBAL CALLBACKS =====
+window._filterFees=filterFees;
+window._loadAttendance=loadAttendance;
+window._loadPending=loadPending;
+window._loadReports=function(){renderDuesList();loadExpenses();};
+window._handleLogin=handleLogin;
+window._handleLogout=handleLogout;
+window._openStudentRegistration=openStudentRegistration;
+window._submitRegistration=submitRegistration;
+window._triggerCamera=triggerCamera;
+window._handleRegPhoto=handleRegPhoto;
+window._openAddStudent=openAddStudent;
+window._saveStudent=saveStudent;
+window._handleStuPhoto=handleStuPhoto;
+window._onSlotChange=onSlotChange;
+window._filterStudents=filterStudents;
+window._openStuDetail=openStuDetail;
+window._markFeePaid=markFeePaid;
+window._markFeeUnpaid=markFeeUnpaid;
+window._sendWA=sendWA;
+window._sendFinalReminder=sendFinalReminder;
+window._sendWADirect=sendWADirect;
+{if(window._chart){window._chart.destroy();window._chart=null;}drawChart();};
+window._showReceipt=showReceipt;
+window._sendReceiptWA=sendReceiptWA;
+window._dlReceipt=dlReceipt;
+window._dlReceiptPNG=dlReceiptPNG;
+window._dlReceiptPNGAndWA=dlReceiptPNGAndWA;
+window._shareReceiptPNG=shareReceiptPNG;
+window._editStudent=editStudent;
+window._deleteStudent=deleteStudent;
+window._showStudentQR=showStudentQR;
+window._shareAppLink=shareAppLink;
+window._openApproval=openApproval;
+window._approveApplication=approveApplication;
+window._rejectApplication=rejectApplication;
+window._toggleAtt=toggleAtt;
+window._markAllPresent=markAllPresent;
+window._saveAttendance=saveAttendance;
+window._quickPay=quickPay;
+window._saveExpense=saveExpense;
+window._delExpense=delExpense;
+window._deleteOldExpenses=deleteOldExpenses;
+window._dlReport=dlReport;
+window._openAddInv=openAddInv;
+window._editInv=editInv;
+window._saveInv=saveInv;
+window._delInv=delInv;
+window._openAddStaff=openAddStaff;
+window._saveStaff=saveStaff;
+window._seatClick=seatClick;
+window._vacateSeat=vacateSeat;
+window._extendAdmission=extendAdmission;
+window._showStatDetail=showStatDetail;
+
+document.querySelectorAll('.modal-overlay').forEach(overlay=>{
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.classList.remove('open');});
+});
+</script>
+</body>
+</html>
