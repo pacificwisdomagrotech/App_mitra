@@ -1,1 +1,2222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Demo Society - Credit Society App</title>
+<meta name="theme-color" content="#24304A">
+<style>
+/* =====================================================
+   Demo Society \2014  Design System
+   Visual identity: a physical ledger / passbook book.
+   Signature element: the circular "passbook stamp" used
+   on paid entries & receipts; ruled "page" cards; tabular
+   mono figures for every rupee amount, aligned like a
+   real khata column.
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+:root{
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --radius-card: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 2px 10px rgba(20,20,20,0.08);
+  --shadow-raised: 0 6px 20px rgba(20,20,20,0.14);
+}
+
+/* ---------- Theme: Bahi Khata (default) ---------- */
+[data-theme="bahi"]{
+  --bg: #F3EEE0;
+  --paper: #FBF8EF;
+  --ink: #24304A;
+  --ink-soft: #5B6478;
+  --rule: #C9BFA0;
+  --primary: #24304A;
+  --primary-contrast: #FBF8EF;
+  --accent: #C99A2E;
+  --credit: #3E7A4F;
+  --debit: #8C2F39;
+  --card-alt: #EFE7D0;
+}
+
+/* ---------- Theme: Harvest Gold ---------- */
+[data-theme="harvest"]{
+  --bg: #FBF3DD;
+  --paper: #FFFDF6;
+  --ink: #4A3423;
+  --ink-soft: #8A6F55;
+  --rule: #E3CE9C;
+  --primary: #A9711E;
+  --primary-contrast: #FFFDF6;
+  --accent: #C0392B;
+  --credit: #4A7C59;
+  --debit: #B03A2E;
+  --card-alt: #F3E4BC;
+}
+
+/* ---------- Theme: Peepal Green ---------- */
+[data-theme="peepal"]{
+  --bg: #EDF3E7;
+  --paper: #F8FBF5;
+  --ink: #23361F;
+  --ink-soft: #5C7455;
+  --rule: #BFD4B4;
+  --primary: #2D5F3E;
+  --primary-contrast: #F8FBF5;
+  --accent: #C9A227;
+  --credit: #2D6A4F;
+  --debit: #9C3B3B;
+  --card-alt: #E1EBD8;
+}
+
+/* ---------- Theme: Diya Saffron ---------- */
+[data-theme="diya"]{
+  --bg: #FDF1E2;
+  --paper: #FFFAF1;
+  --ink: #4A2A1D;
+  --ink-soft: #8C6650;
+  --rule: #EBC79A;
+  --primary: #D2601A;
+  --primary-contrast: #FFFAF1;
+  --accent: #A62639;
+  --credit: #3E7A4F;
+  --debit: #A62639;
+  --card-alt: #F7E1C2;
+}
+
+/* ---------- Theme: Night Ledger (dark) ---------- */
+[data-theme="night"]{
+  --bg: #12141C;
+  --paper: #1B1F2B;
+  --ink: #EDE7D6;
+  --ink-soft: #9BA0B4;
+  --rule: #333952;
+  --primary: #E8C468;
+  --primary-contrast: #12141C;
+  --accent: #E8C468;
+  --credit: #6FBF8B;
+  --debit: #E37B7B;
+  --card-alt: #232839;
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:24px; /* space for bottom nav */
+}
+
+h1,h2,h3,.display{
+  font-family:var(--font-display);
+  font-weight:600;
+  letter-spacing:-0.01em;
+  margin:0;
+}
+
+.mono, .amount{
+  font-family:var(--font-mono);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:16px 18px 14px;
+  background:var(--primary);
+  color:var(--primary-contrast);
+  position:sticky; top:0; z-index:20;
+}
+.stamp{
+  width:38px; height:38px;
+  border-radius:50%;
+  border:2px solid var(--primary-contrast);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:16px;
+  flex-shrink:0;
+}
+.topbar .titles{ line-height:1.15; }
+.topbar .titles small{ opacity:0.75; font-size:11.5px; display:block; }
+
+/* ---------- Page / cards ---------- */
+.page{ padding:16px; max-width:640px; margin:0 auto; }
+.card{
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:var(--radius-card);
+  box-shadow:var(--shadow-card);
+  padding:16px;
+  margin-bottom:14px;
+  position:relative;
+}
+.card.ledger::before{
+  /* faint ruled lines like a khata page */
+  content:"";
+  position:absolute; inset:44px 0 12px 0;
+  background-image:repeating-linear-gradient(
+    to bottom, transparent, transparent 27px, var(--rule) 28px);
+  opacity:0.35; pointer-events:none;
+}
+.card h3{ font-size:16px; margin-bottom:8px; }
+.card-alt{ background:var(--card-alt); }
+
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+
+.stat{
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:var(--radius-card);
+  padding:12px 14px;
+}
+.stat .label{ font-size:11.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; }
+.stat .value{ font-family:var(--font-mono); font-size:20px; font-weight:700; margin-top:4px; }
+.stat .value.credit{ color:var(--credit); }
+.stat .value.debit{ color:var(--debit); }
+
+/* ---------- Buttons / inputs ---------- */
+button{ font-family:var(--font-body); cursor:pointer; }
+.btn{
+  background:var(--primary); color:var(--primary-contrast);
+  border:none; border-radius:10px; padding:11px 16px;
+  font-size:14.5px; font-weight:600;
+}
+.btn.secondary{ background:transparent; color:var(--primary); border:1.5px solid var(--primary); }
+.btn.danger{ background:var(--debit); color:#fff; }
+.btn.block{ width:100%; }
+.btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+input, select, textarea{
+  width:100%;
+  border:1.5px solid var(--rule);
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:9px;
+  padding:10px 12px;
+  font-size:14.5px;
+  font-family:var(--font-body);
+}
+label{ font-size:12.5px; color:var(--ink-soft); display:block; margin:10px 0 4px; }
+
+/* ---------- Status pill / stamp badge ---------- */
+.pill{
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 10px; border-radius:var(--radius-pill);
+  font-size:11.5px; font-weight:600; letter-spacing:.02em;
+}
+.pill.paid{ background:color-mix(in srgb, var(--credit) 18%, transparent); color:var(--credit); }
+.pill.due{ background:color-mix(in srgb, var(--debit) 18%, transparent); color:var(--debit); }
+.pill.pending{ background:color-mix(in srgb, var(--accent) 22%, transparent); color:var(--accent); }
+
+.stamp-badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:46px; height:46px; border-radius:50%;
+  border:2px dashed var(--credit); color:var(--credit);
+  transform:rotate(-8deg);
+  font-family:var(--font-display); font-weight:700; font-size:10px;
+  text-align:center; line-height:1.1;
+}
+
+/* ---------- Hamburger + side drawer nav ---------- */
+.hamburger{
+  background:none; border:1.5px solid var(--primary-contrast);
+  color:var(--primary-contrast); border-radius:8px;
+  width:38px; height:38px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:19px; margin-left:auto;
+}
+.drawer-backdrop{
+  position:fixed; inset:0; background:rgba(0,0,0,0.45);
+  z-index:40; opacity:0; pointer-events:none; transition:opacity 0.2s;
+}
+.drawer-backdrop.open{ opacity:1; pointer-events:auto; }
+.drawer{
+  position:fixed; top:0; left:0; bottom:0; width:78%; max-width:300px;
+  background:var(--paper); z-index:41;
+  transform:translateX(-100%); transition:transform 0.25s ease;
+  display:flex; flex-direction:column;
+  box-shadow:2px 0 18px rgba(0,0,0,0.25);
+  padding-top:env(safe-area-inset-top);
+}
+.drawer.open{ transform:translateX(0); }
+.drawer-head{
+  padding:20px 18px; background:var(--primary); color:var(--primary-contrast);
+  display:flex; align-items:center; gap:12px;
+}
+.drawer-nav{ flex:1; overflow-y:auto; padding:10px 0; }
+.navbtn{
+  background:none; border:none; color:var(--ink);
+  display:flex; align-items:center; gap:14px; width:100%;
+  font-size:15px; padding:13px 20px; text-align:left;
+}
+.navbtn.active{ color:var(--primary); font-weight:700; background:color-mix(in srgb, var(--primary) 8%, transparent); }
+.navbtn .navicon{ font-size:19px; width:24px; text-align:center; }
+
+/* ---------- Lists / rows ---------- */
+.row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 0; border-bottom:1px solid var(--rule);
+}
+.row:last-child{ border-bottom:none; }
+.row .who{ font-weight:600; font-size:14.5px; }
+.row .meta{ font-size:12px; color:var(--ink-soft); }
+
+/* ---------- Theme swatches (settings) ---------- */
+.swatch-row{ display:flex; gap:10px; flex-wrap:wrap; }
+.swatch{
+  width:52px; height:52px; border-radius:12px; border:2px solid transparent;
+  cursor:pointer; position:relative;
+}
+.swatch.active{ border-color:var(--ink); }
+
+/* ---------- Toast ---------- */
+#toast{
+  position:fixed; left:50%; bottom:90px; transform:translateX(-50%);
+  background:var(--ink); color:var(--paper);
+  padding:10px 18px; border-radius:var(--radius-pill);
+  font-size:13.5px; opacity:0; pointer-events:none; transition:opacity .25s;
+  z-index:50; max-width:88%; text-align:center;
+}
+#toast.show{ opacity:1; }
+
+/* ---------- Modal ---------- */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(0,0,0,0.45);
+  display:none; align-items:flex-end; justify-content:center; z-index:40;
+}
+.modal-backdrop.show{ display:flex; }
+.modal{
+  background:var(--paper); width:100%; max-width:640px;
+  border-radius:18px 18px 0 0; padding:18px; max-height:88vh; overflow-y:auto;
+}
+.modal .modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.modal .close{ background:none; border:none; font-size:20px; color:var(--ink-soft); }
+
+.hidden{ display:none !important; }
+.section-title{ font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:18px 0 8px; }
+.divider{ height:1px; background:var(--rule); margin:14px 0; }
+/* ---------- Detail-view tables (member history, etc.) ---------- */
+.detail-table-wrap{ overflow-x:auto; margin-bottom:14px; -webkit-overflow-scrolling:touch; }
+table.detail-table{ width:100%; border-collapse:collapse; font-size:12.5px; white-space:nowrap; }
+table.detail-table th, table.detail-table td{
+  padding:7px 9px; text-align:left; border-bottom:1px solid rgba(0,0,0,0.08);
+}
+table.detail-table th{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:0.03em;
+  color:var(--ink-soft); font-weight:600; background:rgba(0,0,0,0.03);
+}
+table.detail-table td.num{ text-align:right; font-variant-numeric:tabular-nums; }
+table.detail-table tr:last-child td{ border-bottom:none; }
+
+</style>
+
+<!-- Safety net: if the app can't draw anything (e.g. Google's Firebase files
+     are blocked or the connection is bad), say WHY instead of a blank screen. -->
+<script>
+(function(){
+  var errs = [];
+  function esc(t){ return String(t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  window.addEventListener('error', function(e){
+    var t = e.target;
+    if(t && t !== window && (t.tagName === 'SCRIPT' || t.tagName === 'LINK')){
+      errs.push('Could not load: ' + (t.src || t.href));
+    } else {
+      errs.push((e.message || 'Script error') + (e.filename ? '  (' + e.filename.split('/').pop() + ':' + e.lineno + ')' : ''));
+    }
+  }, true);
+  window.addEventListener('unhandledrejection', function(e){
+    var r = e.reason;
+    errs.push('Promise error: ' + ((r && (r.code || r.message)) || r));
+  });
+  setTimeout(function(){
+    var app = document.getElementById('app');
+    if(!app || app.innerHTML.replace(/\s/g,'') !== '') return; // app drew something - all good
+    var why;
+    if(typeof firebase === 'undefined'){
+      why = "Google's Firebase files (gstatic.com) could not be loaded. Check that your internet works, try switching between Wi-Fi and mobile data, and turn off any ad-blocker or data-saver mode for this site.";
+    } else if(errs.length){
+      why = 'A script error stopped the app from starting. Details are below - please send a screenshot.';
+    } else {
+      why = 'Still connecting to Google servers - the connection looks very slow or blocked. Please try again.';
+    }
+    app.innerHTML =
+      '<div style="max-width:380px;margin:16vh auto 0;padding:0 22px;font-family:system-ui,sans-serif;color:#24304A;text-align:center;">' +
+      '<div style="width:56px;height:56px;border-radius:50%;border:2px solid #24304A;margin:0 auto 14px;line-height:52px;font-weight:700;font-size:20px;">DS</div>' +
+      '<div style="font-size:19px;font-weight:700;margin-bottom:8px;">Demo Society could not start</div>' +
+      '<div style="font-size:14px;line-height:1.55;margin-bottom:18px;">' + esc(why) + '</div>' +
+      '<button onclick="location.reload()" style="background:#24304A;color:#FBF8EF;border:none;border-radius:10px;padding:11px 26px;font-size:15px;font-weight:600;">Try again</button>' +
+      (errs.length ? '<details style="margin-top:18px;text-align:left;font-size:11.5px;"><summary>Technical details</summary><pre style="white-space:pre-wrap;word-break:break-word;">' + esc(errs.join('\n')) + '</pre></details>' : '') +
+      '</div>';
+  }, 8000);
+})();
+</script>
+</head>
+<body data-theme="bahi">
+<script>
+(function(){
+var WA="917276124898", DEMO_DAYS=3, KEY="am_soc_demo_v1";
+/* Optional server check (stops a customer restarting the demo by clearing the browser): paste App Mitra Firebase details */
+var SRV={projectId:"app-mitra-90078",apiKey:"AIzaSyCEXC0FoKqcuIYpg8sHc9tSulktIi2D68o"};
+var st=null;try{st=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+var css=document.createElement("style");
+css.textContent="#demoGate{position:fixed;inset:0;z-index:9999;background:#0d1f3c;display:none;align-items:center;justify-content:center;padding:18px;font-family:'Segoe UI',system-ui,sans-serif}#demoGate .b{background:#fff;color:#1a1a2e;border-radius:18px;padding:22px;max-width:380px;width:100%}#demoGate h2{font-size:21px;margin-bottom:6px}#demoGate p{color:#555;font-size:14px;margin-bottom:12px}#demoGate input{width:100%;padding:12px;border:1.5px solid #dfe4ef;border-radius:10px;font-size:15px;margin-bottom:10px}#demoGate button,#demoGate a.bt{display:block;width:100%;border:0;border-radius:10px;padding:13px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;color:#fff;background:#1a3a6b;cursor:pointer}#demoGate a.wa{background:#1faa59}#demoGate .e{color:#dc2626;font-size:13px;min-height:18px;margin-bottom:6px}#demoFloat{position:fixed;right:10px;bottom:20px;z-index:90;display:none;flex-direction:column;align-items:flex-end;gap:6px;font-family:'Segoe UI',system-ui,sans-serif}#demoFloat a{background:#1faa59;color:#fff;text-decoration:none;font-weight:600;font-size:13px;padding:9px 13px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,.25)}#demoFloat span{background:#ff9f1c;color:#14213d;font-size:12px;font-weight:600;padding:5px 10px;border-radius:12px}#demoFloat u{font-size:11px;color:#6b7280;cursor:pointer;background:#fff;padding:3px 8px;border-radius:10px}";
+document.head.appendChild(css);
+var gate=document.createElement("div");gate.id="demoGate";
+var fl=document.createElement("div");fl.id="demoFloat";
+document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(gate);document.body.appendChild(fl);init();});
+function wa(m){return "https://wa.me/"+WA+"?text="+encodeURIComponent(m)}
+function who(){return st?(" (Demo user: "+st.name+", "+st.phone+")"):""}
+function fsUrl(p){return "https://firestore.googleapis.com/v1/projects/"+SRV.projectId+"/databases/(default)/documents/demos"+p}
+function getSrv(phone){
+  if(!SRV.projectId||!SRV.apiKey)return Promise.resolve(null);
+  return Promise.race([fetch(fsUrl("/"+phone+"_society?key="+SRV.apiKey)).then(function(r){return r.status===200?r.json():null}).then(function(j){return j&&j.fields&&j.fields.start?Number(j.fields.start.integerValue):null}).catch(function(){return null}),new Promise(function(r){setTimeout(function(){r(null)},2500)})]);
+}
+function putSrv(n,p,t){
+  if(!SRV.projectId||!SRV.apiKey)return;
+  fetch(fsUrl("?documentId="+p+"_society&key="+SRV.apiKey),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:{name:{stringValue:n},phone:{stringValue:p},start:{integerValue:String(t)}}})}).catch(function(){});
+}
+function ask(){
+  gate.innerHTML='<div class="b"><h2>Start your 3-day demo</h2><p>Enter your details to try the Society App with sample data. No payment needed.</p><input id="dgN" placeholder="Your name" autocomplete="name"><input id="dgP" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel"><div class="e" id="dgE"></div><button id="dgB">Start demo</button></div>';
+  gate.style.display="flex";
+  document.getElementById("dgB").onclick=function(){
+    var n=document.getElementById("dgN").value.trim(),p=document.getElementById("dgP").value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    var e=document.getElementById("dgE");
+    if(!n){e.textContent="Please enter your name.";return}
+    if(!/^[6-9]\d{9}$/.test(p)){e.textContent="Enter a valid 10-digit mobile number.";return}
+    this.disabled=true;this.textContent="Starting...";
+    getSrv(p).then(function(prev){var t=prev||Date.now();st={name:n,phone:p,start:t};localStorage.setItem(KEY,JSON.stringify(st));if(!prev)putSrv(n,p,t);init();});
+  };
+}
+function expired(){
+  gate.innerHTML='<div class="b"><h2>Your 3-day demo has ended</h2><p>Thank you for trying the Society App. Take the 1-year license and we will set it up with your library name, logo and data.</p><a class="bt wa" href="'+wa("Hi, my 3-day demo of the Society App has ended. I want to buy the 1-year license."+who())+'">Buy 1-year license on WhatsApp</a></div>';
+  gate.style.display="flex";fl.style.display="none";
+}
+function init(){
+  if(!st||!st.phone){ask();return}
+  var left=st.start+DEMO_DAYS*DAY-Date.now();
+  if(left<=0){expired();return}
+  gate.style.display="none";
+  var d=Math.floor(left/DAY),h=Math.floor(left%DAY/36e5);
+  fl.innerHTML='<span>Demo: '+d+'d '+h+'h left</span><a href="'+wa("Hi, I want to buy the 1-year license of the Society App."+who())+'">Buy license</a><u id="dgR">Reset sample data</u>';
+  fl.style.display="flex";
+  document.getElementById("dgR").onclick=function(){if(confirm("Reset all sample data?")){localStorage.removeItem("am_soc_demo_db_v1");localStorage.removeItem("am_soc_demo_user_v1");location.reload()}};
+  setTimeout(init,60000);
+}
+var DAY=864e5;
+})();
+</script>
+
+  <div id="app"></div>
+<script>
+// ===== DEMO MODE: local sample database (no real data, no Firebase) =====
+(function(){
+var DB_KEY='am_soc_demo_db_v1', USER_KEY='am_soc_demo_user_v1', TS='__SERVER_TS__';
+var pad=function(n){return String(n).padStart(2,'0')};
+var rid=function(){return 'id'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)};
+var clone=function(o){return JSON.parse(JSON.stringify(o))};
+var r2=function(x){return Math.round(x*100)/100};
+var YS=10, INT=2, SHARE=500; /* society year starts in October, 2% monthly interest, 500 per share */
+var mk=function(y,m){return y+'-'+pad(m)};
+function yearOf(key){var p=key.split('-').map(Number);return p[1]>=YS?p[0]+'-'+(p[0]+1):(p[0]-1)+'-'+p[0]}
+function seed(){
+  var S={users:{},members:{},contributions:{},loans:{},loanLedger:{},years:{},distributions:{},_auth:{}};
+  var now=new Date(), nowIso=now.toISOString(), cy=now.getFullYear(), cm=now.getMonth()+1, curKey=mk(cy,cm);
+  var curStart=cm>=YS?cy:cy-1, prevStart=curStart-1;
+  S.users.admin={username:'admin',uid:'u_admin',role:'admin',isDefaultAdmin:true,createdAt:nowIso};
+  S._auth['admin@demo.local']={uid:'u_admin',pw:'demo123'};
+  var names=[['Ramesh Kale',4],['Sunita Meshram',2],['Dinesh Wagh',5],['Kavita Pande',3],['Mohan Thakre',2],['Anita Raut',4],['Sanjay Bhoyar',6],['Rekha Ingole',2],['Prakash Dhoke',3],['Meena Zade',4],['Vijay Nimje',2],['Seema Bagde',3]];
+  names.forEach(function(n,i){
+    S.members['m'+(i+1)]={name:n[0],phone:'98223'+String(40100+i*13),sharesCount:n[1],joinDate:mk(prevStart,10)+'-01',address:'Sample Nagar, Nagpur',active:true,shareValue:SHARE,createdAt:nowIso,updatedAt:nowIso};
+  });
+  var months=[], y=prevStart, m=YS;
+  while(y<cy||(y===cy&&m<=cm)){months.push(mk(y,m));m++;if(m>12){m=1;y++}}
+  months.forEach(function(key,mi){
+    names.forEach(function(n,i){
+      var id='m'+(i+1)+'_'+key, due=n[1]*SHARE, isCur=(key===curKey), pen=(!isCur&&(mi+i)%11===0)?50:0;
+      var paid=isCur?(i%3!==0):true;
+      S.contributions[id]={memberId:'m'+(i+1),memberName:n[0],month:key,yearId:yearOf(key+'-05'),sharesAtTime:n[1],amountDue:due,
+        amountPaid:paid?due+pen:0,status:paid?'paid':'unpaid',penaltyApplied:pen>0,penaltyAmount:pen,createdAt:nowIso};
+      if(paid)S.contributions[id].paidDate=key+'-0'+(3+(i%4));
+    });
+  });
+  [['m2',20000,6],['m5',15000,9],['m8',10000,3]].forEach(function(L,li){
+    var d=new Date(cy,cm-1-L[2],12), issued=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-12', iKey=issued.slice(0,7), lid='l'+(li+1);
+    var open=L[1], last=L[1], k=iKey, guard=0;
+    while(k<=curKey&&guard++<40){
+      var interest=(k===iKey)?0:r2(open*INT/100), tot=r2(open+interest);
+      S.loanLedger[lid+'_'+k]={loanId:lid,memberId:L[0],memberName:names[Number(L[0].slice(1))-1][0],month:k,yearId:yearOf(k+'-05'),openingBalance:open,interest:interest,totalDue:tot,paymentMade:0,topupAmount:0,closingBalance:tot,status:'carried',createdAt:nowIso};
+      open=tot;last=tot;
+      var p=k.split('-').map(Number);k=p[1]===12?mk(p[0]+1,1):mk(p[0],p[1]+1);
+    }
+    S.loans[lid]={memberId:L[0],memberName:names[Number(L[0].slice(1))-1][0],principal:L[1],dateIssued:issued,yearId:yearOf(iKey+'-05'),status:'active',outstandingBalance:last,lastProcessedMonth:curKey,createdAt:nowIso};
+  });
+  return S;
+}
+var store=null;
+try{store=JSON.parse(localStorage.getItem(DB_KEY)||'null');}catch(e){}
+if(!store||!store.members){store=seed();}
+function persist(){try{localStorage.setItem(DB_KEY,JSON.stringify(store));}catch(e){}}
+persist();
+function fix(o){var out={};Object.keys(o).forEach(function(k){var v=o[k];out[k]=(v===TS)?new Date().toISOString():v;});return clone(out);}
+function snapOf(ref,d){return {id:ref.id,ref:ref,exists:!!d,data:function(){return d?clone(d):undefined}};}
+function DocRef(col,id){this.col=col;this.id=id;this.path=col+'/'+id;}
+DocRef.prototype.get=async function(){return snapOf(this,(store[this.col]||{})[this.id]);};
+DocRef.prototype.set=async function(data,opts){
+  store[this.col]=store[this.col]||{};
+  var cur=store[this.col][this.id];
+  store[this.col][this.id]=(opts&&opts.merge&&cur)?Object.assign({},cur,fix(data)):fix(data);persist();};
+DocRef.prototype.update=async function(data){
+  var cur=(store[this.col]||{})[this.id];if(!cur)throw new Error('not-found');Object.assign(cur,fix(data));persist();};
+DocRef.prototype.delete=async function(){if(store[this.col])delete store[this.col][this.id];persist();};
+function Query(col,ws,ord,lim){this.col=col;this.ws=ws||[];this.ord=ord||null;this.lim=lim||null;}
+Query.prototype.where=function(f,op,v){return new Query(this.col,this.ws.concat([[f,op,v]]),this.ord,this.lim);};
+Query.prototype.orderBy=function(f,dir){return new Query(this.col,this.ws,[f,dir||'asc'],this.lim);};
+Query.prototype.limit=function(n){return new Query(this.col,this.ws,this.ord,n);};
+Query.prototype.doc=function(id){return new DocRef(this.col,id||rid());};
+Query.prototype.add=async function(data){var ref=new DocRef(this.col,rid());await ref.set(data);return ref;};
+Query.prototype.get=async function(){
+  var rows=Object.entries(store[this.col]||{});
+  this.ws.forEach(function(w){rows=rows.filter(function(r){return r[1][w[0]]===w[2];});});
+  if(this.ord){var f=this.ord[0],s=this.ord[1]==='desc'?-1:1;rows.sort(function(a,b){var x=a[1][f],y=b[1][f];return (x>y?1:x<y?-1:0)*s;});}
+  if(this.lim)rows=rows.slice(0,this.lim);
+  var col=this.col;
+  var docs=rows.map(function(r){return snapOf(new DocRef(col,r[0]),r[1]);});
+  return {docs:docs,empty:docs.length===0,size:docs.length,forEach:function(f){docs.forEach(f);}};
+};
+function Batch(){this.ops=[];}
+Batch.prototype.set=function(ref,d,o){this.ops.push(function(){return ref.set(d,o)});};
+Batch.prototype.update=function(ref,d){this.ops.push(function(){return ref.update(d)});};
+Batch.prototype.delete=function(ref){this.ops.push(function(){return ref.delete()});};
+Batch.prototype.commit=async function(){for(var i=0;i<this.ops.length;i++)await this.ops[i]();};
+var fsObj={collection:function(n){return new Query(n)},batch:function(){return new Batch()}};
+var cbs=[];
+function mkAuth(main){
+  var a={currentUser:null,
+    signInWithEmailAndPassword:async function(email,pw){
+      email=(email||'').toLowerCase();var c=store._auth[email];
+      if(!c){var e1=new Error('user-not-found');e1.code='auth/user-not-found';throw e1;}
+      if(c.pw!==pw){var e2=new Error('wrong-password');e2.code='auth/invalid-credential';throw e2;}
+      var u=mkUser(c.uid,email);
+      if(main){a.currentUser=u;localStorage.setItem(USER_KEY,JSON.stringify({uid:c.uid,email:email}));cbs.forEach(function(f){f(u)});}
+      return {user:u};},
+    createUserWithEmailAndPassword:async function(email,pw){
+      email=(email||'').toLowerCase();
+      if(store._auth[email]){var e=new Error('exists');e.code='auth/email-already-in-use';throw e;}
+      var uid='u_'+rid();store._auth[email]={uid:uid,pw:pw};persist();return {user:mkUser(uid,email)};},
+    signOut:async function(){if(main){a.currentUser=null;localStorage.removeItem(USER_KEY);cbs.forEach(function(f){f(null)});}},
+    onAuthStateChanged:function(cb){
+      cbs.push(cb);var u=null;
+      try{var s=JSON.parse(localStorage.getItem(USER_KEY)||'null');if(s&&store._auth[s.email])u=mkUser(s.uid,s.email);}catch(e){}
+      a.currentUser=u;setTimeout(function(){cb(u)},0);return function(){};}
+  };
+  return a;
+}
+function mkUser(uid,email){return {uid:uid,email:email,updatePassword:async function(pw){store._auth[email].pw=pw;persist();}};}
+var mainAuth=mkAuth(true), secAuth=mkAuth(false);
+window.firebase={
+  initializeApp:function(){return {auth:function(){return secAuth},delete:async function(){}}},
+  auth:function(){return mainAuth},
+  firestore:Object.assign(function(){return fsObj},{FieldValue:{serverTimestamp:function(){return TS}}})
+};
+})();
+
+;
+const firebaseConfig = {};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Username-based login maps to a fake internal email so we can
+// keep using Firebase Auth's email/password sign-in under the hood.
+function usernameToEmail(username){
+  return username.trim().toLowerCase().replace(/[^a-z0-9._-]/g,'') + "@demo.local";
+}
+
+;
+// =====================================================
+// Shared constants & helpers
+// =====================================================
+const SOCIETY = {
+  name: "Demo Society",
+  shareValue: 500,       // \u20b9 per share
+  monthlyInterestPct: 2, // % compound, on unpaid loan balance
+  penaltyAmount: 50,     // \u20b9 flat penalty for late share payment
+  contributionDueDay: 6, // share payment due by 6th
+  reminderDay: 3,        // admin gets reminded on the 3rd
+  yearStartMonth: 10      // October (1=Jan ... 10=Oct)
+};
+
+const HINDI_MONTHS = {
+  1:"\u091c\u0928\u0935\u0930\u0940",2:"\u092b\u0930\u0935\u0930\u0940",3:"\u092e\u093e\u0930\u094d\u091a",4:"\u0905\u092a\u094d\u0930\u0948\u0932",5:"\u092e\u0908",6:"\u091c\u0942\u0928",
+  7:"\u091c\u0941\u0932\u093e\u0908",8:"\u0905\u0917\u0938\u094d\u0924",9:"\u0938\u093f\u0924\u0902\u092c\u0930",10:"\u0905\u0915\u094d\u091f\u0942\u092c\u0930",11:"\u0928\u0935\u0902\u092c\u0930",12:"\u0926\u093f\u0938\u0902\u092c\u0930"
+};
+
+const EN_MONTHS = ["","January","February","March","April","May","June",
+  "July","August","September","October","November","December"];
+
+function fmtMoney(n){
+  const v = Math.round((n || 0) * 100) / 100;
+  return "\u20b9" + v.toLocaleString("en-IN", {maximumFractionDigits:2});
+}
+
+function monthKey(date){
+  const d = date instanceof Date ? date : new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function monthLabel(key){
+  const [y,m] = key.split('-').map(Number);
+  return `${EN_MONTHS[m]} ${y}`;
+}
+
+function monthsBetween(startKey, endKey){
+  const [sy, sm] = startKey.split('-').map(Number);
+  const [ey, em] = endKey.split('-').map(Number);
+  const months = [];
+  let y = sy, m = sm;
+  while(y < ey || (y === ey && m <= em)){
+    months.push(`${y}-${String(m).padStart(2,'0')}`);
+    m++;
+    if(m > 12){ m = 1; y++; }
+  }
+  return months;
+}
+
+
+// Given any date, return the society "society year" it falls in,
+// e.g. Nov 2025 -> "2025-2026" (Oct 2025 to Sep 2026)
+function societyYearOf(date){
+  const d = date instanceof Date ? date : new Date(date);
+  const y = d.getFullYear(), m = d.getMonth()+1;
+  if(m >= SOCIETY.yearStartMonth){
+    return `${y}-${y+1}`;
+  }
+  return `${y-1}-${y}`;
+}
+
+function societyYearBounds(yearId){
+  const [y1] = yearId.split('-').map(Number);
+  const start = new Date(y1, SOCIETY.yearStartMonth-1, 1);
+  const end = new Date(y1+1, SOCIETY.yearStartMonth-2, 28); // last day of Sep next year (safe-ish)
+  return {start, end};
+}
+
+// All 12 month-keys of a society year, Oct -> Sep
+function societyYearMonths(yearId){
+  const [y1] = yearId.split('-').map(Number);
+  const months = [];
+  for(let i=0;i<12;i++){
+    const m = SOCIETY.yearStartMonth + i;
+    const yy = m > 12 ? y1+1 : y1;
+    const mm = m > 12 ? m-12 : m;
+    months.push(`${yy}-${String(mm).padStart(2,'0')}`);
+  }
+  return months;
+}
+
+function nextMonthKey(key){
+  const [y,m] = key.split('-').map(Number);
+  const d = new Date(y, m, 1); // rolls to next month
+  return monthKey(d);
+}
+
+// Hindi reminder message template
+function hindiReminderMessage(memberName, monthKeyStr){
+  const [y,m] = monthKeyStr.split('-').map(Number);
+  const monthName = HINDI_MONTHS[m];
+  return `\u092a\u094d\u0930\u093f\u092f ${memberName},\n\u0906\u092a\u0915\u094b ${monthName} \u092e\u093e\u0939 \u0915\u093e \u0936\u0947\u092f\u0930 \u0930\u093e\u0936\u093f \u0926\u093f\u0928\u093e\u0902\u0915 ${SOCIETY.contributionDueDay} \u0924\u093e\u0930\u0940\u0916 \u0924\u0915 \u091c\u092e\u093e \u0915\u0930\u0928\u0940 \u0925\u0940, \u092a\u0930\u0902\u0924\u0941 \u0906\u092a\u0928\u0947 \u0905\u092d\u0940 \u0924\u0915 \u091c\u092e\u093e \u0928\u0939\u0940\u0902 \u0915\u0940 \u0939\u0948\u0964 \u0915\u0943\u092a\u092f\u093e ${monthName} \u092e\u093e\u0939 \u0915\u0947 \u0905\u0902\u0924 \u0924\u0915 \u0905\u0935\u0936\u094d\u092f \u091c\u092e\u093e \u0915\u0930\u0947\u0902, \u0905\u0928\u094d\u092f\u0925\u093e \u20b9${SOCIETY.penaltyAmount} \u0935\u093f\u0932\u0902\u092c \u0936\u0941\u0932\u094d\u0915 (\u092a\u0947\u0928\u0932\u094d\u091f\u0940) \u0932\u0917\u093e\u092f\u093e \u091c\u093e\u090f\u0917\u093e\u0964\n\u2014 Demo Society`;
+}
+
+// Hindi payment-confirmation message template
+function hindiPaymentConfirmationMessage(memberName, amountPaid, sharesCount, monthKeyStr){
+  const [y,m] = monthKeyStr.split('-').map(Number);
+  const monthName = HINDI_MONTHS[m];
+  return `\u092a\u094d\u0930\u093f\u092f ${memberName},\n\u0906\u092a\u0915\u0947 ${sharesCount} \u0936\u0947\u092f\u0930 \u0939\u0947\u0924\u0941 ${monthName} \u092e\u093e\u0939 \u0915\u093e \u20b9${amountPaid} \u092d\u0941\u0917\u0924\u093e\u0928 \u0938\u092b\u0932\u0924\u093e\u092a\u0942\u0930\u094d\u0935\u0915 \u092a\u094d\u0930\u093e\u092a\u094d\u0924 \u0939\u094b \u0917\u092f\u093e \u0939\u0948\u0964 \u0927\u0928\u094d\u092f\u0935\u093e\u0926\u0964\n\u2014 Demo Society`;
+}
+
+// ---------- tiny UI helpers ----------
+function toast(msg, ms=2400){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=> el.classList.remove('show'), ms);
+}
+
+function openModal(html){
+  const backdrop = document.getElementById('modalBackdrop');
+  const body = document.getElementById('modalBody');
+  body.innerHTML = html;
+  backdrop.classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modalBackdrop').classList.remove('show');
+}
+function escapeHtml(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+;
+// =====================================================
+// Auth: username/password login on top of Firebase Auth
+// (username -> internal fake email), default admin seed,
+// and staff account management.
+// =====================================================
+let currentUser = null;   // firebase auth user
+let currentProfile = null; // { username, role, isDefaultAdmin }
+
+const DEFAULT_ADMIN = { username: "admin", password: "demo123" };
+
+async function ensureDefaultAdminExists(){
+  // Run this entirely on a throwaway secondary Firebase app instance so
+  // it can never sign out (or otherwise disturb) whoever is actually
+  // logged in on the main `auth` object.
+  const secondary = firebase.initializeApp(firebaseConfig, "seedcheck-" + Date.now());
+  try{
+    try{
+      await secondary.auth().signInWithEmailAndPassword(
+        usernameToEmail(DEFAULT_ADMIN.username), DEFAULT_ADMIN.password);
+      // Exists and default password still works \u2014 nothing to do.
+      return;
+    }catch(e){
+      // auth/user-not-found means it genuinely doesn't exist yet \u2014
+      // fall through and create it. Any other error (e.g. someone
+      // already changed the password) \u2014 just stop; we don't want to
+      // touch an existing account.
+      if(e.code !== 'auth/user-not-found' && e.code !== 'auth/invalid-credential') return;
+    }
+
+    try{
+      const cred = await secondary.auth().createUserWithEmailAndPassword(
+        usernameToEmail(DEFAULT_ADMIN.username), DEFAULT_ADMIN.password);
+      await db.collection('users').doc('admin').set({
+        username: DEFAULT_ADMIN.username,
+        uid: cred.user.uid,
+        role: 'admin',
+        isDefaultAdmin: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }catch(e){
+      console.warn("Default admin seed:", e.message);
+    }
+  } finally {
+    await secondary.delete();
+  }
+}
+
+function renderLogin(){
+  document.getElementById('app').innerHTML = `
+    <div class="page" style="padding-top:14vh; max-width:380px;">
+      <div style="text-align:center; margin-bottom:26px;">
+        <div class="stamp" style="width:60px;height:60px;font-size:22px;border-color:var(--primary);color:var(--primary);margin:0 auto 12px;">DS</div>
+        <h1 class="display" style="font-size:24px;">Demo Society</h1>
+        <div style="color:var(--ink-soft); font-size:13px; margin-top:2px;">Society Ledger &amp; Loan Register</div>
+      </div>
+      <div class="card">
+        <label>Username</label>
+        <input id="loginUser" value="admin" autocapitalize="off" placeholder="admin">
+        <label>Password</label>
+        <input id="loginPass" type="password" value="demo123" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022">
+        <button class="btn block" style="margin-top:16px;" onclick="doLogin()">Login</button>
+        <div id="loginErr" style="color:var(--debit); font-size:12.5px; margin-top:10px;"></div>
+      </div>
+      <div style="text-align:center; color:var(--ink-soft); font-size:11.5px;">Demo login: admin / demo123</div>
+    </div>`;
+}
+
+async function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.textContent = '';
+  if(!u || !p){ errEl.textContent = 'Enter username and password.'; return; }
+  try{
+    await auth.signInWithEmailAndPassword(usernameToEmail(u), p);
+  }catch(e){
+    errEl.textContent = 'Invalid username or password.';
+  }
+}
+
+function doLogout(){
+  auth.signOut();
+}
+
+async function loadProfile(uid, email){
+  // Try to find the matching user profile doc by email-derived username
+  const q = await db.collection('users').where('uid','==',uid).limit(1).get();
+  if(!q.empty){ return q.docs[0].data(); }
+  // fallback: admin doc created at seed time has no uid stored yet \u2014 patch it
+  if(email === usernameToEmail('admin')){
+    await db.collection('users').doc('admin').set({uid}, {merge:true});
+    const d = await db.collection('users').doc('admin').get();
+    return d.data();
+  }
+  return { username: email.split('@')[0], role:'staff', isDefaultAdmin:false };
+}
+
+auth.onAuthStateChanged(async (user)=>{
+  if(user){
+    currentUser = user;
+    currentProfile = await loadProfile(user.uid, user.email);
+    startApp();
+  } else {
+    currentUser = null; currentProfile = null;
+    renderLogin();
+  }
+});
+
+// ---------- Staff / user management (Settings tab) ----------
+async function listUsers(){
+  const snap = await db.collection('users').get();
+  return snap.docs.map(d=>({id:d.id, ...d.data()}));
+}
+
+async function addStaffUser(username, password){
+  if(!username || password.length < 6) throw new Error("Password must be 6+ characters.");
+  const email = usernameToEmail(username);
+  // Creating a user signs the admin OUT and the new user IN on the
+  // client SDK, so we spin up a secondary Firebase app instance just
+  // for this one call to avoid disturbing the admin's session.
+  const secondary = firebase.initializeApp(firebaseConfig, "secondary-" + Date.now());
+  try{
+    const cred = await secondary.auth().createUserWithEmailAndPassword(email, password);
+    await db.collection('users').doc(cred.user.uid).set({
+      uid: cred.user.uid, username, role:'staff', isDefaultAdmin:false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await secondary.auth().signOut();
+  } finally {
+    await secondary.delete();
+  }
+}
+
+async function changeOwnPassword(newPassword){
+  if(newPassword.length < 6) throw new Error("Password must be 6+ characters.");
+  await currentUser.updatePassword(newPassword);
+}
+
+;
+// =====================================================
+// Members: registration + share holding
+// =====================================================
+async function getMembers(activeOnly=false){
+  let ref = db.collection('members').orderBy('name');
+  const snap = await ref.get();
+  let list = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  if(activeOnly) list = list.filter(m=>m.active !== false);
+  return list;
+}
+
+async function getMember(id){
+  const d = await db.collection('members').doc(id).get();
+  return d.exists ? {id:d.id, ...d.data()} : null;
+}
+
+async function saveMember(id, data){
+  data.shareValue = SOCIETY.shareValue;
+  data.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  if(id){
+    await db.collection('members').doc(id).set(data, {merge:true});
+    return id;
+  } else {
+    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    data.active = true;
+    const ref = await db.collection('members').add(data);
+    return ref.id;
+  }
+}
+
+async function renderMembers(){
+  const members = await getMembers();
+  const totalShares = members.reduce((s,m)=> s + (m.sharesCount||0), 0);
+  document.getElementById('viewMembers').innerHTML = `
+    <div class="card">
+      <div class="row" style="border:none; padding:0;">
+        <h3>Members (${members.length})</h3>
+        <button class="btn" onclick="openMemberForm()">+ Add</button>
+      </div>
+      <div class="meta">Total shares in society: <b>${totalShares}</b> (${fmtMoney(totalShares*SOCIETY.shareValue)}/month if fully paid)</div>
+    </div>
+    <div class="card ledger">
+      ${members.map(m=>`
+        <div class="row" style="cursor:pointer;">
+          <div onclick="openMemberDetail('${m.id}')" style="flex:1;">
+            <div class="who">${escapeHtml(m.name)}</div>
+            <div class="meta">${m.sharesCount||0} shares \u00b7 ${escapeHtml(m.phone||'\u2014')}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="amount">${fmtMoney((m.sharesCount||0)*SOCIETY.shareValue)}<span style="color:var(--ink-soft);font-size:11px;">/mo</span></div>
+            ${m.active===false ? '<span class="pill due">Inactive</span>' : `<button class="btn secondary" style="padding:5px 10px;font-size:12px;margin-top:4px;" onclick="event.stopPropagation(); openCollectPayment('${m.id}')">Collect</button>`}
+          </div>
+        </div>`).join('') || '<div class="meta">No members yet. Tap + Add to register the first member.</div>'}
+    </div>`;
+}
+
+function openMemberForm(existing){
+  const m = existing || {};
+  openModal(`
+    <div class="modal-head"><h3>${existing?'Edit Member':'Add Member'}</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>Full Name</label>
+    <input id="mName" value="${escapeHtml(m.name||'')}" placeholder="Member's full name">
+    <label>Phone (for WhatsApp reminders)</label>
+    <input id="mPhone" value="${escapeHtml(m.phone||'')}" placeholder="10-digit mobile number">
+    <label>Number of Shares (\u20b9${SOCIETY.shareValue} each)</label>
+    <input id="mShares" type="number" min="1" value="${m.sharesCount||1}">
+    <label>Joining Date</label>
+    <input id="mJoin" type="date" value="${m.joinDate || new Date().toISOString().slice(0,10)}">
+    <label>Address</label>
+    <textarea id="mAddress" rows="2">${escapeHtml(m.address||'')}</textarea>
+    <button class="btn block" style="margin-top:16px;" onclick="submitMemberForm('${existing?existing.id:''}')">Save Member</button>
+  `);
+}
+
+async function submitMemberForm(id){
+  const name = document.getElementById('mName').value.trim();
+  const phone = document.getElementById('mPhone').value.trim();
+  const sharesCount = parseInt(document.getElementById('mShares').value || '0');
+  const joinDate = document.getElementById('mJoin').value;
+  const address = document.getElementById('mAddress').value.trim();
+  if(!name || sharesCount < 1){ toast('Enter a name and at least 1 share.'); return; }
+  await saveMember(id || null, {name, phone, sharesCount, joinDate, address});
+  closeModal();
+  toast('Member saved.');
+  renderMembers();
+  renderDashboard();
+}
+
+async function openCollectPayment(id){
+ try {
+  const m = await getMember(id);
+  const mKey = monthKey(new Date());
+
+  await ensureMonthContributions(mKey);
+  const contribDoc = await db.collection('contributions').doc(`${id}_${mKey}`).get();
+  const contrib = contribDoc.exists ? {id: contribDoc.id, ...contribDoc.data()} : null;
+  const shareDue = contrib ? Math.max(contrib.amountDue + (contrib.penaltyAmount||0) - (contrib.amountPaid||0), 0) : 0;
+
+  const loans = await getMemberLoans(id);
+  const activeLoan = loans.find(l=>l.status==='active');
+  let loanEntry = null;
+  if(activeLoan){
+    await ensureLoanCaughtUp(activeLoan.id);
+    const ledger = await getLoanLedger(activeLoan.id);
+    loanEntry = ledger.find(e => e.month === mKey) || null;
+  }
+  const loanDue = loanEntry ? Math.max(loanEntry.totalDue - (loanEntry.paymentMade||0), 0) : 0;
+
+  openModal(`
+    <div class="modal-head"><h3>Collect Payment \u2014 ${escapeHtml(m.name)}</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <div class="meta" style="margin-bottom:10px;">${monthLabel(mKey)}</div>
+
+    ${contrib ? `
+      <label>Share Amount (due ${fmtMoney(shareDue)})</label>
+      <input id="cpShareAmt" type="number" value="${shareDue}">
+    ` : `<div class="meta">No share due generated for this month yet.</div>`}
+
+    ${activeLoan ? `
+      <label style="margin-top:12px;">Loan Amount (due ${fmtMoney(loanDue)})</label>
+      <input id="cpLoanAmt" type="number" value="${loanDue}">
+    ` : `<div class="meta" style="margin-top:12px;">No active loan for this member.</div>`}
+
+    <button class="btn block" style="margin-top:16px;" onclick="submitCollectPayment('${id}', '${contrib?contrib.id:''}', '${loanEntry?loanEntry.id:''}')">Confirm Payment</button>
+  `);
+ } catch(err) {
+   console.error('openCollectPayment failed:', err);
+   toast('Error opening Collect Payment: ' + (err.message || err));
+ }
+}
+
+async function submitCollectPayment(memberId, contribId, loanEntryId){
+ try {
+  const shareInput = document.getElementById('cpShareAmt');
+  const loanInput = document.getElementById('cpLoanAmt');
+  const shareAmt = shareInput ? parseFloat(shareInput.value || '0') : 0;
+  const loanAmt = loanInput ? parseFloat(loanInput.value || '0') : 0;
+
+  if(contribId && shareAmt > 0){
+    await markContributionPaid(contribId, shareAmt);
+  }
+  if(loanEntryId && loanAmt > 0){
+    await recordLoanPayment(loanEntryId, loanAmt);
+  }
+
+  closeModal();
+  const parts = [];
+  if(shareAmt > 0) parts.push(`share ${fmtMoney(shareAmt)}`);
+  if(loanAmt > 0) parts.push(`loan ${fmtMoney(loanAmt)}`);
+  toast(parts.length ? `Recorded: ${parts.join(' + ')}.` : 'Nothing entered \u2014 no payment recorded.');
+
+  renderDashboard();
+  if(document.getElementById('viewMembers').style.display !== 'none') renderMembers();
+  if(document.getElementById('viewShares') && document.getElementById('viewShares').style.display !== 'none') loadContributionMonth();
+ } catch(err) {
+   console.error('submitCollectPayment failed:', err);
+   toast('Error recording payment: ' + (err.message || err));
+ }
+}
+
+async function openMemberDetail(id){
+ try {
+  const m = await getMember(id);
+  const yearId = societyYearOf(new Date());
+  const months = societyYearMonths(yearId);
+
+  const contribDocs = await Promise.all(
+    months.map(mk => db.collection('contributions').doc(`${id}_${mk}`).get())
+  );
+  const contribByMonth = {};
+  contribDocs.forEach((d,i) => { if(d.exists) contribByMonth[months[i]] = d.data(); });
+
+  const totalDueFY = months.reduce((s,mk)=> s + (contribByMonth[mk]
+    ? contribByMonth[mk].amountDue + (contribByMonth[mk].penaltyAmount||0) : 0), 0);
+  const totalPaidFY = months.reduce((s,mk)=> s + (contribByMonth[mk]?.amountPaid||0), 0);
+
+  const loans = await getMemberLoans(id);
+  for(const l of loans) await ensureLoanCaughtUp(l.id);
+  const monthAgg = {};
+  let totalInterestFY = 0;
+  for(const l of loans){
+    const fullLedger = await getLoanLedger(l.id);
+    const issuanceMonth = fullLedger.length ? fullLedger[0].month : null;
+    const ledger = fullLedger.filter(e => e.yearId === yearId);
+    for(const e of ledger){
+      if(!monthAgg[e.month]) monthAgg[e.month] = {opening:0, interest:0, payment:0, taken:0, closing:0};
+      const a = monthAgg[e.month];
+      a.opening += e.openingBalance || 0;
+      a.interest += e.interest || 0;
+      a.payment += e.paymentMade || 0;
+      a.taken += (e.month === issuanceMonth ? l.principal : 0) + (e.topupAmount || 0);
+      a.closing += e.closingBalance || 0;
+      totalInterestFY += e.interest || 0;
+    }
+  }
+  const activeLoan = loans.find(l=>l.status==='active');
+  let currentLoanEntry = null;
+  if(activeLoan){
+    const activeLedger = await getLoanLedger(activeLoan.id);
+    currentLoanEntry = activeLedger.find(e => e.month === monthKey(new Date()));
+  }
+  const loanTable = `
+    <div class="detail-table-wrap">
+      <table class="detail-table">
+        <thead><tr><th>Month</th><th>Share Paid</th><th>Loan Bal.</th><th>Interest</th><th>Repayment</th><th>Loan Taken</th></tr></thead>
+        <tbody>
+          ${months.map(mk=>{
+            const a = monthAgg[mk];
+            const paidDate = contribByMonth[mk]?.paidDate || '\u2014';
+            if(!a) return `<tr><td>${monthLabel(mk)}</td><td>${paidDate}</td><td class="num" colspan="4">\u2014</td></tr>`;
+            return `<tr>
+              <td>${monthLabel(mk)}</td>
+              <td>${paidDate}</td>
+              <td class="num">${fmtMoney(a.opening)}</td>
+              <td class="num">${fmtMoney(a.interest)}</td>
+              <td class="num">${fmtMoney(a.payment)}</td>
+              <td class="num">${a.taken ? fmtMoney(a.taken) : '0'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+
+  openModal(`
+    <div class="modal-head"><h3>${escapeHtml(m.name)}</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <div class="grid-2">
+      <div class="stat"><div class="label">Shares</div><div class="value">${m.sharesCount}</div></div>
+      <div class="stat"><div class="label">Monthly Contribution</div><div class="value">${fmtMoney(m.sharesCount*SOCIETY.shareValue)}</div></div>
+    </div>
+    <div class="section-title">Contact</div>
+    <div class="meta">${escapeHtml(m.phone||'No phone on file')} \u00b7 Joined ${m.joinDate||'\u2014'}</div>
+    <button class="btn block" style="margin-top:12px;" onclick="openCollectPayment('${m.id}')">Collect Payment (Share + Loan)</button>
+
+    <div class="section-title" style="margin-top:14px;">Contribution History \u2014 FY ${yearId}</div>
+    <div class="meta" style="margin-bottom:6px;">Total this FY: paid ${fmtMoney(totalPaidFY)} of ${fmtMoney(totalDueFY)} due</div>
+    <div class="detail-table-wrap">
+      <table class="detail-table">
+        <thead><tr><th>Month</th><th>Due</th><th>Paid</th><th>Status</th></tr></thead>
+        <tbody>
+          ${months.map(mk=>{
+            const c = contribByMonth[mk];
+            if(!c) return `<tr><td>${monthLabel(mk)}</td><td class="num" colspan="3">\u2014 not generated \u2014</td></tr>`;
+            const due = c.amountDue + (c.penaltyAmount||0);
+            return `<tr>
+              <td>${monthLabel(mk)}</td>
+              <td class="num">${fmtMoney(due)}</td>
+              <td class="num">${fmtMoney(c.amountPaid||0)}</td>
+              <td><span class="pill ${c.status==='paid'?'paid':(c.status==='partial'?'pending':'due')}">${c.status}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+   <div class="section-title" style="margin-top:14px;">Loan History \u2014 FY ${yearId}</div>
+    ${activeLoan ? `<div class="meta">Currently active loan \u2014 outstanding <b class="amount">${fmtMoney(activeLoan.outstandingBalance)}</b></div>` : `<div class="meta">No active loan.</div>`}
+    <div class="meta" style="margin-top:4px; margin-bottom:6px;">Total interest charged this FY: <b>${fmtMoney(totalInterestFY)}</b></div>
+    ${loanTable}
+    ${currentLoanEntry && currentLoanEntry.status!=='paid' ? `
+      <button class="btn block" style="margin-top:10px;" onclick="promptLoanPayment('${currentLoanEntry.id}', ${currentLoanEntry.totalDue - currentLoanEntry.paymentMade})">Record Loan Payment (${monthLabel(currentLoanEntry.month)})</button>
+    ` : ''}
+    ${activeLoan ? `<button class="btn secondary block" style="margin-top:8px;" onclick="promptLoanTopup('${activeLoan.id}')">+ Top-up Loan</button>` : ''}
+
+    ${loans.length > 0 ? `
+      <div class="section-title" style="margin-top:14px;">All Loan Records (${loans.length})</div>
+      <div class="meta" style="margin-bottom:6px;">Includes closed/older loans \u2014 the totals above are still counting these unless you remove them here.</div>
+      <div class="card ledger" style="padding:4px 10px;">
+        ${loans.map(l=>`
+          <div class="row" onclick="closeModal(); openLoanDetail('${l.id}')" style="cursor:pointer; padding:9px 0;">
+            <div>
+              <div class="who" style="font-size:13.5px;">Principal ${fmtMoney(l.principal)} \u00b7 issued ${l.dateIssued}</div>
+              <div class="meta">Status: ${l.status}</div>
+            </div>
+            <div class="amount" style="font-size:13.5px;">${fmtMoney(l.outstandingBalance||0)}</div>
+          </div>`).join('')}
+      </div>
+    ` : ''}
+
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn secondary block" onclick='openMemberForm(${JSON.stringify(m)})'>Edit</button>
+      <button class="btn ${m.active===false?'':'danger'} block" onclick="toggleMemberActive('${m.id}', ${m.active===false})">${m.active===false?'Reactivate':'Deactivate'}</button>
+    </div>
+    <button class="btn danger block" style="margin-top:10px; background:transparent; color:var(--debit); border:1.5px solid var(--debit);" onclick="openDeleteMemberConfirm('${m.id}', '${escapeHtml(m.name)}')">Delete Member</button>
+  `);
+ } catch(err) {
+   console.error('openMemberDetail failed:', err);
+   toast('Error opening member detail: ' + (err.message || err));
+ }
+}
+
+function openDeleteMemberConfirm(id, name){
+  openModal(`
+    <div class="modal-head"><h3>Delete Member?</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <div class="meta">This permanently removes <b>${name}</b> from the members list. Any contribution or loan records already saved against them will stay in reports, but they'll no longer be billed monthly. This can't be undone.</div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn secondary block" onclick="openMemberDetail('${id}')">Cancel</button>
+      <button class="btn danger block" onclick="confirmDeleteMember('${id}')">Yes, Delete</button>
+    </div>
+  `);
+}
+
+async function confirmDeleteMember(id){
+  await db.collection('members').doc(id).delete();
+  closeModal();
+  toast('Member deleted.');
+  renderMembers();
+  renderDashboard();
+}
+
+async function toggleMemberActive(id, makeActive){
+  await db.collection('members').doc(id).set({active: makeActive}, {merge:true});
+  closeModal();
+  toast(makeActive ? 'Member reactivated.' : 'Member deactivated.');
+  renderMembers();
+}
+;
+// =====================================================
+// Monthly share contributions
+// Doc id = `${memberId}_${monthKey}` so it's naturally idempotent.
+// =====================================================
+async function ensureMonthContributions(mKey){
+  const members = await getMembers(true);
+  const batch = db.batch();
+  let created = 0;
+  for(const m of members){
+    const id = `${m.id}_${mKey}`;
+    const ref = db.collection('contributions').doc(id);
+    const existing = await ref.get();
+    if(existing.exists) continue;
+    batch.set(ref, {
+      memberId: m.id,
+      memberName: m.name,
+      month: mKey,
+      yearId: societyYearOf(mKey + "-05"),
+      sharesAtTime: m.sharesCount,
+      amountDue: m.sharesCount * SOCIETY.shareValue,
+      amountPaid: 0,
+      status: 'unpaid',
+      penaltyApplied: false,
+      penaltyAmount: 0,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    created++;
+  }
+  if(created>0) await batch.commit();
+  return created;
+}
+
+async function getContributionsForMonth(mKey){
+  const snap = await db.collection('contributions').where('month','==',mKey).get();
+  return snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=> a.memberName.localeCompare(b.memberName));
+}
+
+async function markContributionPaid(id, amountPaid){
+  const ref = db.collection('contributions').doc(id);
+  const doc = (await ref.get()).data();
+  const total = amountPaid;
+  const status = total >= (doc.amountDue + (doc.penaltyAmount||0)) ? 'paid' : 'partial';
+  await ref.set({
+    amountPaid: total, status, paidDate: new Date().toISOString().slice(0,10)
+  }, {merge:true});
+}
+
+async function applyContributionPenalty(id){
+  const ref = db.collection('contributions').doc(id);
+  await ref.set({
+    penaltyApplied: true, penaltyAmount: SOCIETY.penaltyAmount
+  }, {merge:true});
+}
+
+async function waiveContributionPenalty(id){
+  const ref = db.collection('contributions').doc(id);
+  await ref.set({
+    penaltyApplied: false, penaltyAmount: 0
+  }, {merge:true});
+}
+
+async function deleteContribution(id){
+  if(!confirm('Delete this contribution record? This cannot be undone.')) return;
+  await db.collection('contributions').doc(id).delete();
+  loadContributionMonth();
+}
+
+async function syncDuesForMonth(mKey){
+  const members = await getMembers(true);
+  const memberById = {};
+  members.forEach(m => memberById[m.id] = m);
+
+  const list = await getContributionsForMonth(mKey);
+  const batch = db.batch();
+  let updated = 0;
+
+  for(const c of list){
+    const m = memberById[c.memberId];
+    if(!m) continue;
+    const newDue = m.sharesCount * SOCIETY.shareValue;
+    if(newDue === c.amountDue && m.sharesCount === c.sharesAtTime) continue;
+
+    const paid = c.amountPaid || 0;
+    const totalOwed = newDue + (c.penaltyAmount || 0);
+    const newStatus = paid >= totalOwed ? 'paid' : (paid > 0 ? 'partial' : 'unpaid');
+
+    const ref = db.collection('contributions').doc(c.id);
+    batch.set(ref, {
+      sharesAtTime: m.sharesCount,
+      amountDue: newDue,
+      status: newStatus
+    }, {merge:true});
+    updated++;
+  }
+  if(updated>0) await batch.commit();
+  return updated;
+}
+
+async function renderContributions(){
+  const container = document.getElementById('viewShares');
+  const now = new Date();
+  const defaultMonth = monthKey(now);
+  container.innerHTML = `
+    <div class="card">
+      <h3>Monthly Share Collection</h3>
+      <label>Month</label>
+      <input id="collectMonth" type="month" value="${defaultMonth}">
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn block" onclick="loadContributionMonth()">Load / Generate Dues</button>
+        <button class="btn secondary block" onclick="handleSyncDues()">Sync Dues</button>
+      </div>
+    </div>
+    <div id="contribList"></div>`;
+  loadContributionMonth();
+}
+
+async function handleSyncDues(){
+  const mKey = document.getElementById('collectMonth').value || monthKey(new Date());
+  const updated = await syncDuesForMonth(mKey);
+  toast(updated > 0 ? `Synced dues for ${updated} member(s).` : 'All dues already up to date.');
+  loadContributionMonth();
+}
+
+async function loadContributionMonth(){
+  const mKey = document.getElementById('collectMonth').value || monthKey(new Date());
+  await ensureMonthContributions(mKey);
+  const list = await getContributionsForMonth(mKey);
+  const totalDue = list.reduce((s,c)=>s + c.amountDue + (c.penaltyAmount||0), 0);
+  const totalPaid = list.reduce((s,c)=>s + (c.amountPaid||0), 0);
+  document.getElementById('contribList').innerHTML = `
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div class="stat"><div class="label">Collected \u2014 ${monthLabel(mKey)}</div><div class="value credit">${fmtMoney(totalPaid)}</div></div>
+      <div class="stat"><div class="label">Pending</div><div class="value debit">${fmtMoney(Math.max(totalDue-totalPaid,0))}</div></div>
+    </div>
+    <div class="card ledger">
+      ${list.map(c=>`
+        <div class="row">
+          <div>
+            <div class="who">${escapeHtml(c.memberName)}</div>
+            <div class="meta">${c.sharesAtTime} shares \u00b7 Due ${fmtMoney(c.amountDue + (c.penaltyAmount||0))}${c.penaltyApplied?' (incl. \u20b9'+c.penaltyAmount+' penalty)':''} \u00b7 Paid so far: ${fmtMoney(c.amountPaid||0)}</div>
+            <div class="meta" style="font-size:11px; opacity:0.6;">id: ${c.id}</div>
+            <a href="javascript:void(0)" style="font-size:12px; color:#B33A3A;" onclick="deleteContribution('${c.id}')">Delete record</a>
+          </div>
+          <div style="text-align:right;">
+            <span class="pill ${c.status==='paid'?'paid':(c.status==='partial'?'pending':'due')}">${c.status}</span>
+            <div style="margin-top:6px; display:flex; gap:6px;">
+              ${c.status!=='paid'
+                ? `<button class="btn" style="padding:6px 10px;font-size:12.5px;" onclick="promptMarkPaid('${c.id}', ${c.amountDue + (c.penaltyAmount||0)})">Mark Paid</button>`
+                : `<span class="stamp-badge">PAID</span><button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="promptMarkPaid('${c.id}', ${c.amountPaid})">Edit</button>`}
+              ${(!c.penaltyApplied && c.status!=='paid') ? `<button class="btn secondary" style="padding:6px 10px;font-size:12.5px;" onclick="applyContributionPenalty('${c.id}').then(loadContributionMonth)">+Penalty</button>` : ''}
+              ${(c.penaltyApplied) ? `<button class="btn secondary" style="padding:6px 10px;font-size:12.5px;" onclick="waiveContributionPenalty('${c.id}').then(loadContributionMonth)">Waive Penalty</button>` : ''}
+            </div>
+          </div>
+        </div>`).join('') || '<div class="meta">No active members.</div>'}
+    </div>`;
+}
+
+function promptMarkPaid(id, suggested){
+  openModal(`
+    <div class="modal-head"><h3>Record Payment</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>Amount Received</label>
+    <input id="payAmt" type="number" value="${suggested}">
+    <button class="btn block" style="margin-top:14px;" onclick="submitPayment('${id}')">Confirm</button>
+  `);
+}
+async function submitPayment(id){
+  const amt = parseFloat(document.getElementById('payAmt').value || '0');
+  await markContributionPaid(id, amt);
+  const c = (await db.collection('contributions').doc(id).get()).data();
+  const member = await getMember(c.memberId);
+  showPaymentConfirmation(member, c.month, amt, c.sharesAtTime);
+  loadContributionMonth();
+  renderDashboard();
+}
+
+function showPaymentConfirmation(member, mKey, amountPaid, sharesCount){
+  const msg = hindiPaymentConfirmationMessage(member?.name || '', amountPaid, sharesCount, mKey);
+  const phone = member?.phone || '';
+  const wa = phone ? `https://wa.me/91${phone.replace(/\D/g,'').slice(-10)}?text=${encodeURIComponent(msg)}` : null;
+  openModal(`
+    <div class="modal-head"><h3>Payment Recorded</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <div class="card card-alt" style="white-space:pre-line; font-size:14px; line-height:1.6;">${escapeHtml(msg)}</div>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="btn secondary block" onclick="copyReminderText(this)" data-msg="${escapeHtml(msg)}">Copy Text</button>
+      ${wa ? `<a class="btn block" style="text-decoration:none; text-align:center;" href="${wa}" target="_blank">Send on WhatsApp</a>` : ''}
+    </div>
+    ${!phone ? '<div class="meta" style="margin-top:8px;">No phone number on file for this member \u2014 add one from Members to enable direct WhatsApp sending.</div>' : ''}
+  `);
+}
+;
+// =====================================================
+// Loans \u2014 issued against a member's deposits.
+// Each month unpaid: interest = 3% of the CURRENT outstanding
+// balance (principal + any previously unpaid/compounded interest).
+// If not paid, that new total simply becomes next month's
+// opening balance \u2014 i.e. compound interest, month over month.
+// =====================================================
+async function issueLoan(memberId, memberName, principal, dateIssued){
+  const yearId = societyYearOf(dateIssued);
+  const ref = await db.collection('loans').add({
+    memberId, memberName, principal, dateIssued, yearId,
+    status: 'active',
+    outstandingBalance: principal,
+    lastProcessedMonth: null,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  return ref.id;
+}
+
+async function getActiveLoans(){
+  const snap = await db.collection('loans').where('status','==','active').get();
+  return snap.docs.map(d=>({id:d.id, ...d.data()}));
+}
+
+async function getMemberLoans(memberId){
+  const snap = await db.collection('loans').where('memberId','==',memberId).get();
+  return snap.docs.map(d=>({id:d.id, ...d.data()}));
+}
+
+async function getLoanLedger(loanId){
+  const snap = await db.collection('loanLedger').where('loanId','==',loanId).get();
+  return snap.docs.map(d=>({id:d.id, ...d.data()})).sort((a,b)=> a.month.localeCompare(b.month));
+}
+
+// Creates this month's interest entry for one loan, if not already done.
+async function processLoanMonth(loanId, mKey){
+  const loanRef = db.collection('loans').doc(loanId);
+  const loan = (await loanRef.get()).data();
+  if(loan.status !== 'active') return null;
+
+  const existing = await db.collection('loanLedger')
+    .where('loanId','==',loanId).where('month','==',mKey).limit(1).get();
+  if(!existing.empty) return existing.docs[0].id;
+
+  const ledger = await getLoanLedger(loanId); // sorted ascending by month
+  // Use the entry immediately BEFORE mKey chronologically \u2014 not just
+  // "whichever entry happens to be last in the list" \u2014 so processing
+  // months out of order (e.g. a top-up mistakenly dated earlier than
+  // an existing entry) can never scramble the running balance.
+  const prior = ledger.filter(e => e.month < mKey).pop();
+  const opening = prior ? prior.closingBalance : loan.principal;
+
+  // No interest in the month the loan was actually issued \u2014 it only
+  // starts accruing from the following month onward.
+  const issuanceMonth = (loan.dateIssued || '').slice(0,7);
+  const isIssuanceMonth = mKey === issuanceMonth;
+  const interest = isIssuanceMonth ? 0 : Math.round(opening * (SOCIETY.monthlyInterestPct/100) * 100) / 100;
+  const totalDue = Math.round((opening + interest) * 100) / 100;
+
+  const ref = await db.collection('loanLedger').add({
+    loanId, memberId: loan.memberId, memberName: loan.memberName,
+    month: mKey, yearId: societyYearOf(mKey + "-05"),
+    openingBalance: opening, interest, totalDue,
+    paymentMade: 0, topupAmount: 0, closingBalance: totalDue, status: 'carried',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+  await loanRef.set({outstandingBalance: totalDue, lastProcessedMonth: mKey}, {merge:true});
+  return ref.id;
+}
+
+// Adds extra loan amount ("top-up") to an existing loan within a given
+// month, instead of creating a brand new loan record. This keeps one
+// continuous running balance per member, matching the register-style
+// ledger (Month / Loan Balance / Interest / Repayment / Loan Taken).
+async function addLoanTopup(loanId, mKey, amount){
+  await processLoanMonth(loanId, mKey); // ensure this month's row exists
+  const snap = await db.collection('loanLedger')
+    .where('loanId','==',loanId).where('month','==',mKey).limit(1).get();
+  if(snap.empty) return;
+  const entryRef = snap.docs[0].ref;
+  const entry = snap.docs[0].data();
+  const newClosing = Math.round((entry.closingBalance + amount) * 100) / 100;
+  await entryRef.set({
+    topupAmount: (entry.topupAmount||0) + amount,
+    closingBalance: newClosing,
+    status: 'carried'
+  }, {merge:true});
+  await db.collection('loans').doc(loanId).set({
+    outstandingBalance: newClosing, status: 'active'
+  }, {merge:true});
+}
+
+async function processAllLoansForMonth(mKey){
+  const loans = await getActiveLoans();
+  for(const l of loans) await processLoanMonth(l.id, mKey);
+  return loans.length;
+}
+
+// Automatically back-fills every missing month's interest entry for a
+// loan, from the month it was issued up through the current month \u2014
+// so nobody has to remember to tap "Run" each month. Safe to call
+// repeatedly; processLoanMonth() itself skips months already done.
+async function ensureLoanCaughtUp(loanId){
+  const doc = await db.collection('loans').doc(loanId).get();
+  if(!doc.exists) return;
+  const loan = doc.data();
+  if(loan.status !== 'active') return;
+  const startMonth = (loan.dateIssued || '').slice(0,7);
+  const endMonth = monthKey(new Date());
+  if(!startMonth) return;
+  for(const mk of monthsBetween(startMonth, endMonth)){
+    await processLoanMonth(loanId, mk);
+  }
+}
+
+async function ensureAllLoansCaughtUp(){
+  const loans = await getActiveLoans();
+  for(const l of loans) await ensureLoanCaughtUp(l.id);
+}
+
+async function recordLoanPayment(ledgerId, paymentAmount){
+  const ref = db.collection('loanLedger').doc(ledgerId);
+  const entry = (await ref.get()).data();
+  const closing = Math.round((entry.totalDue - paymentAmount) * 100) / 100;
+  const status = closing <= 0 ? 'paid' : 'carried';
+  await ref.set({paymentMade: paymentAmount, closingBalance: Math.max(closing,0), status}, {merge:true});
+
+  const loanRef = db.collection('loans').doc(entry.loanId);
+  if(closing <= 0){
+    await loanRef.set({status:'closed', outstandingBalance:0}, {merge:true});
+  } else {
+    await loanRef.set({outstandingBalance: closing}, {merge:true});
+  }
+}
+
+async function deleteLoan(loanId){
+  const ledger = await getLoanLedger(loanId);
+  const batch = db.batch();
+  ledger.forEach(e => batch.delete(db.collection('loanLedger').doc(e.id)));
+  batch.delete(db.collection('loans').doc(loanId));
+  await batch.commit();
+}
+
+async function updateLoanDetails(loanId, principal, dateIssued){
+  const loanRef = db.collection('loans').doc(loanId);
+  const loan = (await loanRef.get()).data();
+  const yearId = societyYearOf(dateIssued);
+  const ledger = await getLoanLedger(loanId);
+  const update = {principal, dateIssued, yearId};
+  if(ledger.length === 0){
+    update.outstandingBalance = principal;
+  }
+  await loanRef.set(update, {merge:true});
+}
+
+async function undoLoanPayment(ledgerId){
+  const ref = db.collection('loanLedger').doc(ledgerId);
+  const entry = (await ref.get()).data();
+  await ref.set({paymentMade: 0, closingBalance: entry.totalDue, status:'carried'}, {merge:true});
+  await db.collection('loans').doc(entry.loanId).set({status:'active', outstandingBalance: entry.totalDue}, {merge:true});
+}
+
+// Removes one bad/duplicate monthly ledger entry (e.g. one created for
+// the wrong month) and recomputes the loan's outstandingBalance from
+// whatever entry is now the most recent one left.
+async function deleteLoanLedgerEntry(entryId, loanId){
+  if(!confirm('Delete this month\'s loan entry? This cannot be undone.')) return;
+  await db.collection('loanLedger').doc(entryId).delete();
+  const remaining = await getLoanLedger(loanId);
+  const newOutstanding = remaining.length ? remaining[remaining.length-1].closingBalance : (await db.collection('loans').doc(loanId).get()).data().principal;
+  await db.collection('loans').doc(loanId).set({
+    outstandingBalance: newOutstanding,
+    lastProcessedMonth: remaining.length ? remaining[remaining.length-1].month : null
+  }, {merge:true});
+  openLoanDetail(loanId);
+}
+
+async function renderLoans(){
+  await ensureAllLoansCaughtUp();
+  const active = await getActiveLoans();
+  const totalOutstanding = active.reduce((s,l)=>s+(l.outstandingBalance||0),0);
+  const container = document.getElementById('viewLoans');
+  container.innerHTML = `
+    <div class="card">
+      <div class="row" style="border:none; padding:0;">
+        <h3>Loans</h3>
+        <button class="btn" onclick="openIssueLoanForm()">+ Issue Loan</button>
+      </div>
+      <div class="meta">Total outstanding across society: <b class="amount">${fmtMoney(totalOutstanding)}</b></div>
+      <div class="meta" style="margin-top:4px;">Monthly ${SOCIETY.monthlyInterestPct}% interest is applied automatically \u2014 no manual step needed.</div>
+    </div>
+    <div class="card ledger">
+      ${active.map(l=>`
+        <div class="row" onclick="openLoanDetail('${l.id}')" style="cursor:pointer;">
+          <div>
+            <div class="who">${escapeHtml(l.memberName)}</div>
+            <div class="meta">Principal ${fmtMoney(l.principal)} \u00b7 issued ${l.dateIssued}</div>
+          </div>
+          <div class="amount debit">${fmtMoney(l.outstandingBalance)}</div>
+        </div>`).join('') || '<div class="meta">No active loans.</div>'}
+    </div>`;
+}
+
+async function openIssueLoanForm(){
+  const members = await getMembers(true);
+  openModal(`
+    <div class="modal-head"><h3>Issue Loan</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>Member</label>
+    <select id="loanMember">
+      ${members.map(m=>`<option value="${m.id}" data-name="${escapeHtml(m.name)}">${escapeHtml(m.name)} (${m.sharesCount} shares)</option>`).join('')}
+    </select>
+    <label>Loan Amount</label>
+    <input id="loanAmt" type="number" min="1">
+    <label>Date Issued</label>
+    <input id="loanDate" type="date" value="${new Date().toISOString().slice(0,10)}">
+    <button class="btn block" style="margin-top:14px;" onclick="submitIssueLoan()">Issue Loan</button>
+  `);
+}
+
+async function submitIssueLoan(){
+  const sel = document.getElementById('loanMember');
+  const memberId = sel.value;
+  const memberName = sel.options[sel.selectedIndex].dataset.name;
+  const amt = parseFloat(document.getElementById('loanAmt').value || '0');
+  const date = document.getElementById('loanDate').value;
+  if(amt <= 0){ toast('Enter a valid amount.'); return; }
+  await issueLoan(memberId, memberName, amt, date);
+  closeModal();
+  toast('Loan issued.');
+  renderLoans();
+  renderDashboard();
+}
+
+async function openLoanDetail(loanId){
+ try {
+  await ensureLoanCaughtUp(loanId);
+  const loanDoc = await db.collection('loans').doc(loanId).get();
+  const loan = {id:loanDoc.id, ...loanDoc.data()};
+  const ledger = await getLoanLedger(loanId);
+  openModal(`
+    <div class="modal-head"><h3>${escapeHtml(loan.memberName)} \u2014 Loan</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <div class="grid-2">
+      <div class="stat"><div class="label">Principal</div><div class="value">${fmtMoney(loan.principal)}</div></div>
+      <div class="stat"><div class="label">Outstanding</div><div class="value debit">${fmtMoney(loan.outstandingBalance)}</div></div>
+    </div>
+    <div class="meta" style="margin-top:6px;">Issued ${loan.dateIssued} \u00b7 Status: ${loan.status}</div>
+    <div class="section-title">Monthly Ledger</div>
+    ${ledger.map(e=>`
+      <div class="row">
+        <div>
+          <div class="who">${monthLabel(e.month)}</div>
+          <div class="meta">Opening ${fmtMoney(e.openingBalance)}${e.interest>0 ? ` + ${SOCIETY.monthlyInterestPct}% (${fmtMoney(e.interest)})` : ' (issuance month \u2014 no interest yet)'}</div>
+          ${e.topupAmount ? `<div class="meta">+ ${fmtMoney(e.topupAmount)} top-up this month</div>` : ''}
+          <a href="javascript:void(0)" style="font-size:11.5px; color:#B33A3A;" onclick="deleteLoanLedgerEntry('${e.id}', '${loanId}')">Delete this entry</a>
+        </div>
+        <div style="text-align:right;">
+          <div class="amount">${fmtMoney(e.closingBalance)}</div>
+          ${e.status!=='paid'
+            ? `<button class="btn" style="padding:5px 9px;font-size:12px;margin-top:4px;" onclick="promptLoanPayment('${e.id}', ${e.totalDue - e.paymentMade})">Pay</button>`
+            : `<span class="pill paid">closed</span> <button class="btn secondary" style="padding:5px 9px;font-size:12px;margin-top:4px;" onclick="undoLoanPayment('${e.id}').then(()=>openLoanDetail('${loanId}'))">Undo</button>`}
+        </div>
+      </div>`).join('') || '<div class="meta">No monthly entries yet \u2014 run interest processing from the Loans tab.</div>'}
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn secondary block" onclick='openEditLoanForm(${JSON.stringify({id:loan.id, principal:loan.principal, dateIssued:loan.dateIssued, memberName:loan.memberName})}, ${ledger.length})'>Edit</button>
+      ${loan.status==='active' ? `<button class="btn block" onclick="promptLoanTopup('${loan.id}')">+ Top-up</button>` : ''}
+    </div>
+    <button class="btn block" style="margin-top:10px; background:transparent; color:var(--debit); border:1.5px solid var(--debit);" onclick="openDeleteLoanConfirm('${loan.id}', '${escapeHtml(loan.memberName)}')">Delete Loan</button>
+  `);
+ } catch(err) {
+   console.error('openLoanDetail failed:', err);
+   toast('Error opening loan detail: ' + (err.message || err));
+ }
+}
+
+function promptLoanTopup(loanId){
+  const nowKey = monthKey(new Date());
+  openModal(`
+    <div class="modal-head"><h3>Top-up Loan</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>Additional Amount</label>
+    <input id="topupAmt" type="number" min="1">
+    <label>Month</label>
+    <input id="topupMonth" type="month" value="${nowKey}" min="${nowKey}">
+    <div class="meta" style="margin-top:4px;">Top-ups can only be added for the current month or later \u2014 this keeps the running balance from getting scrambled.</div>
+    <button class="btn block" style="margin-top:14px;" onclick="submitLoanTopup('${loanId}')">Add Top-up</button>
+  `);
+}
+async function submitLoanTopup(loanId){
+  const amt = parseFloat(document.getElementById('topupAmt').value || '0');
+  const mKey = document.getElementById('topupMonth').value;
+  const nowKey = monthKey(new Date());
+  if(amt <= 0){ toast('Enter a valid amount.'); return; }
+  if(mKey < nowKey){ toast('Top-up month cannot be earlier than the current month.'); return; }
+  await addLoanTopup(loanId, mKey, amt);
+  toast('Top-up added.');
+  openLoanDetail(loanId);
+  renderDashboard();
+}
+
+function openEditLoanForm(loan, ledgerCount){
+  openModal(`
+    <div class="modal-head"><h3>Edit Loan \u2014 ${escapeHtml(loan.memberName)}</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>Loan Amount (Principal)</label>
+    <input id="editLoanAmt" type="number" min="1" value="${loan.principal}">
+    <label>Date Issued</label>
+    <input id="editLoanDate" type="date" value="${loan.dateIssued}">
+    ${ledgerCount > 0 ? `<div class="meta" style="margin-top:8px;">This loan already has ${ledgerCount} month(s) of interest applied \u2014 changing the principal here won't recalculate those. If the numbers are badly wrong, it's cleaner to Delete this loan and issue it again.</div>` : ''}
+    <button class="btn block" style="margin-top:14px;" onclick="submitEditLoan('${loan.id}')">Save Changes</button>
+  `);
+}
+
+async function submitEditLoan(loanId){
+  const amt = parseFloat(document.getElementById('editLoanAmt').value || '0');
+  const date = document.getElementById('editLoanDate').value;
+  if(amt <= 0){ toast('Enter a valid amount.'); return; }
+  await updateLoanDetails(loanId, amt, date);
+  closeModal();
+  toast('Loan updated.');
+  renderLoans();
+  renderDashboard();
+}
+
+function openDeleteLoanConfirm(loanId, memberName){
+  openModal(`
+    <div class="modal-head"><h3>Delete Loan?</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <div class="meta">This permanently removes ${memberName}'s loan and its entire monthly interest ledger. This can't be undone.</div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn secondary block" onclick="openLoanDetail('${loanId}')">Cancel</button>
+      <button class="btn danger block" onclick="confirmDeleteLoan('${loanId}')">Yes, Delete</button>
+    </div>
+  `);
+}
+
+async function confirmDeleteLoan(loanId){
+  await deleteLoan(loanId);
+  closeModal();
+  toast('Loan deleted.');
+  renderLoans();
+  renderDashboard();
+}
+
+function promptLoanPayment(ledgerId, suggested){
+  openModal(`
+    <div class="modal-head"><h3>Record Loan Payment</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>Amount Paid</label>
+    <input id="loanPayAmt" type="number" value="${suggested}">
+    <button class="btn block" style="margin-top:14px;" onclick="submitLoanPayment('${ledgerId}')">Confirm</button>
+  `);
+}
+async function submitLoanPayment(ledgerId){
+  const amt = parseFloat(document.getElementById('loanPayAmt').value || '0');
+  await recordLoanPayment(ledgerId, amt);
+  closeModal();
+  toast('Loan payment recorded.');
+  renderLoans();
+  renderDashboard();
+}
+;
+// =====================================================
+// Reminders \u2014 surfaces unpaid members for the current
+// month with a ready-to-send Hindi WhatsApp message.
+// =====================================================
+async function renderReminders(){
+  const container = document.getElementById('viewReminders');
+  const mKey = monthKey(new Date());
+  const today = new Date().getDate();
+  container.innerHTML = `
+    <div class="card">
+      <h3>Reminders \u2014 ${monthLabel(mKey)}</h3>
+      <div class="meta">
+        Share due by the ${SOCIETY.contributionDueDay}th of the month. Today is the ${today}${today===3?" \u2014 reminder day!":""}.
+      </div>
+    </div>
+    <div id="reminderList"></div>`;
+  await loadReminders(mKey);
+}
+
+async function loadReminders(mKey){
+  await ensureMonthContributions(mKey);
+  const list = (await getContributionsForMonth(mKey)).filter(c=>c.status!=='paid');
+  const members = await getMembers(true);
+  const byId = Object.fromEntries(members.map(m=>[m.id,m]));
+
+  document.getElementById('reminderList').innerHTML = `
+    <div class="card ledger">
+      ${list.map(c=>{
+        const phone = byId[c.memberId]?.phone || '';
+        const msg = hindiReminderMessage(c.memberName, mKey);
+        const wa = phone ? `https://wa.me/91${phone.replace(/\D/g,'').slice(-10)}?text=${encodeURIComponent(msg)}` : null;
+        return `
+        <div class="row">
+          <div>
+            <div class="who">${escapeHtml(c.memberName)}</div>
+            <div class="meta">Due ${fmtMoney(c.amountDue)} \u00b7 ${phone || 'no phone on file'}</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn secondary" style="padding:6px 10px;font-size:12px;" onclick="showReminderText('${c.id}')">View</button>
+            ${wa ? `<a class="btn" style="padding:6px 10px;font-size:12px; text-decoration:none;" href="${wa}" target="_blank">WhatsApp</a>` : ''}
+          </div>
+        </div>`;
+      }).join('') || '<div class="meta">Everyone has paid this month \ud83c\udf89</div>'}
+    </div>`;
+}
+
+function showReminderText(contribId){
+  db.collection('contributions').doc(contribId).get().then(d=>{
+    const c = d.data();
+    const msg = hindiReminderMessage(c.memberName, c.month);
+    openModal(`
+      <div class="modal-head"><h3>Reminder Message</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+      <div class="card card-alt" style="white-space:pre-line; font-size:14px; line-height:1.6;">${escapeHtml(msg)}</div>
+      <button class="btn block" style="margin-top:12px;" onclick="copyReminderText(this)" data-msg="${escapeHtml(msg)}">Copy Text</button>
+    `);
+  });
+}
+function copyReminderText(btn){
+  navigator.clipboard.writeText(btn.dataset.msg).then(()=> toast('Copied to clipboard.'));
+}
+
+;
+// =====================================================
+// Reports \u2014 member-wise collection + month-wise / aggregate
+// balance sheet, scoped to a society year (Oct -> Sep).
+// =====================================================
+async function renderReports(){
+  const container = document.getElementById('viewReports');
+  const currentYear = societyYearOf(new Date());
+  container.innerHTML = `
+    <div class="card">
+      <h3>Reports</h3>
+      <label>Society Year</label>
+      <input id="reportYear" value="${currentYear}" placeholder="e.g. 2025-2026">
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <button class="btn secondary" style="flex:1;" onclick="showMemberWiseReport()">Member-wise</button>
+        <button class="btn secondary" style="flex:1;" onclick="showBalanceSheet()">Balance Sheet</button>
+      </div>
+    </div>
+    <div id="reportOutput"></div>`;
+  showMemberWiseReport();
+}
+
+async function showMemberWiseReport(){
+  const yearId = document.getElementById('reportYear').value.trim();
+  const snap = await db.collection('contributions').where('yearId','==',yearId).get();
+  const rows = snap.docs.map(d=>d.data());
+  const byMember = {};
+  for(const r of rows){
+    byMember[r.memberId] = byMember[r.memberId] || {name:r.memberName, due:0, paid:0, penalty:0};
+    byMember[r.memberId].due += r.amountDue;
+    byMember[r.memberId].paid += r.amountPaid || 0;
+    byMember[r.memberId].penalty += r.penaltyAmount || 0;
+  }
+  const list = Object.values(byMember).sort((a,b)=>a.name.localeCompare(b.name));
+  const totalDue = list.reduce((s,m)=>s+m.due+m.penalty,0);
+  const totalPaid = list.reduce((s,m)=>s+m.paid,0);
+
+  document.getElementById('reportOutput').innerHTML = `
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div class="stat"><div class="label">Total Due (${yearId})</div><div class="value">${fmtMoney(totalDue)}</div></div>
+      <div class="stat"><div class="label">Total Collected</div><div class="value credit">${fmtMoney(totalPaid)}</div></div>
+    </div>
+    <div class="card ledger">
+      ${list.map(m=>`
+        <div class="row">
+          <div class="who">${escapeHtml(m.name)}</div>
+          <div style="text-align:right;">
+            <div class="amount">${fmtMoney(m.paid)} <span style="color:var(--ink-soft);font-size:11px;">/ ${fmtMoney(m.due+m.penalty)}</span></div>
+            ${m.due+m.penalty-m.paid > 0 ? `<div class="meta" style="color:var(--debit);">Pending ${fmtMoney(m.due+m.penalty-m.paid)}</div>` : ''}
+          </div>
+        </div>`).join('') || '<div class="meta">No contribution records for this year yet.</div>'}
+    </div>`;
+}
+
+async function showBalanceSheet(){
+  const yearId = document.getElementById('reportYear').value.trim();
+  const months = societyYearMonths(yearId);
+
+  const contribSnap = await db.collection('contributions').where('yearId','==',yearId).get();
+  const contribs = contribSnap.docs.map(d=>d.data());
+  const loanLedgerSnap = await db.collection('loanLedger').where('yearId','==',yearId).get();
+  const ledgerRows = loanLedgerSnap.docs.map(d=>d.data());
+  const loansSnap = await db.collection('loans').where('yearId','==',yearId).get();
+  const loansIssued = loansSnap.docs.map(d=>d.data());
+
+  const perMonth = months.map(mKey=>{
+    const contribsThisMonth = contribs.filter(c=>c.month===mKey);
+    const collected = contribsThisMonth.reduce((s,c)=>s+(c.amountPaid||0),0);
+    const interestAccrued = ledgerRows.filter(l=>l.month===mKey).reduce((s,l)=>s+l.interest,0);
+    const newLoans = loansIssued.filter(l=>l.dateIssued && monthKey(l.dateIssued)===mKey)
+      .reduce((s,l)=>s+l.principal,0);
+    return {mKey, collected, interestAccrued, newLoans};
+  });
+
+  const aggCollected = perMonth.reduce((s,m)=>s+m.collected,0);
+  const aggInterest = perMonth.reduce((s,m)=>s+m.interestAccrued,0);
+  const aggLoans = perMonth.reduce((s,m)=>s+m.newLoans,0);
+
+  document.getElementById('reportOutput').innerHTML = `
+    <div class="grid-3" style="margin-bottom:14px;">
+      <div class="stat"><div class="label">Shares Collected</div><div class="value credit">${fmtMoney(aggCollected)}</div></div>
+      <div class="stat"><div class="label">Interest Income</div><div class="value credit">${fmtMoney(aggInterest)}</div></div>
+      <div class="stat"><div class="label">Loans Issued</div><div class="value debit">${fmtMoney(aggLoans)}</div></div>
+    </div>
+    <div class="card ledger">
+      <h3 style="margin-bottom:10px;">Month-wise (${yearId})</h3>
+      ${perMonth.map(m=>`
+        <div class="row">
+          <div class="who">${monthLabel(m.mKey)}</div>
+          <div style="text-align:right; font-size:12.5px;">
+            <div class="amount">Shares: ${fmtMoney(m.collected)}</div>
+            <div class="meta">Interest: ${fmtMoney(m.interestAccrued)} \u00b7 New loans: ${fmtMoney(m.newLoans)}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+;
+// =====================================================
+// Year-End Summary (Oct -> Sep tenure)
+// =====================================================
+async function computeYearFinancials(yearId){
+  const contribSnap = await db.collection('contributions').where('yearId','==',yearId).get();
+  const contribs = contribSnap.docs.map(d=>d.data());
+  const penaltyIncome = contribs.reduce((s,c)=> s + (c.penaltyApplied ? c.penaltyAmount : 0), 0);
+
+  const ledgerSnap = await db.collection('loanLedger').where('yearId','==',yearId).get();
+  const interestIncome = ledgerSnap.docs.reduce((s,d)=> s + d.data().interest, 0);
+
+  const members = await getMembers();
+  const totalShares = members.reduce((s,m)=> s + (m.sharesCount||0), 0);
+
+  return {interestIncome, penaltyIncome, totalShares, members};
+}
+
+async function renderYearEnd(){
+  const container = document.getElementById('viewYearEnd');
+  const currentYear = societyYearOf(new Date());
+  container.innerHTML = `
+    <div class="card">
+      <h3>Year-End Summary</h3>
+      <label>Society Year (Oct \u2192 Sep)</label>
+      <input id="yeYear" value="${currentYear}">
+      <label>Other Income (optional)</label>
+      <input id="yeOtherIncome" type="number" value="0">
+      <label>Expenses (optional)</label>
+      <input id="yeExpenses" type="number" value="0">
+      <button class="btn block" style="margin-top:12px;" onclick="calcYearEnd()">Calculate</button>
+    </div>
+    <div id="yeOutput"></div>`;
+}
+
+async function calcYearEnd(){
+  const yearId = document.getElementById('yeYear').value.trim();
+  const otherIncome = parseFloat(document.getElementById('yeOtherIncome').value || '0');
+  const expenses = parseFloat(document.getElementById('yeExpenses').value || '0');
+  const fin = await computeYearFinancials(yearId);
+  const totalProfit = fin.interestIncome + fin.penaltyIncome + otherIncome - expenses;
+  const suggestedPerShare = fin.totalShares > 0 ? Math.round((totalProfit/fin.totalShares)*100)/100 : 0;
+
+  document.getElementById('yeOutput').innerHTML = `
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div class="stat"><div class="label">Total Profit</div><div class="value credit">${fmtMoney(totalProfit)}</div></div>
+      <div class="stat"><div class="label">Total Shares</div><div class="value">${fin.totalShares}</div></div>
+    </div>
+    <div class="card">
+      <div class="meta">Interest income ${fmtMoney(fin.interestIncome)} + Penalty income ${fmtMoney(fin.penaltyIncome)} + Other ${fmtMoney(otherIncome)} \u2212 Expenses ${fmtMoney(expenses)}</div>
+      <div class="section-title">System-suggested profit / share</div>
+      <div class="amount" style="font-size:20px;">${fmtMoney(suggestedPerShare)}</div>
+      <label style="margin-top:14px;">Admin-approved amount per share (final)</label>
+      <input id="yeApprovedPerShare" type="number" value="${suggestedPerShare}">
+      <button class="btn block" style="margin-top:14px;" onclick="generateDistribution('${yearId}', ${totalProfit})">Generate Member Payouts</button>
+    </div>
+    <div id="yeDistribution"></div>`;
+}
+
+async function generateDistribution(yearId, totalProfit){
+  const approved = parseFloat(document.getElementById('yeApprovedPerShare').value || '0');
+  const members = await getMembers();
+  const rows = members.map(m=>({
+    memberId: m.id, name: m.name, shares: m.sharesCount||0,
+    payout: Math.round((m.sharesCount||0) * approved * 100) / 100
+  }));
+  const totalPayout = rows.reduce((s,r)=>s+r.payout,0);
+
+  document.getElementById('yeDistribution').innerHTML = `
+    <div class="card ledger">
+      <h3>Member Payouts \u2014 ${yearId}</h3>
+      <div class="meta">Approved rate: ${fmtMoney(approved)}/share \u00b7 Total distributed: ${fmtMoney(totalPayout)}</div>
+      <div class="divider"></div>
+      ${rows.map(r=>`
+        <div class="row">
+          <div>
+            <div class="who">${escapeHtml(r.name)}</div>
+            <div class="meta">${r.shares} shares</div>
+          </div>
+          <div class="amount credit">${fmtMoney(r.payout)}</div>
+        </div>`).join('')}
+      <button class="btn block" style="margin-top:14px;" onclick='closeYear("${yearId}", ${JSON.stringify({totalProfit, approved, totalPayout})})'>Close Year &amp; Save Record</button>
+    </div>`;
+
+  window._pendingDistributionRows = rows;
+}
+
+async function closeYear(yearId, summary){
+  const batch = db.batch();
+  const yearRef = db.collection('years').doc(yearId);
+  batch.set(yearRef, {
+    yearId, status:'closed', totalProfit: summary.totalProfit,
+    approvedPerShare: summary.approved, totalPayout: summary.totalPayout,
+    closedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, {merge:true});
+  for(const r of (window._pendingDistributionRows||[])){
+    const ref = db.collection('distributions').doc(`${yearId}_${r.memberId}`);
+    batch.set(ref, {yearId, memberId:r.memberId, memberName:r.name, shares:r.shares, payout:r.payout});
+  }
+  await batch.commit();
+  toast('Year closed and payout record saved.');
+}
+
+;
+// =====================================================
+// Dashboard
+// =====================================================
+async function renderDashboard(){
+  const container = document.getElementById('viewDashboard');
+  const mKey = monthKey(new Date());
+  const members = await getMembers(true);
+  const totalShares = members.reduce((s,m)=>s+(m.sharesCount||0),0);
+
+  await ensureMonthContributions(mKey);
+  const contribs = await getContributionsForMonth(mKey);
+  const collected = contribs.reduce((s,c)=>s+(c.amountPaid||0),0);
+  const dueTotal = contribs.reduce((s,c)=>s+c.amountDue+(c.penaltyAmount||0),0);
+  const unpaidCount = contribs.filter(c=>c.status!=='paid').length;
+
+  const activeLoans = await getActiveLoans();
+  const totalOutstanding = activeLoans.reduce((s,l)=>s+(l.outstandingBalance||0),0);
+
+  const today = new Date().getDate();
+  const currentYear = societyYearOf(new Date());
+
+  container.innerHTML = `
+    <div class="card" style="cursor:pointer;" onclick="switchTab('shares')">
+      <h3>${monthLabel(mKey)}</h3>
+      <div class="grid-2">
+        <div class="stat"><div class="label">Collected</div><div class="value credit">${fmtMoney(collected)}</div></div>
+        <div class="stat"><div class="label">Pending</div><div class="value debit">${fmtMoney(Math.max(dueTotal-collected,0))}</div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="stat" style="cursor:pointer;" onclick="switchTab('members')"><div class="label">Active Members</div><div class="value">${members.length}</div></div>
+      <div class="stat" style="cursor:pointer;" onclick="switchTab('members')"><div class="label">Total Shares</div><div class="value">${totalShares}</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="stat" style="cursor:pointer;" onclick="switchTab('loans')"><div class="label">Loans Outstanding</div><div class="value debit">${fmtMoney(totalOutstanding)}</div></div>
+      <div class="stat" style="cursor:pointer;" onclick="switchTab('shares')"><div class="label">Unpaid This Month</div><div class="value">${unpaidCount}</div></div>
+    </div>
+    ${today >= SOCIETY.reminderDay && unpaidCount > 0 ? `
+      <div class="card card-alt">
+        <div class="row" style="border:none; padding:0;">
+          <div>
+            <div class="who">Reminder day</div>
+            <div class="meta">${unpaidCount} member(s) haven't paid yet.</div>
+          </div>
+          <button class="btn" onclick="switchTab('reminders')">Open</button>
+        </div>
+      </div>` : ''}
+    <div class="card" style="cursor:pointer;" onclick="switchTab('yearend')">
+      <div class="section-title">Society Year</div>
+      <div class="meta">Current tenure: <b>${currentYear}</b> (Oct \u2192 Sep)</div>
+    </div>`;
+}
+;
+// =====================================================
+// Settings \u2014 themes + staff accounts
+// =====================================================
+const THEMES = [
+  {id:'bahi', name:'Bahi Khata', swatch:'#24304A'},
+  {id:'harvest', name:'Harvest Gold', swatch:'#A9711E'},
+  {id:'peepal', name:'Peepal Green', swatch:'#2D5F3E'},
+  {id:'diya', name:'Diya Saffron', swatch:'#D2601A'},
+  {id:'night', name:'Night Ledger', swatch:'#12141C'}
+];
+
+function applyTheme(id){
+  document.documentElement.setAttribute('data-theme', id);
+  document.body.setAttribute('data-theme', id);
+  localStorage.setItem('demo_theme', id);
+}
+function initTheme(){
+  applyTheme(localStorage.getItem('demo_theme') || 'bahi');
+}
+
+async function renderSettings(){
+  const container = document.getElementById('viewSettings');
+  const activeTheme = localStorage.getItem('demo_theme') || 'bahi';
+  const users = await listUsers();
+
+  container.innerHTML = `
+    <div class="card">
+      <h3>Theme</h3>
+      <div class="swatch-row">
+        ${THEMES.map(t=>`
+          <div style="text-align:center;">
+            <div class="swatch ${t.id===activeTheme?'active':''}" style="background:${t.swatch};" onclick="applyTheme('${t.id}'); renderSettings();"></div>
+            <div style="font-size:10.5px; margin-top:4px; color:var(--ink-soft);">${t.name}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3>Signed in as</h3>
+      <div class="meta">${escapeHtml(currentProfile?.username||'')} (${currentProfile?.role||''}) ${currentProfile?.isDefaultAdmin?'\u2014 default admin, cannot be removed':''}</div>
+      <button class="btn secondary block" style="margin-top:12px;" onclick="openChangePassword()">Change My Password</button>
+      <button class="btn danger block" style="margin-top:10px;" onclick="doLogout()">Logout</button>
+    </div>
+    <div class="card">
+      <div class="row" style="border:none; padding:0;">
+        <h3>Staff Accounts</h3>
+        <button class="btn" onclick="openAddStaff()">+ Add</button>
+      </div>
+      ${users.map(u=>`
+        <div class="row">
+          <div class="who">${escapeHtml(u.username)}</div>
+          <span class="pill ${u.isDefaultAdmin?'paid':'pending'}">${u.isDefaultAdmin?'default admin':u.role}</span>
+        </div>`).join('')}
+    </div>
+    ${currentProfile?.role === 'admin' ? `
+    <div class="card" style="border-color:var(--debit);">
+      <h3 style="color:var(--debit);">Danger Zone</h3>
+      <div class="meta">Permanently erases every member, share payment, loan, and report record \u2014 for wiping test data before going live. Staff logins and your admin login are kept.</div>
+      <button class="btn block" style="margin-top:12px; background:transparent; color:var(--debit); border:1.5px solid var(--debit);" onclick="openClearAllDataConfirm()">Clear All Society Data</button>
+    </div>` : ''}`;
+}
+
+function openClearAllDataConfirm(){
+  openModal(`
+    <div class="modal-head"><h3>Clear All Data?</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <div class="meta">This deletes <b>every</b> member, share payment, loan, ledger entry, and year-end record \u2014 permanently, with no undo. Your login and any staff logins are kept.</div>
+    <label>Type <b>DELETE</b> to confirm</label>
+    <input id="wipeConfirmText" autocapitalize="off" placeholder="DELETE">
+    <button class="btn danger block" style="margin-top:14px;" onclick="submitClearAllData()">Erase Everything</button>
+  `);
+}
+
+async function submitClearAllData(){
+  const val = document.getElementById('wipeConfirmText').value.trim();
+  if(val !== 'DELETE'){ toast('Type DELETE exactly to confirm.'); return; }
+  await clearAllSocietyData();
+  closeModal();
+  toast('All society data cleared.');
+  renderDashboard();
+  renderSettings();
+}
+
+// Deletes every document across the society's data collections \u2014
+// members, contributions, loans, loanLedger, years, distributions.
+// Deliberately leaves the `users` collection (logins) untouched.
+async function clearAllSocietyData(){
+  const collections = ['members','contributions','loans','loanLedger','years','distributions'];
+  for(const col of collections){
+    const snap = await db.collection(col).get();
+    const docs = snap.docs;
+    for(let i=0; i<docs.length; i+=450){
+      const batch = db.batch();
+      docs.slice(i, i+450).forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+  }
+}
+
+function openAddStaff(){
+  openModal(`
+    <div class="modal-head"><h3>Add Staff Login</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>Username</label>
+    <input id="staffUser" autocapitalize="off">
+    <label>Password (6+ characters)</label>
+    <input id="staffPass" type="password">
+    <button class="btn block" style="margin-top:14px;" onclick="submitAddStaff()">Create Login</button>
+  `);
+}
+async function submitAddStaff(){
+  const u = document.getElementById('staffUser').value.trim();
+  const p = document.getElementById('staffPass').value;
+  try{
+    await addStaffUser(u, p);
+    closeModal();
+    toast('Staff login created.');
+    renderSettings();
+  }catch(e){ toast(e.message); }
+}
+
+function openChangePassword(){
+  openModal(`
+    <div class="modal-head"><h3>Change Password</h3><button class="close" onclick="closeModal()">\u2715</button></div>
+    <label>New Password (6+ characters)</label>
+    <input id="newPass" type="password">
+    <button class="btn block" style="margin-top:14px;" onclick="submitChangePassword()">Update Password</button>
+  `);
+}
+async function submitChangePassword(){
+  try{
+    await changeOwnPassword(document.getElementById('newPass').value);
+    closeModal();
+    toast('Password updated.');
+  }catch(e){ toast(e.message); }
+}
+
+;
+// =====================================================
+// App shell / router
+// =====================================================
+const TABS = [
+  {id:'dashboard', label:'Home', icon:'\uD83C\uDFE0'},
+  {id:'members', label:'Members', icon:'\uD83D\uDC65'},
+  {id:'shares', label:'Shares', icon:'\uD83D\uDCB0'},
+  {id:'loans', label:'Loans', icon:'\uD83D\uDCB3'},
+  {id:'reminders', label:'Remind', icon:'\uD83D\uDD14'},
+  {id:'reports', label:'Reports', icon:'\uD83D\uDCCA'},
+  {id:'yearend', label:'Year-End', icon:'\uD83D\uDCC5'},
+  {id:'settings', label:'Settings', icon:'\u2699\uFE0F'}
+];
+
+function startApp(){
+  document.getElementById('app').innerHTML = `
+    <div class="topbar">
+      <div class="stamp">DS</div>
+      <div class="titles">
+        <div class="display" style="font-size:16.5px;">Demo Society</div>
+        <small>${escapeHtml(currentProfile?.username || '')}</small>
+      </div>
+      <button class="hamburger" onclick="openDrawer()">\u2630</button>
+    </div>
+
+    <div id="viewDashboard" class="page"></div>
+    <div id="viewMembers" class="page hidden"></div>
+    <div id="viewShares" class="page hidden"></div>
+    <div id="viewLoans" class="page hidden"></div>
+    <div id="viewReminders" class="page hidden"></div>
+    <div id="viewReports" class="page hidden"></div>
+    <div id="viewYearEnd" class="page hidden"></div>
+    <div id="viewSettings" class="page hidden"></div>
+
+    <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+      <div class="drawer-head">
+        <div class="stamp" style="border-color:var(--primary-contrast);">DS</div>
+        <div class="titles">
+          <div class="display" style="font-size:15px;">Demo Society</div>
+          <small>${escapeHtml(currentProfile?.username || '')}</small>
+        </div>
+      </div>
+      <div class="drawer-nav">
+        ${TABS.map(t=>`
+          <button class="navbtn ${t.id==='dashboard'?'active':''}" id="nav-${t.id}" onclick="switchTab('${t.id}')">
+            <span class="navicon">${t.icon}</span>${t.label}
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal"><div id="modalBody"></div></div>
+    </div>
+    <div id="toast"></div>
+  `;
+  renderDashboard();
+}
+
+function openDrawer(){
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerBackdrop').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerBackdrop').classList.remove('open');
+}
+
+const VIEW_ID = {
+  dashboard:'viewDashboard', members:'viewMembers', shares:'viewShares',
+  loans:'viewLoans', reminders:'viewReminders', reports:'viewReports',
+  yearend:'viewYearEnd', settings:'viewSettings'
+};
+const RENDER_FN = {
+  dashboard: renderDashboard, members: renderMembers, shares: renderContributions,
+  loans: renderLoans, reminders: renderReminders, reports: renderReports,
+  yearend: renderYearEnd, settings: renderSettings
+};
+
+function switchTab(tabId){
+  TABS.forEach(t=>{
+    document.getElementById(VIEW_ID[t.id]).classList.toggle('hidden', t.id!==tabId);
+    document.getElementById('nav-'+t.id).classList.toggle('active', t.id===tabId);
+  });
+  RENDER_FN[tabId]();
+  closeDrawer();
+  window.scrollTo(0,0);
+}
+
+// ---------- boot ----------
+document.addEventListener('DOMContentLoaded', ()=>{
+  initTheme();
+  ensureDefaultAdminExists();
+});
+
+
+</script>
+</body>
+</html>
 
