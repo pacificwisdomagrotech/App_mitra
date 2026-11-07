@@ -1,1 +1,201 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clinic Queue Software - Demo</title>
+<style>
+:root{--c:#0f766e;--bg:#f0fdfa;--t:#12312e;--card:#fff;--bd:#cdeae6}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1f1e;--t:#e6f6f4;--card:#16302e;--bd:#25504c;--c:#2dd4bf}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--t)}
+header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--c);color:#fff;position:sticky;top:0;z-index:5}
+@media(prefers-color-scheme:dark){header{color:#06201e}}
+header h1{font-size:18px;margin:0;flex:1}header button{background:none;border:0;color:inherit;font-size:26px}
+main{max-width:480px;margin:auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+.big{display:block;width:100%;padding:20px;font-size:18px;font-weight:600;border:0;border-radius:14px;background:var(--c);color:#fff;margin-bottom:14px}
+@media(prefers-color-scheme:dark){.big{color:#06201e}}
+.big:disabled{opacity:.4}.ghost{background:none;border:1px solid var(--c);color:var(--c);padding:8px 12px;border-radius:10px}
+input,select,textarea{width:100%;padding:12px;font-size:16px;border:1px solid var(--bd);border-radius:10px;margin:6px 0 12px;background:var(--card);color:var(--t)}
+label{font-size:14px;font-weight:600}.btn{padding:12px 16px;border:0;border-radius:10px;background:var(--c);color:#fff;font-size:16px}
+@media(prefers-color-scheme:dark){.btn{color:#06201e}}
+.warn{background:#fef3c7;color:#78350f;border-radius:10px;padding:12px;margin-bottom:14px}
+.num{font-size:56px;font-weight:800;color:var(--c);text-align:center}.sm{font-size:13px;opacity:.75}
+.row{display:flex;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd)}.row b{min-width:34px}.row span{flex:1}
+.done{opacity:.45;text-decoration:line-through}
+#lg{font-size:14px!important;font-weight:700;border:1.5px solid currentColor!important;border-radius:20px;padding:6px 12px}
+#drawer{position:fixed;inset:0 30% 0 0;background:var(--card);padding:20px;transform:translateX(-105%);transition:.2s;z-index:9;box-shadow:2px 0 12px #0004}
+#drawer.o{transform:none}#drawer button{display:block;width:100%;text-align:left;padding:14px 0;border:0;background:none;color:var(--t);font-size:17px;border-bottom:1px solid var(--bd)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1}.tabs .on{background:var(--c);color:#fff}
+</style></head><body>
+<script>
+(function(){
+var WA="917276124898", DEMO_DAYS=3, KEY="am_clinic_demo_v1";
+/* Optional server check (stops a customer restarting the demo by clearing the browser): paste App Mitra Firebase details */
+var SRV={projectId:"app-mitra-90078",apiKey:"AIzaSyCEXC0FoKqcuIYpg8sHc9tSulktIi2D68o"};
+var st=null;try{st=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+var css=document.createElement("style");
+css.textContent="#demoGate{position:fixed;inset:0;z-index:9999;background:#0d1f3c;display:none;align-items:center;justify-content:center;padding:18px;font-family:'Segoe UI',system-ui,sans-serif}#demoGate .b{background:#fff;color:#1a1a2e;border-radius:18px;padding:22px;max-width:380px;width:100%}#demoGate h2{font-size:21px;margin-bottom:6px}#demoGate p{color:#555;font-size:14px;margin-bottom:12px}#demoGate input{width:100%;padding:12px;border:1.5px solid #dfe4ef;border-radius:10px;font-size:15px;margin-bottom:10px}#demoGate button,#demoGate a.bt{display:block;width:100%;border:0;border-radius:10px;padding:13px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;color:#fff;background:#1a3a6b;cursor:pointer}#demoGate a.wa{background:#1faa59}#demoGate .e{color:#dc2626;font-size:13px;min-height:18px;margin-bottom:6px}#demoFloat{position:fixed;right:10px;bottom:20px;z-index:90;display:none;flex-direction:column;align-items:flex-end;gap:6px;font-family:'Segoe UI',system-ui,sans-serif}#demoFloat a{background:#1faa59;color:#fff;text-decoration:none;font-weight:600;font-size:13px;padding:9px 13px;border-radius:20px;box-shadow:0 2px 10px rgba(0,0,0,.25)}#demoFloat span{background:#ff9f1c;color:#14213d;font-size:12px;font-weight:600;padding:5px 10px;border-radius:12px}#demoFloat u{font-size:11px;color:#6b7280;cursor:pointer;background:#fff;padding:3px 8px;border-radius:10px}";
+document.head.appendChild(css);
+var gate=document.createElement("div");gate.id="demoGate";
+var fl=document.createElement("div");fl.id="demoFloat";
+document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(gate);document.body.appendChild(fl);init();});
+function wa(m){return "https://wa.me/"+WA+"?text="+encodeURIComponent(m)}
+function who(){return st?(" (Demo user: "+st.name+", "+st.phone+")"):""}
+function fsUrl(p){return "https://firestore.googleapis.com/v1/projects/"+SRV.projectId+"/databases/(default)/documents/demos"+p}
+function getSrv(phone){
+  if(!SRV.projectId||!SRV.apiKey)return Promise.resolve(null);
+  return Promise.race([fetch(fsUrl("/"+phone+"_clinic?key="+SRV.apiKey)).then(function(r){return r.status===200?r.json():null}).then(function(j){return j&&j.fields&&j.fields.start?Number(j.fields.start.integerValue):null}).catch(function(){return null}),new Promise(function(r){setTimeout(function(){r(null)},2500)})]);
+}
+function putSrv(n,p,t){
+  if(!SRV.projectId||!SRV.apiKey)return;
+  fetch(fsUrl("?documentId="+p+"_clinic&key="+SRV.apiKey),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:{name:{stringValue:n},phone:{stringValue:p},start:{integerValue:String(t)}}})}).catch(function(){});
+}
+function ask(){
+  gate.innerHTML='<div class="b"><h2>Start your 3-day demo</h2><p>Enter your details to try the Clinic Queue Software with sample data. No payment needed.</p><input id="dgN" placeholder="Your name" autocomplete="name"><input id="dgP" type="tel" inputmode="numeric" placeholder="10-digit mobile number" autocomplete="tel"><div class="e" id="dgE"></div><button id="dgB">Start demo</button></div>';
+  gate.style.display="flex";
+  document.getElementById("dgB").onclick=function(){
+    var n=document.getElementById("dgN").value.trim(),p=document.getElementById("dgP").value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,"");
+    var e=document.getElementById("dgE");
+    if(!n){e.textContent="Please enter your name.";return}
+    if(!/^[6-9]\d{9}$/.test(p)){e.textContent="Enter a valid 10-digit mobile number.";return}
+    this.disabled=true;this.textContent="Starting...";
+    getSrv(p).then(function(prev){var t=prev||Date.now();st={name:n,phone:p,start:t};localStorage.setItem(KEY,JSON.stringify(st));if(!prev)putSrv(n,p,t);init();});
+  };
+}
+function expired(){
+  gate.innerHTML='<div class="b"><h2>Your 3-day demo has ended</h2><p>Thank you for trying the Clinic Queue Software. Take the 1-year license and we will set it up with your library name, logo and data.</p><a class="bt wa" href="'+wa("Hi, my 3-day demo of the Clinic Queue Software has ended. I want to buy the 1-year license."+who())+'">Buy 1-year license on WhatsApp</a></div>';
+  gate.style.display="flex";fl.style.display="none";
+}
+function init(){
+  if(!st||!st.phone){ask();return}
+  var left=st.start+DEMO_DAYS*DAY-Date.now();
+  if(left<=0){expired();return}
+  gate.style.display="none";
+  var d=Math.floor(left/DAY),h=Math.floor(left%DAY/36e5);
+  fl.innerHTML='<span>Demo: '+d+'d '+h+'h left</span><a href="'+wa("Hi, I want to buy the 1-year license of the Clinic Queue Software."+who())+'">Buy license</a><u id="dgR">Reset sample data</u>';
+  fl.style.display="flex";
+  document.getElementById("dgR").onclick=function(){if(confirm("Reset all sample data?")){Object.keys(localStorage).forEach(function(k){if(k!==KEY)localStorage.removeItem(k)});location.reload()}};
+  setTimeout(init,60000);
+}
+var DAY=864e5;
+})();
+</script>
 
+<header><button onclick="drawer.classList.toggle('o')" aria-label="menu">&#9776;</button><h1 id="ttl"></h1><button id="lg" onclick="toggleLang()"></button></header>
+<div id="drawer"></div><main id="app"></main>
+<script>
+/* ===== SETUP: paste your Firebase web config here to make it LIVE for all patients.
+   Leave null = demo mode (data only on this phone's browser). ===== */
+const FB = null; // e.g. {apiKey:"...",authDomain:"...",projectId:"..."}
+
+var ds=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const SL=[{id:1,s:10,e:13},{id:2,s:19,e:22}], MAX=40, MIN_PER=5;
+const endOf=k=>{const [y,m,d]=k.date.split('-');return new Date(+y,+m-1,+d,SL.find(s=>s.id==k.sid).e)};
+let lang=localStorage.lang||'hi', db=null, me=sessionStorage.me||null, view='home', tks=JSON.parse(localStorage.tks||'[]').filter(k=>endOf(k)>new Date());
+const D={
+en:{clinic:'Demo Clinic',welcome:'Welcome',chk:'Click here for checkup',stat:'Check current patient number status',lang:'\u0939\u093f\u0928\u094d\u0926\u0940',login:'Admin Login',logout:'Logout',home:'Home',back:'\u2190 Back',name:'Patient name',mob:'Mobile number (10 digits)',seen:'Treated at this clinic within last 7 days?',yes:'Yes',no:'No',slot:'Choose slot',book:'Book appointment',full:'Slot is full (40 patients). Please choose the next slot if available.',closed:'Clinic closed',none:'No slot open for booking right now.',bad:'Enter valid name and 10-digit mobile.',dup:'This patient (same name and mobile) already has an appointment in this slot. To add another person, enter their different name.',conf:(n,d,tm,m)=>`Your appointment is confirmed at No. ${n} on ${d}. Your turn is expected ${m<720?'in about '+(m<60?m+' min':Math.floor(m/60)+' hr '+m%60+' min')+', ':''}at approx. ${tm}. ${m<=15?'Your turn is near, please reach the clinic immediately.':'Please reach 15 minutes before your time to avoid rush.'}`,your:'Your number',cur:'Now running',ahead:'Patients ahead of you',nonow:'\u2014',treated:'You have been treated. Thank you!',notk:'No active appointment. Book a checkup first.',uid:'User ID',pw:'Password',go:'Login',wrong:'Wrong ID or password',queue:'Queue',notice:'Messages',users:'Users',pending:'Waiting',treat:'Treated',tdone:'Treated list',ntxt:'Message shown on home screen',save:'Save',closeTitle:'Close clinic (dates)',from:'From',to:'To',cmsg:'Message for patients',add:'Add closure',del:'Delete',newu:'Register new user',saved:'Saved',time:'Slots: 10 AM\u20131 PM & 7\u201310 PM',empty:'No patients yet',reuse:'User added',lim:'Limit reached: maximum 3 bookings per phone for one slot.',can:'Cancel',cx:'Cancelled',sure:'Cancel this booking?'},
+hi:{clinic:'\u0921\u0947\u092e\u094b \u0915\u094d\u0932\u093f\u0928\u093f\u0915',welcome:'\u0938\u094d\u0935\u093e\u0917\u0924 \u0939\u0948',chk:'\u091a\u0947\u0915\u0905\u092a \u0915\u0947 \u0932\u093f\u090f \u092f\u0939\u093e\u0901 \u0915\u094d\u0932\u093f\u0915 \u0915\u0930\u0947\u0902',stat:'\u0935\u0930\u094d\u0924\u092e\u093e\u0928 \u092e\u0930\u0940\u091c\u093c \u0928\u0902\u092c\u0930 \u0915\u0940 \u0938\u094d\u0925\u093f\u0924\u093f \u0926\u0947\u0916\u0947\u0902',lang:'English',login:'\u090f\u0921\u092e\u093f\u0928 \u0932\u0949\u0917\u093f\u0928',logout:'\u0932\u0949\u0917\u0906\u0909\u091f',home:'\u0939\u094b\u092e',back:'\u2190 \u0935\u093e\u092a\u0938',name:'\u092e\u0930\u0940\u091c\u093c \u0915\u093e \u0928\u093e\u092e',mob:'\u092e\u094b\u092c\u093e\u0907\u0932 \u0928\u0902\u092c\u0930 (10 \u0905\u0902\u0915)',seen:'\u0915\u094d\u092f\u093e \u092a\u093f\u091b\u0932\u0947 7 \u0926\u093f\u0928\u094b\u0902 \u092e\u0947\u0902 \u0907\u0938 \u0915\u094d\u0932\u093f\u0928\u093f\u0915 \u092e\u0947\u0902 \u0907\u0932\u093e\u091c \u0939\u0941\u0906 \u0939\u0948?',yes:'\u0939\u093e\u0901',no:'\u0928\u0939\u0940\u0902',slot:'\u0938\u094d\u0932\u0949\u091f \u091a\u0941\u0928\u0947\u0902',book:'\u0905\u092a\u0949\u0907\u0902\u091f\u092e\u0947\u0902\u091f \u092c\u0941\u0915 \u0915\u0930\u0947\u0902',full:'\u0938\u094d\u0932\u0949\u091f \u092d\u0930 \u0917\u092f\u093e \u0939\u0948 (40 \u092e\u0930\u0940\u091c\u093c)\u0964 \u0915\u0943\u092a\u092f\u093e \u0905\u0917\u0932\u093e \u0938\u094d\u0932\u0949\u091f \u0909\u092a\u0932\u092c\u094d\u0927 \u0939\u094b \u0924\u094b \u091a\u0941\u0928\u0947\u0902\u0964',closed:'\u0915\u094d\u0932\u093f\u0928\u093f\u0915 \u092c\u0902\u0926 \u0939\u0948',none:'\u0905\u092d\u0940 \u0915\u094b\u0908 \u0938\u094d\u0932\u0949\u091f \u092c\u0941\u0915\u093f\u0902\u0917 \u0915\u0947 \u0932\u093f\u090f \u0916\u0941\u0932\u093e \u0928\u0939\u0940\u0902 \u0939\u0948\u0964',bad:'\u0938\u0939\u0940 \u0928\u093e\u092e \u0914\u0930 10 \u0905\u0902\u0915\u094b\u0902 \u0915\u093e \u092e\u094b\u092c\u093e\u0907\u0932 \u0928\u0902\u092c\u0930 \u0921\u093e\u0932\u0947\u0902\u0964',dup:'\u0907\u0938\u0940 \u0928\u093e\u092e \u0914\u0930 \u092e\u094b\u092c\u093e\u0907\u0932 \u0938\u0947 \u0907\u0938 \u0938\u094d\u0932\u0949\u091f \u092e\u0947\u0902 \u0905\u092a\u0949\u0907\u0902\u091f\u092e\u0947\u0902\u091f \u092a\u0939\u0932\u0947 \u0938\u0947 \u0939\u0948\u0964 \u0926\u0942\u0938\u0930\u0947 \u0935\u094d\u092f\u0915\u094d\u0924\u093f \u0915\u0947 \u0932\u093f\u090f \u0909\u0938\u0915\u093e \u0905\u0932\u0917 \u0928\u093e\u092e \u0921\u093e\u0932\u0947\u0902\u0964',conf:(n,d,tm,m)=>`\u0906\u092a\u0915\u093e \u0905\u092a\u0949\u0907\u0902\u091f\u092e\u0947\u0902\u091f \u0928\u0902\u092c\u0930 ${n} \u092a\u0930 ${d} \u0915\u094b \u0915\u0928\u094d\u092b\u0930\u094d\u092e \u0939\u094b \u0917\u092f\u093e \u0939\u0948\u0964 \u0906\u092a\u0915\u093e \u0928\u0902\u092c\u0930 ${m<720?'\u0932\u0917\u092d\u0917 '+(m<60?m+' \u092e\u093f\u0928\u091f':Math.floor(m/60)+' \u0918\u0902\u091f\u093e '+m%60+' \u092e\u093f\u0928\u091f')+' \u092e\u0947\u0902, ':''}\u0932\u0917\u092d\u0917 ${tm} \u092c\u091c\u0947 \u0906\u090f\u0917\u093e\u0964 ${m<=15?'\u0906\u092a\u0915\u093e \u0928\u0902\u092c\u0930 \u0928\u091c\u093c\u0926\u0940\u0915 \u0939\u0948, \u0915\u0943\u092a\u092f\u093e \u0924\u0941\u0930\u0902\u0924 \u0915\u094d\u0932\u093f\u0928\u093f\u0915 \u092a\u0939\u0941\u0901\u091a\u0947\u0902\u0964':'\u092d\u0940\u0921\u093c \u0938\u0947 \u092c\u091a\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0915\u0943\u092a\u092f\u093e \u0905\u092a\u0928\u0947 \u0938\u092e\u092f \u0938\u0947 15 \u092e\u093f\u0928\u091f \u092a\u0939\u0932\u0947 \u092a\u0939\u0941\u0901\u091a\u0947\u0902\u0964'}`,your:'\u0906\u092a\u0915\u093e \u0928\u0902\u092c\u0930',cur:'\u0905\u092d\u0940 \u091a\u0932 \u0930\u0939\u093e \u0928\u0902\u092c\u0930',ahead:'\u0906\u092a\u0938\u0947 \u092a\u0939\u0932\u0947 \u092e\u0930\u0940\u091c\u093c',nonow:'\u2014',treated:'\u0906\u092a\u0915\u093e \u0907\u0932\u093e\u091c \u0939\u094b \u091a\u0941\u0915\u093e \u0939\u0948\u0964 \u0927\u0928\u094d\u092f\u0935\u093e\u0926!',notk:'\u0915\u094b\u0908 \u091a\u093e\u0932\u0942 \u0905\u092a\u0949\u0907\u0902\u091f\u092e\u0947\u0902\u091f \u0928\u0939\u0940\u0902 \u0939\u0948\u0964 \u092a\u0939\u0932\u0947 \u091a\u0947\u0915\u0905\u092a \u0915\u0947 \u0932\u093f\u090f \u092c\u0941\u0915\u093f\u0902\u0917 \u0915\u0930\u0947\u0902\u0964',uid:'\u092f\u0942\u091c\u093c\u0930 \u0906\u0908\u0921\u0940',pw:'\u092a\u093e\u0938\u0935\u0930\u094d\u0921',go:'\u0932\u0949\u0917\u093f\u0928',wrong:'\u0906\u0908\u0921\u0940 \u092f\u093e \u092a\u093e\u0938\u0935\u0930\u094d\u0921 \u0917\u0932\u0924 \u0939\u0948',queue:'\u0915\u094d\u092f\u0942',notice:'\u0938\u0902\u0926\u0947\u0936',users:'\u092f\u0942\u091c\u093c\u0930',pending:'\u092a\u094d\u0930\u0924\u0940\u0915\u094d\u0937\u093e \u092e\u0947\u0902',treat:'\u0907\u0932\u093e\u091c \u0939\u0941\u0906',tdone:'\u0907\u0932\u093e\u091c \u0939\u0941\u090f \u092e\u0930\u0940\u091c\u093c',ntxt:'\u0939\u094b\u092e \u0938\u094d\u0915\u094d\u0930\u0940\u0928 \u092a\u0930 \u0926\u093f\u0916\u0928\u0947 \u0935\u093e\u0932\u093e \u0938\u0902\u0926\u0947\u0936',save:'\u0938\u0947\u0935 \u0915\u0930\u0947\u0902',closeTitle:'\u0915\u094d\u0932\u093f\u0928\u093f\u0915 \u092c\u0902\u0926 (\u0924\u093e\u0930\u0940\u0916\u0947\u0902)',from:'\u0938\u0947',to:'\u0924\u0915',cmsg:'\u092e\u0930\u0940\u091c\u093c\u094b\u0902 \u0915\u0947 \u0932\u093f\u090f \u0938\u0902\u0926\u0947\u0936',add:'\u092c\u0902\u0926\u0940 \u091c\u094b\u0921\u093c\u0947\u0902',del:'\u0939\u091f\u093e\u090f\u0901',newu:'\u0928\u092f\u093e \u092f\u0942\u091c\u093c\u0930 \u091c\u094b\u0921\u093c\u0947\u0902',saved:'\u0938\u0947\u0935 \u0939\u094b \u0917\u092f\u093e',time:'\u0938\u094d\u0932\u0949\u091f: \u0938\u0941\u092c\u0939 10\u20131 \u0914\u0930 \u0936\u093e\u092e 7\u201310',empty:'\u0905\u092d\u0940 \u0915\u094b\u0908 \u092e\u0930\u0940\u091c\u093c \u0928\u0939\u0940\u0902',reuse:'\u092f\u0942\u091c\u093c\u0930 \u091c\u0941\u0921\u093c \u0917\u092f\u093e',lim:'\u0938\u0940\u092e\u093e \u092a\u0942\u0930\u0940: \u090f\u0915 \u0938\u094d\u0932\u0949\u091f \u092e\u0947\u0902 \u090f\u0915 \u092b\u093c\u094b\u0928 \u0938\u0947 \u0905\u0927\u093f\u0915\u0924\u092e 3 \u092c\u0941\u0915\u093f\u0902\u0917 \u0939\u0940 \u0939\u094b \u0938\u0915\u0924\u0940 \u0939\u0948\u0902\u0964',can:'\u0930\u0926\u094d\u0926',cx:'\u0930\u0926\u094d\u0926 \u0915\u0940 \u0917\u0908',sure:'\u092f\u0939 \u092c\u0941\u0915\u093f\u0902\u0917 \u0930\u0926\u094d\u0926 \u0915\u0930\u0947\u0902?'}};
+const DV=localStorage.dv||(localStorage.dv=Math.random().toString(36).slice(2,10));
+const t=k=>D[lang][k], esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=h=>{h=Math.round(h*60);let H=Math.floor(h/60)%24,M=h%60,ap=H>=12?'PM':'AM';return (H%12||12)+':'+String(M).padStart(2,'0')+' '+ap};
+const slotName=sl=>fmt(sl.s)+' \u2013 '+fmt(sl.e);
+
+/* ---- storage: Firestore if configured, else this-browser demo ---- */
+if(FB){firebase.initializeApp(FB);db=firebase.firestore()}
+const S={
+ async get(c,i){if(db){const d=await db.collection(c).doc(i).get();return d.exists?d.data():null}const v=localStorage.getItem(c+'/'+i);return v?JSON.parse(v):null},
+ async set(c,i,v){if(db)return db.collection(c).doc(i).set(v);localStorage.setItem(c+'/'+i,JSON.stringify(v))},
+ async upd(c,i,fn){if(db){const r=db.collection(c).doc(i);return db.runTransaction(async x=>{const d=await x.get(r);const nv=fn(d.exists?d.data():null);x.set(r,nv);return nv})}const nv=fn(await S.get(c,i));await S.set(c,i,nv);return nv},
+ async del(c,i){if(db)return db.collection(c).doc(i).delete();localStorage.removeItem(c+'/'+i)}};
+const getMeta=async()=>{let m=await S.get('meta','settings');if(!m){m={users:[{u:'admin',p:'demo123'}],notice:'',closures:[]};await S.set('meta','settings',m)}m.users=m.users||[];m.closures=m.closures||[];return m};
+
+/* ---- slot logic: running slot + the next one only ---- */
+async function openSlots(){const n=new Date(),seq=[];
+ for(let d=0;d<3;d++)for(const sl of SL){const dt=new Date(n.getFullYear(),n.getMonth(),n.getDate()+d);seq.push({dt,sl})}
+ const at=(x,h)=>{const z=new Date(x.dt);z.setHours(Math.floor(h),(h%1)*60,0,0);return z};
+ const live=seq.filter(x=>at(x,x.sl.e)>n).map(x=>({...x,key:ds(x.dt)+'_'+x.sl.id}));
+ const out=[live[0]];
+ if(at(live[0],live[0].sl.s)<=n){const v=await S.get('slots',live[0].key);if(v&&v.list.some(p=>p.done))out.push(live[1])}
+ return out}
+const closedMsg=(m,date)=>{const c=m.closures.find(c=>date>=c.from&&date<=c.to);return c?c.msg:null};
+const etaOf=(x,ahead)=>{const st=new Date(x.dt);st.setHours(Math.floor(x.sl.s),0,0,0);const e=new Date(Math.max(Date.now(),st.getTime())+ahead*MIN_PER*60000);return e};
+
+function go(v){view=v;drawer.classList.remove('o');render()}
+function drawerHtml(){drawer.innerHTML=`<button onclick="go('home')">\ud83c\udfe0 ${t('home')}</button>`+(me?`<button onclick="go('admin')">\ud83e\ude7a Admin</button><button onclick="me=null;sessionStorage.removeItem('me');go('home')">${t('logout')}</button>`:`<button onclick="go('login')">\ud83d\udd10 ${t('login')}</button>`)}
+function toggleLang(){lang=lang=='hi'?'en':'hi';localStorage.lang=lang;render()}
+function pruneTks(){tks=tks.filter(k=>endOf(k)>new Date());localStorage.tks=JSON.stringify(tks)}
+async function render(){pruneTks();lg.innerHTML=lang=='hi'?'\u0939\u093f\u0902 | <span style="opacity:.5">En</span>':'<span style="opacity:.5">\u0939\u093f\u0902</span> | En';ttl.textContent='\ud83c\udfe5 '+t('clinic');drawerHtml();const f={home,book,status,login,admin}[view];app.innerHTML='';await f()}
+
+async function home(){const m=await getMeta();
+ app.innerHTML=`<h2>${t('welcome')}</h2><p class="sm">${t('time')}</p>${m.notice?`<div class="warn">\ud83d\udce2 ${esc(m.notice)}</div>`:''}
+ <button class="big" onclick="go('book')">\ud83e\ude7a ${t('chk')}</button>
+ <button class="big" id="sb" ${tks.length?'':'disabled'} onclick="go('status')">\ud83d\udd22 ${t('stat')}</button>`}
+
+async function book(){const m=await getMeta(),os=await openSlots();
+ const opts=os.map((x,i)=>`<option value="${i}">${ds(x.dt)} \u2022 ${slotName(x.sl)}</option>`).join('');
+ app.innerHTML=`<button class="ghost" onclick="go('home')">${t('back')}</button><div class="card" style="margin-top:12px">
+ ${m.notice?`<div class="warn">\ud83d\udce2 ${esc(m.notice)}</div>`:''}
+ <label>${t('slot')}</label><select id="sl">${opts}</select>
+ <label>${t('name')}</label><input id="nm" autocomplete="name">
+ <label>${t('mob')}</label><input id="mb" type="tel" maxlength="10" inputmode="numeric">
+ <label>${t('seen')}</label><select id="rp"><option value="0">${t('no')}</option><option value="1">${t('yes')}</option></select>
+ <button class="btn" style="width:100%" onclick="doBook()">${t('book')}</button><div id="msg" style="margin-top:12px"></div></div>`}
+async function doBook(){const m=await getMeta(),x=(await openSlots())[+sl.value],nm_=nm.value.trim(),mb_=mb.value.trim();
+ const say=(h,w)=>msg.innerHTML=`<div class="${w?'warn':'card'}">${h}</div>`;
+ if(!nm_||!/^\d{10}$/.test(mb_))return say(t('bad'),1);
+ const cm=closedMsg(m,ds(x.dt));if(cm)return say('\ud83d\udeab '+t('closed')+': '+esc(cm),1);
+ if(tks.filter(k=>k.key==x.key).length>=3)return say(t('lim'),1);
+ try{let n=0,ahead=0;await S.upd('slots',x.key,v=>{v=v||{list:[]};const act=v.list.filter(p=>!p.x);if(act.length>=MAX)throw 'FULL';if(act.some(p=>p.mb===mb_&&p.nm.toLowerCase()===nm_.toLowerCase()))throw 'DUP';ahead=act.filter(p=>!p.done).length;n=v.list.reduce((a,p)=>Math.max(a,p.n),0)+1;v.list.push({n,nm:nm_,mb:mb_,r:rp.value=='1',done:false,x:false,dv:DV});return v});
+  tks.push({key:x.key,n,nm:nm_,mb:mb_,date:ds(x.dt),sid:x.sl.id});localStorage.tks=JSON.stringify(tks);
+  say('\u2705 '+esc((()=>{const e=etaOf(x,ahead);return t('conf')(n,ds(x.dt),fmt(e.getHours()+e.getMinutes()/60),Math.max(0,Math.round((e-Date.now())/60000)))})()))}
+ catch(e){say(e=='FULL'?t('full'):e=='DUP'?t('dup'):String(e),1)}}
+
+async function status(){pruneTks();if(!tks.length)return app.innerHTML=`<div class="warn">${t('notk')}</div>`;
+ let h=`<button class="ghost" onclick="go('home')">${t('back')}</button>`;
+ for(const k of tks){const v=await S.get('slots',k.key),l=v?v.list:[],mine=l.find(p=>p.n==k.n),pend=l.filter(p=>!p.done&&!p.x),dn=l.filter(p=>p.done).sort((a,b)=>(b.dt||0)-(a.dt||0)||b.n-a.n),cur=dn.length?dn[0].n:(pend.length?pend[0].n:null);
+ h+=`<div class="card" style="margin-top:12px"><div class="sm">${esc(k.nm)} \u2022 ${k.date} \u2022 ${slotName(SL.find(s=>s.id==k.sid))}</div>
+ <p>${t('your')}</p><div class="num">${k.n}</div><p>${t('cur')}</p><div class="num">${cur??t('nonow')}</div>
+ ${mine&&mine.x?`<p>\ud83d\udeab ${t('cx')}</p>`:mine&&mine.done?`<p>\u2705 ${t('treated')}</p>`:`<p>${t('ahead')}: <b>${pend.filter(p=>p.n<k.n).length}</b></p>`}</div>`}
+ app.innerHTML=h;clearTimeout(window._p);window._p=setTimeout(()=>{if(view=='status')status()},8000)}
+
+async function login(){app.innerHTML=`<div class="card"><label>${t('uid')}</label><input id="u" autocapitalize="none" value="admin"><label>${t('pw')}</label><input id="p" type="password" value="demo123"><p class="sm" style="margin-top:10px">Demo login: admin / demo123</p><button class="btn" style="width:100%" onclick="doLogin()">${t('go')}</button><div id="msg" class="warn" style="display:none;margin-top:12px">${t('wrong')}</div></div>`}
+async function doLogin(){const m=await getMeta();if(m.users.some(x=>x.u==u.value.trim()&&x.p==p.value)){me=u.value.trim();sessionStorage.me=me;cleanup();go('admin')}else msg.style.display='block'}
+async function cleanup(){const k='clean',today=ds(new Date());if(localStorage[k]==today)return;
+ for(let d=31;d<=60;d++){const dt=new Date();dt.setDate(dt.getDate()-d);for(const sl of SL)await S.del('slots',ds(dt)+'_'+sl.id)}localStorage[k]=today}
+
+let tab='queue',aslot=null;
+async function admin(){if(!me)return go('login');const m=await getMeta(),os=await openSlots();
+ const list=[];for(let d=-1;d<=2;d++)for(const sl of SL){const dt=new Date();dt.setDate(dt.getDate()+d);list.push({dt,sl,key:ds(dt)+'_'+sl.id})}
+ aslot=aslot||os[0].key;
+ const tabs=`<div class="tabs">${['queue','notice','users'].map(k=>`<button class="ghost ${tab==k?'on':''}" onclick="tab='${k}';admin()">${t(k)}</button>`).join('')}</div>`;
+ let h=tabs;
+ if(tab=='queue'){const v=await S.get('slots',aslot),l=v?v.list:[],P=l.filter(p=>!p.done&&!p.x),Dn=l.filter(p=>p.done&&!p.x),Cx=l.filter(p=>p.x),dc={};l.forEach(p=>{if(!p.x&&p.dv)dc[p.dv]=(dc[p.dv]||0)+1});
+  h+=`<select onchange="aslot=this.value;admin()">${list.map(x=>`<option value="${x.key}" ${x.key==aslot?'selected':''}>${ds(x.dt)} \u2022 ${slotName(x.sl)}</option>`).join('')}</select>
+  <div class="card"><b>${t('pending')}: ${P.length}</b> / ${l.length-Cx.length}${P.length?'':`<p class="sm">${t('empty')}</p>`}
+  ${P.map(p=>`<div class="row"><b>${p.n}</b><span>${esc(p.nm)}${p.r?' (R)':''}<br><small>${esc(p.mb)}${p.dv&&dc[p.dv]>1?' \ud83d\udcf1\u00d7'+dc[p.dv]:''}</small></span><button class="btn" onclick="treat(${p.n})">\u2714 ${t('treat')}</button><button class="ghost" onclick="cancelP(${p.n})">\u2716</button></div>`).join('')}</div>
+  ${Dn.length?`<div class="card sm"><b>${t('tdone')}</b>${Dn.map(p=>`<div class="row done"><b>${p.n}</b><span>${esc(p.nm)}${p.r?' (R)':''} ${esc(p.mb)}</span></div>`).join('')}</div>`:''}${Cx.length?`<div class="card sm"><b>${t('cx')}</b>${Cx.map(p=>`<div class="row done"><b>${p.n}</b><span>${esc(p.nm)} ${esc(p.mb)}</span></div>`).join('')}</div>`:''}`}
+ if(tab=='notice'){h+=`<div class="card"><label>${t('ntxt')}</label><textarea id="nt" rows="3">${esc(m.notice)}</textarea><button class="btn" onclick="saveNotice()">${t('save')}</button></div>
+  <div class="card"><b>${t('closeTitle')}</b><br><label>${t('from')}</label><input type="date" id="cf"><label>${t('to')}</label><input type="date" id="ct"><label>${t('cmsg')}</label><input id="cmg"><button class="btn" onclick="addClosure()">${t('add')}</button>
+  ${m.closures.map((c,i)=>`<div class="row"><span>${c.from} \u2192 ${c.to}<br><small>${esc(c.msg)}</small></span><button class="ghost" onclick="delClosure(${i})">${t('del')}</button></div>`).join('')}</div>`}
+ if(tab=='users'){h+=`<div class="card"><b>${t('newu')}</b><label>${t('uid')}</label><input id="nu" autocapitalize="none"><label>${t('pw')}</label><input id="np"><button class="btn" onclick="addUser()">${t('save')}</button>
+  ${m.users.map(x=>`<div class="row"><span>\ud83d\udc64 ${esc(x.u)}</span></div>`).join('')}</div>`}
+ app.innerHTML=h;clearTimeout(window._a);if(tab=='queue')window._a=setTimeout(()=>{if(view=='admin'&&tab=='queue')admin()},10000)}
+async function treat(n){await S.upd('slots',aslot,v=>{const p=v.list.find(x=>x.n==n);if(p){p.done=true;p.dt=Date.now()}return v});admin()}
+async function cancelP(n){if(!confirm(t('sure')))return;await S.upd('slots',aslot,v=>{const p=v.list.find(x=>x.n==n);if(p)p.x=true;return v});admin()}
+async function saveNotice(){const m=await getMeta();m.notice=nt.value.trim();await S.set('meta','settings',m);alert(t('saved'))}
+async function addClosure(){if(!cf.value||!ct.value)return;const m=await getMeta();m.closures.push({from:cf.value,to:ct.value,msg:cmg.value.trim()||t('closed')});await S.set('meta','settings',m);admin()}
+async function delClosure(i){const m=await getMeta();m.closures.splice(i,1);await S.set('meta','settings',m);admin()}
+async function addUser(){const a=nu.value.trim(),b=np.value;if(!a||!b)return;const m=await getMeta();if(m.users.some(x=>x.u==a))return;m.users.push({u:a,p:b});await S.set('meta','settings',m);alert(t('reuse'));admin()}
+(function(){
+ if(localStorage.getItem('meta/settings'))return;
+ var now=new Date(),first=null;
+ outer:for(var d=0;d<3;d++)for(var i=0;i<SL.length;i++){var dt=new Date(now.getFullYear(),now.getMonth(),now.getDate()+d);var e=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate(),SL[i].e);if(e>now){first={dt:dt,i:i};break outer}}
+ localStorage.setItem('meta/settings',JSON.stringify({users:[{u:'admin',p:'demo123'}],notice:'Sample notice: please carry your previous prescription.',closures:[]}));
+ var nm=['Ramesh Patil','Sunita Kale','Anil Deshmukh','Kavita Wagh','Mahesh Thakre','Anita Raut','Vijay Bhoyar','Rekha Ingole','Prakash Dhoke','Meena Zade','Sanjay Nimje','Seema Bagde','Dinesh Dongre','Pooja Pande'];
+ function mk(from,count,doneN,cancelAt){var list=[];for(var k=0;k<count;k++){var n=k+1;list.push({n:n,nm:nm[(from+k)%nm.length],mb:'98765'+String(10000+(from+k)*37),r:k%4==0,done:k<doneN,x:k===cancelAt,dv:'d'+(from+k),dt:k<doneN?Date.now()-(doneN-k)*600000:undefined})}return {list:list}}
+ var s1=ds(first.dt)+'_'+SL[first.i].id,j=first.i+1,dt2=first.dt;if(j>=SL.length){j=0;dt2=new Date(first.dt.getFullYear(),first.dt.getMonth(),first.dt.getDate()+1)}
+ localStorage.setItem('slots/'+s1,JSON.stringify(mk(0,11,4,6)));
+ localStorage.setItem('slots/'+ds(dt2)+'_'+SL[j].id,JSON.stringify(mk(5,5,0,-1)));
+})();
+
+render();
+</script></body></html>
