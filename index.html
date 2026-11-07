@@ -103,45 +103,126 @@ footer .btn{margin-bottom:14px}
 .shots img,.shots .ph{flex-basis:200px}
 }
 @media(prefers-reduced-motion:reduce){#sheet.open{animation:none}}
+
+.hero{padding:26px 0 30px}
+.hero .wrap{grid-template-columns:1fr}
+.car{padding:30px 0 6px}
+.carwrap{position:relative;max-width:1100px;margin:0 auto}
+.track{position:relative;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 18px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 78%;max-width:320px;scroll-snap-align:center;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;padding:0;display:block;position:relative;box-shadow:0 2px 10px rgba(20,33,61,.07)}
+.slide:focus-visible,.track:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+.mk{height:150px;background:linear-gradient(160deg,var(--c),#14213d);display:flex;align-items:center;justify-content:center;padding:14px}
+.slide .bd{padding:14px 16px 16px;border-top:4px solid var(--c)}
+.slide .t{display:flex;align-items:center;gap:8px}
+.slide .ic{font-size:24px}
+.slide h3{font-size:19px}
+.slide p{color:var(--muted);font-size:14.5px;margin:4px 0 10px}
+.slide .go{font-weight:600;color:var(--c);font-size:14.5px}
+.badge{position:absolute;top:10px;right:10px;background:var(--saffron);color:var(--ink);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:12px}
+.dots{display:flex;justify-content:center;gap:7px;margin-top:2px}
+.dots button{width:8px;height:8px;border-radius:8px;border:0;background:#c3cbe0;padding:0;cursor:pointer;transition:width .2s,background .2s}
+.dots button.on{background:var(--ink);width:22px}
+.arr{display:none;position:absolute;top:42%;z-index:3;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:26px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.arr.l{left:8px}.arr.r{right:8px}
+.m-seats{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;width:78%}
+.m-seats i{aspect-ratio:1;border-radius:4px;background:#2e7d5b}.m-seats i.o{background:#d6453d}.m-seats i.h{background:#e9a825}
+.m-rows{width:82%;display:grid;gap:8px}
+.m-rows p{margin:0;background:rgba(255,255,255,.92);color:var(--ink);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
+.m-rows b{height:8px;width:42%;background:#c3cbe0;border-radius:4px}.m-rows u{text-decoration:none}
+.m-inst{width:82%;display:grid;gap:9px}
+.m-inst .av{display:flex;gap:8px}.m-inst .av span{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9)}
+.m-inst .bar{height:10px;border-radius:5px;background:rgba(255,255,255,.3)}.m-inst .bar i{display:block;height:100%;border-radius:5px;background:var(--saffron)}
+.m-chips{width:82%;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end}
+.m-chips em{font-style:normal;font-size:12px;font-weight:600;background:rgba(255,255,255,.92);color:var(--ink);border-radius:12px;padding:3px 10px}
+.m-chips em.a{background:#ffd27a}.m-chips em.g{background:#9fe3b9}
+.m-chips .bars{display:flex;gap:7px;align-items:flex-end;height:64px;width:100%;margin-top:8px}
+.m-chips .bars i{flex:1;background:rgba(255,255,255,.85);border-radius:4px 4px 0 0}
+.m-cal{width:82%;display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.m-cal i{aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.22)}.m-cal i.h{background:var(--saffron)}.m-cal i.d{background:rgba(255,255,255,.85)}
+.m-card{width:70%;aspect-ratio:3/4;max-height:122px;border:3px double #f3d9a0;border-radius:10px;background:rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#ffd27a;font-size:22px}
+.m-card b{height:7px;width:62%;background:#f3d9a0;border-radius:4px}.m-card b.s{width:40%}
+@media(min-width:760px){.slide{flex-basis:300px}.arr{display:block}.track{padding-left:60px;padding-right:60px}}
+@media(max-width:759px){.hero{padding:14px 0 16px}.hero h1{font-size:26px}.hero p{font-size:14.5px;margin:6px 0 12px}.hero .btn{padding:9px 14px}.car{padding:16px 0 4px}.car h2{font-size:22px}.car .sub{margin-bottom:8px;font-size:14px}.mk{height:128px}.slide p{margin:3px 0 8px}}
+
+html{scroll-snap-type:y proximity;scroll-padding-top:58px}
+.screen{min-height:calc(100vh - 58px);min-height:calc(100svh - 58px);scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:20px 0}
+.hero.screen{background:var(--ink);color:#fff}
+.hero.screen .wrap{width:100%}
+.hero h1{font-size:clamp(30px,8vw,52px)}
+.hero p{margin:12px 0 20px;max-width:520px;color:#c9d2ea}
+.tiles{display:grid;gap:12px;max-width:560px}
+.tile{display:grid;grid-template-columns:auto 1fr auto;column-gap:12px;align-items:center;background:#fff;color:var(--ink);border-radius:16px;padding:14px 16px;text-decoration:none}
+.tile .ti{grid-row:span 2;font-size:30px}.tile b{font-family:'Baloo 2',sans-serif;font-size:20px;line-height:1.1}.tile small{color:var(--muted);font-size:13.5px}.tile .tg{grid-row:span 2;font-weight:600;color:var(--saffron)}
+.tile:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+.tog{display:inline-flex;background:#e4e9f4;border-radius:12px;padding:3px;margin-bottom:12px}
+.tog button{border:0;background:transparent;font:600 14px 'Hind',sans-serif;color:var(--muted);padding:7px 18px;border-radius:10px;cursor:pointer}
+.tog button.on{background:var(--ink);color:#fff}
+.tog button:focus-visible{outline:3px solid var(--saffron);outline-offset:1px}
+.car{padding:20px 0 16px}
+.car .sub{margin-bottom:10px}
+[data-view=list] .carwrap,[data-view=list] .dots{display:none}
+[data-view=swipe] .list{display:none}
+.list{display:grid;gap:10px;align-content:start}
+.lrow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px 14px 14px 6px;padding:11px 14px;text-align:left;font:inherit;color:inherit;width:100%;cursor:pointer}
+.lrow .ri{font-size:26px}.lrow .rt{flex:1;display:flex;flex-direction:column}.lrow b{font-size:16px}.lrow small{color:var(--muted);font-size:13.5px;line-height:1.3}.lrow .rg{font-size:22px;color:var(--c)}
+.lrow .bg{background:var(--saffron);color:var(--ink);font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:6px}
+.lrow:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+.fine{margin-top:16px;color:var(--muted);font-size:13.5px}
+.m-queue{width:78%;display:grid;gap:8px}
+.m-queue p{margin:0;background:rgba(255,255,255,.92);color:var(--ink);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.m-queue b{background:var(--c);color:#fff;border-radius:8px;min-width:36px;text-align:center;padding:4px 0;font-size:16px}
+.m-queue i{height:8px;flex:1;background:#c3cbe0;border-radius:4px}
+@media(max-width:759px){.mk{height:118px}.car h2{font-size:22px}.hero p{font-size:14.5px}.step{padding:13px 15px}.pricebox{padding:16px}}
+@media(min-width:760px){.tiles{grid-template-columns:1fr 1fr}.steps{margin-top:6px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.m-queue p{padding:7px 12px}.lrow b{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.lrow .bg{white-space:nowrap;margin-left:0}
+.tile{grid-template-areas:"ti b tg" "ti sm tg"}.tile .ti{grid-area:ti;grid-row:auto}.tile b{grid-area:b}.tile small{grid-area:sm}.tile .tg{grid-area:tg;grid-row:auto;align-self:center}
+@media(max-height:700px){.lrow small{display:none}.lrow{padding:9px 12px}.car .sub{margin-bottom:6px}.car{padding:12px 0 10px}}
 </style>
 </head>
 <body>
 
 <header><div class="wrap"><div class="logo">App<span>Mitra</span></div><a class="btn btn-wa" id="waTop" href="#" onclick="openForm('','general');return false">WhatsApp us</a></div></header>
 
-<div class="hero"><div class="wrap">
-<div>
+<main>
+<section class="hero screen" id="top"><div class="wrap">
 <h1>Your business, ready on one app.</h1>
-<p>Library, society, institute and custom apps built in Nagpur. Try any app free for 3 days. Like it? Take the 1-year license.</p>
-<div class="row"><a class="btn btn-main" href="#apps">See the apps</a><a class="btn btn-line" style="background:transparent;color:#fff;border-color:#fff" href="#how">How it works</a></div>
-</div>
-<div class="phone" aria-hidden="true"><small>Library App &#183; Seat Map</small><b>Diamond Hall</b>
-<div class="seats" id="seatDemo"></div>
-<div class="legend"><u>Vacant</u><u>Occupied</u><u>Expiring</u></div></div>
-</div></div>
+<p>Library, society, institute, clinic and case-monitoring software built in Nagpur. Try any app free for 3 days. Like it? Take the 1-year license.</p>
+<div class="tiles">
+<a class="tile" href="#apps"><span class="ti">&#128241;</span><b>Applications</b><small id="cntApps"></small><span class="tg">Explore &#8250;</span></a>
+<a class="tile" href="#projects"><span class="ti">&#128188;</span><b>Project Software</b><small id="cntProj"></small><span class="tg">Explore &#8250;</span></a>
+</div></div></section>
 
-<div class="wrap">
-<section id="how"><h2>How it works</h2><p class="sub">Three simple steps. No payment to start.</p>
+<section class="screen car" id="apps" data-view="swipe" data-group="app"><div class="wrap">
+<h2>Applications</h2><p class="sub">Ready-to-use apps. Try any app free for 3 days.</p>
+<div class="tog" role="group" aria-label="Choose view"><button class="on" data-v="swipe">Swipe</button><button data-v="list">List</button></div></div>
+<div class="carwrap"><button class="arr l" aria-label="Previous app">&#8249;</button><div class="track" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Applications"></div><button class="arr r" aria-label="Next app">&#8250;</button></div>
+<div class="dots"></div><div class="wrap list"></div></section>
+
+<section class="screen car" id="projects" data-view="swipe" data-group="project"><div class="wrap">
+<h2>Project Software</h2><p class="sub">Built around your project. Try the demo free for 3 days.</p>
+<div class="tog" role="group" aria-label="Choose view"><button class="on" data-v="swipe">Swipe</button><button data-v="list">List</button></div></div>
+<div class="carwrap"><button class="arr l" aria-label="Previous software">&#8249;</button><div class="track" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Project software"></div><button class="arr r" aria-label="Next software">&#8250;</button></div>
+<div class="dots"></div><div class="wrap list"></div></section>
+
+<section class="screen" id="how"><div class="wrap"><h2>How it works</h2><p class="sub">Three simple steps. No payment to start.</p>
 <div class="steps">
-<div class="step"><em>1</em><div><h3>Pick an app</h3><p>Open any app below, see photos and benefits.</p></div></div>
+<div class="step"><em>1</em><div><h3>Pick an app</h3><p>Open any app, see photos and benefits.</p></div></div>
 <div class="step"><em>2</em><div><h3>Try 3 days free</h3><p>Use the demo with sample data and check every feature.</p></div></div>
 <div class="step"><em>3</em><div><h3>Buy 1-year license</h3><p>Pay once, get your own app set up with your name and data.</p></div></div>
-</div></section>
+</div></div></section>
 
-<section id="apps"><h2>Our apps</h2><p class="sub">Tap an app to see details and start the demo.</p><div class="grid" id="appGrid"></div></section>
-
-<section><h2>What you get with the license</h2>
+<section class="screen" id="license"><div class="wrap"><h2>What you get with the license</h2>
 <div class="pricebox"><ul>
 <li>Your own app with your name, logo and colours</li>
 <li>Works on mobile like an installed app</li>
 <li>Setup help and training on WhatsApp</li>
 <li>1 year of support and fixes</li>
-</ul></div></section>
-</div>
-
-<footer><div class="wrap">
-<a class="btn btn-wa" id="waFoot" href="#" onclick="openForm('','general');return false">Chat on WhatsApp</a>
-<div>&#169; App Mitra &#183; Nagpur, Maharashtra</div></div></footer>
+</ul></div>
+<p style="margin-top:18px"><a class="btn btn-wa" id="waFoot" href="#" onclick="openForm('','general');return false">Chat on WhatsApp</a></p>
+<p class="fine">&copy; App Mitra &middot; Nagpur, Maharashtra</p></div></section>
+</main>
 
 <div id="sheet" role="dialog" aria-modal="true" aria-label="App details"></div>
 
@@ -164,27 +245,38 @@ footer .btn{margin-bottom:14px}
 /* ====== EDIT THIS PART ====== */
 var WHATSAPP = "917276124898"; // your number with country code, no + or spaces
 var APPS = [
- {id:"library", icon:"\ud83d\udcda", name:"Library & Study Circle App", color:"#1a3a6b",
+ {group:"app", id:"library", icon:"\ud83d\udcda", name:"Library & Study Circle App", color:"#1a3a6b",
   tag:"Seats, fees and attendance without the register.",
   demoUrl:"library-demo/",
   images:["images/library-1.jpg","images/library-2.jpg","images/library-3.jpg"],
   benefits:[["Save daily time","Attendance and seat status in a few taps."],["Never miss a fee","Due, expiring and expired lists with one-tap WhatsApp reminders."],["Know your profit","Income, expenses and monthly reports in one place."]],
   features:["Hall-wise seat map","Student admission and ID card QR","Online admission form","Daily attendance","Fee receipts on WhatsApp","Expense and inventory tracking","Staff logins","Month-wise reports"]},
- {id:"society", icon:"\ud83c\udfe6", name:"Society & Credit App", color:"#1d6b4a",
+ {group:"app", id:"society", icon:"\ud83c\udfe6", name:"Society & Credit App", color:"#1d6b4a",
   tag:"Shares, loans and interest, always correct.",
   demoUrl:"society-demo/", images:["images/society-1.jpg","images/society-2.jpg","images/society-3.jpg"],
   benefits:[["No calculation mistakes","Interest and instalments are calculated for you."],["Members stay informed","Hindi reminders for due dates."],["Clear records","Every share and loan entry is stored and searchable."]],
   features:["Member and share register","Loan and interest tracking","Hindi reminders","Collection reports","Multiple staff logins","Backup of all data"]},
- {id:"institute", icon:"\ud83c\udf93", name:"Institute Management App", color:"#5b3a9b",
-  tag:"Students, batches and certificates in one app.",
-  demoUrl:"", images:["images/institute-1.jpg","images/institute-2.jpg","images/institute-3.jpg"],
-  benefits:[["Organised batches","Admissions, batches and fees together."],["Instant certificates","Print a certificate in seconds."],["Stay in touch","Send updates to students on WhatsApp."]],
-  features:["Student admission","Batch and course management","Fee tracking and receipts","Certificate generator","WhatsApp updates","Reports"]},
- {id:"custom", icon:"\ud83d\udc8c", name:"Custom App & Invitations", color:"#b3326b",
+ {group:"app", id:"institute", icon:"\ud83c\udf93", name:"Institute Management App", color:"#5b3a9b",
+  tag:"Admissions, fees and receipts in one app.",
+  demoUrl:"institute-demo/", note:"Demo is a preview with sample data. Saving works in the full app.", images:["images/institute-1.jpg","images/institute-2.jpg","images/institute-3.jpg"],
+  benefits:[["Never lose an enquiry","Track enquiries and turn them into admissions in one step."],["Fees under control","Pending fees and a fee tracker show who owes what."],["Professional paperwork","Printable admission forms and PDF fee receipts."]],
+  features:["Enquiry tracking","Course and fee management","Student admission with photo","Fee payments with PDF receipts","Pending fees report","Fee tracker","Printable admission and enquiry forms","Dashboard with fee and enrollment charts","Admin and staff users","Activity log"]},
+ {group:"app", id:"custom", icon:"\ud83d\udc8c", name:"Custom App & Invitations", color:"#b3326b",
   tag:"Wedding invitations and apps made for you.",
-  demoUrl:"invitations/", demoLabel:"View sample invitations", buyLabel:"Order your invitation", buyIntent:"order", note:"Samples use placeholder names and photos.", images:["images/custom-1.jpg","images/custom-2.jpg","images/custom-3.jpg"],
+  demoUrl:"invitations/", demoLabel:"View sample invitations", buyLabel:"Order your invitation", buyIntent:"order", note:"Samples use placeholder names and photos.",
+  images:["images/custom-1.jpg","images/custom-2.jpg","images/custom-3.jpg"],
   benefits:[["Made your way","Your design, your names, your language."],["Share anywhere","One link works on WhatsApp and every phone."],["Quick delivery","Invitations ready fast, apps built to your needs."]],
-  features:["Animated wedding invitations","Festival greeting cards","Countdown, maps and add-to-calendar","Blessings wall and WhatsApp helper","Custom business apps","Hindi, Marathi and English"]}
+  features:["Animated wedding invitations","Festival greeting cards","Countdown, maps and add-to-calendar","Blessings wall and WhatsApp helper","Custom business apps","Hindi, Marathi and English"]},
+ {group:"project", id:"cases", icon:"\ud83d\udee1\ufe0f", name:"Case Monitoring System", color:"#7a1f2b",
+  tag:"Disciplinary cases, inquiries and deadlines in one view.",
+  demoUrl:"case-demo/", note:"Demo is a preview with sample data. Saving works in the full app.", images:["images/cases-1.jpg","images/cases-2.jpg","images/cases-3.jpg"],
+  benefits:[["Deadlines never missed","Inquiry and action deadlines are highlighted before they pass."],["One view of all cases","Status, rule and penalty summaries on a single dashboard."],["Reports ready","Monthly, unit-wise and delay reports without manual work."]],
+  features:["Case register with event timeline","Inquiry (COI) tracking with deadline alerts","Suspension tracking","Gazetted officer case module","Honorarium records","Dashboard with status, rule and penalty charts","Pending actions list","Monthly, unit-wise and COI-delay reports","Role-based users","Activity log"]},
+ {group:"project", id:"clinic", icon:"\ud83e\ude7a", name:"Clinic Queue Software", color:"#0f6b6b",
+  tag:"Patient tokens and live queue, without the crowd at the counter.",
+  demoUrl:"clinic-demo/", images:["images/clinic-1.jpg","images/clinic-2.jpg","images/clinic-3.jpg"],
+  benefits:[["No crowd at the counter","Patients book a token from their own phone."],["Fair and clear queue","Each slot has a patient limit and a visible queue status."],["Easy for staff","Mark patients treated or cancelled from one admin panel."]],
+  features:["Token booking by slot","Patient limit per slot","Queue status check for patients","Hindi and English screens","Staff login and admin panel","Mark patients treated or cancelled","Notice board for patients","Holiday and closure dates","Add staff users"]}
 ];
 /* ====== END EDIT ====== */
 
@@ -233,18 +325,57 @@ function sendForm(){
  });
 }
 
-// hero seat demo
-var s="",pat="oooxooo xooooxo ooxoooo oooooho xoooooo".replace(/ /g,"");
-for(var i=0;i<35;i++){var k=(i*7+3)%11;s+='<i class="'+(k<4?"o":k==5?"h":"")+'"></i>'}
-document.getElementById("seatDemo").innerHTML=s;
-
-// cards
-var grid=document.getElementById("appGrid");
-APPS.forEach(function(a){
- var b=document.createElement("button");b.className="card";b.style.setProperty("--c",a.color);
- b.innerHTML='<div class="ic">'+a.icon+'</div><h3>'+a.name+'</h3><p>'+a.tag+'</p><span class="go">View details and demo \u203a</span>';
- b.onclick=function(){openApp(a.id)};grid.appendChild(b);
-});
+// sections: swipe + list per group
+function mock(id){
+ var h="",i,k;
+ if(id==="library"){for(i=0;i<28;i++){k=(i*7+3)%11;h+='<i class="'+(k<4?"o":k==5?"h":"")+'"></i>'}return '<div class="m-seats">'+h+'</div>'}
+ if(id==="society")return '<div class="m-rows"><p><b></b><u>&#8377;2,000</u></p><p><b></b><u>&#8377;1,500</u></p><p><b></b><u>&#8377;3,200</u></p></div>';
+ if(id==="institute")return '<div class="m-inst"><div class="av"><span></span><span></span><span></span></div><div class="bar"><i style="width:80%"></i></div><div class="bar"><i style="width:55%"></i></div><div class="bar"><i style="width:35%"></i></div></div>';
+ if(id==="cases")return '<div class="m-chips"><em>Inquiry</em><em class="a">Pending</em><em class="g">Closed</em><div class="bars"><i style="height:55%"></i><i style="height:90%"></i><i style="height:40%"></i><i style="height:72%"></i><i style="height:60%"></i></div></div>';
+ if(id==="clinic")return '<div class="m-queue"><p><b>12</b>Now serving</p><p><b>13</b><i></i></p></div>';
+ return '<div class="m-card"><span>&#10084;</span><b></b><b class="s"></b></div>';
+}
+function makeSection(sec){
+ var items=APPS.filter(function(a){return a.group===sec.dataset.group}),N=items.length,r;
+ var track=sec.querySelector(".track"),dotsEl=sec.querySelector(".dots"),listEl=sec.querySelector(".list"),html="";
+ for(r=0;r<3;r++)items.forEach(function(a){
+  var cl=r!==1;
+  html+='<button class="slide" data-id="'+a.id+'" style="--c:'+a.color+'"'+(cl?' aria-hidden="true" tabindex="-1"':'')+' aria-label="'+a.name+': details and demo">'+
+   '<div class="mk">'+mock(a.id)+'</div>'+(a.badge?'<span class="badge">'+a.badge+'</span>':'')+
+   '<div class="bd"><div class="t"><span class="ic">'+a.icon+'</span><h3>'+a.name+'</h3></div><p>'+a.tag+'</p><span class="go">View details and demo \u203a</span></div></button>';
+ });
+ track.innerHTML=html;
+ listEl.innerHTML=items.map(function(a){return '<button class="lrow" data-id="'+a.id+'" style="--c:'+a.color+'"><span class="ri">'+a.icon+'</span><span class="rt"><b>'+a.name+(a.badge?'<span class="bg">On request</span>':'')+'</b><small>'+a.tag+'</small></span><span class="rg">\u203a</span></button>'}).join("");
+ listEl.addEventListener("click",function(e){var b=e.target.closest(".lrow");if(b)openApp(b.dataset.id)});
+ var sl=track.children;
+ items.forEach(function(a,i){var d=document.createElement("button");d.setAttribute("aria-label","Show "+a.name);d.onclick=function(){go(N+i)};dotsEl.appendChild(d)});
+ function stepW(){return sl[1].offsetLeft-sl[0].offsetLeft}
+ function leftFor(i){var e=sl[i];return e.offsetLeft-(track.clientWidth-e.offsetWidth)/2}
+ function cur(){var c=track.scrollLeft+track.clientWidth/2,b=0,bd=1e9,i,d;for(i=0;i<sl.length;i++){d=Math.abs(sl[i].offsetLeft+sl[i].offsetWidth/2-c);if(d<bd){bd=d;b=i}}return b}
+ function go(i){track.scrollTo({left:leftFor(i),behavior:"smooth"});hold()}
+ function mark(){var i=cur()%N;Array.prototype.forEach.call(dotsEl.children,function(d,k){d.className=k===i?"on":""})}
+ function snapOff(fn){track.style.scrollSnapType="none";fn();requestAnimationFrame(function(){requestAnimationFrame(function(){track.style.scrollSnapType=""})})}
+ function wrap(){var i=cur(),W=stepW()*N;if(i<N)snapOff(function(){track.scrollLeft+=W});else if(i>=2*N)snapOff(function(){track.scrollLeft-=W})}
+ var endT,pauseUntil=0,vis=false;
+ function hold(){pauseUntil=Date.now()+7000}
+ track.addEventListener("scroll",function(){mark();clearTimeout(endT);endT=setTimeout(wrap,140)},{passive:true});
+ ["pointerdown","touchstart","wheel","focusin","mouseenter"].forEach(function(ev){track.addEventListener(ev,hold,{passive:true})});
+ track.addEventListener("click",function(e){var b=e.target.closest(".slide");if(b)openApp(b.dataset.id)});
+ track.addEventListener("keydown",function(e){if(e.key==="ArrowRight"){e.preventDefault();go(cur()+1)}else if(e.key==="ArrowLeft"){e.preventDefault();go(cur()-1)}});
+ sec.querySelector(".arr.l").onclick=function(){go(cur()-1)};
+ sec.querySelector(".arr.r").onclick=function(){go(cur()+1)};
+ function start(){if(sec.dataset.view!=="swipe")return;snapOff(function(){track.scrollLeft=leftFor(N)});mark()}
+ start();window.addEventListener("load",start);window.addEventListener("resize",start);
+ sec.querySelectorAll(".tog button").forEach(function(b){b.onclick=function(){
+  sec.dataset.view=b.dataset.v;sec.querySelectorAll(".tog button").forEach(function(x){x.className=x===b?"on":""});
+  if(b.dataset.v==="swipe")requestAnimationFrame(start)}});
+ if("IntersectionObserver" in window)new IntersectionObserver(function(en){vis=en[0].isIntersecting},{threshold:.5}).observe(sec);else vis=true;
+ var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+ if(!still&&N>1)setInterval(function(){if(!vis||sec.dataset.view!=="swipe"||Date.now()<pauseUntil||document.hidden||document.body.style.overflow==="hidden")return;go(cur()+1);pauseUntil=0},3800);
+}
+document.querySelectorAll("section.car").forEach(makeSection);
+(function(){var a=APPS.filter(function(x){return x.group==="app"}).length,p=APPS.length-a;
+ document.getElementById("cntApps").textContent=a+" ready-to-use apps";document.getElementById("cntProj").textContent=p+" project-based software"})();
 
 // detail sheet
 var sheet=document.getElementById("sheet");
@@ -264,7 +395,7 @@ function openApp(id,fromHash){
  if(!fromHash)history.pushState(null,"","#"+id);
 }
 function closeApp(){sheet.className="";document.body.style.overflow="";if(location.hash)history.pushState(null,"",location.pathname)}
-window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(APPS.some(function(x){return x.id===h}))openApp(h,true);else if(h!=="how"&&h!=="apps"){sheet.className="";document.body.style.overflow=""}});
+window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(APPS.some(function(x){return x.id===h}))openApp(h,true);else if(["how","apps","projects","license","top"].indexOf(h)<0){sheet.className="";document.body.style.overflow=""}});
 if(APPS.some(function(x){return x.id===location.hash.slice(1)}))openApp(location.hash.slice(1),true);
 </script>
 </body>
