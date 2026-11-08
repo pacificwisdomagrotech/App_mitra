@@ -179,6 +179,46 @@ html{scroll-snap-type:y proximity;scroll-padding-top:58px}
 .m-queue p{padding:7px 12px}.lrow b{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.lrow .bg{white-space:nowrap;margin-left:0}
 .tile{grid-template-areas:"ti b tg" "ti sm tg"}.tile .ti{grid-area:ti;grid-row:auto}.tile b{grid-area:b}.tile small{grid-area:sm}.tile .tg{grid-area:tg;grid-row:auto;align-self:center}
 @media(max-height:700px){.lrow small{display:none}.lrow{padding:9px 12px}.car .sub{margin-bottom:6px}.car{padding:12px 0 10px}}
+
+/* v4: layout fix + nicer look */
+.carwrap{width:100%;min-width:0}
+.track{min-width:0;width:100%}
+.screen>*{min-width:0}
+.hero.screen{background:radial-gradient(circle at 88% 8%,rgba(255,159,28,.28),transparent 42%),radial-gradient(circle at 0% 100%,rgba(91,58,155,.35),transparent 45%),linear-gradient(160deg,#14213d,#1d2f5c)}
+.hero h1{letter-spacing:-.5px}
+.tile{box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .15s}
+.tile:active{transform:scale(.98)}
+#how{background:#fff}
+.slide{transition:transform .15s,box-shadow .15s}
+.slide:active{transform:scale(.985)}
+.dh{background:linear-gradient(160deg,var(--c),#14213d);color:#fff;text-align:center;padding:22px 18px 24px;border-radius:0 0 26px 26px;position:relative;overflow:hidden}
+.dh:before{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08)}
+.dh-ic{width:66px;height:66px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 10px;position:relative}
+.dh h2{font-size:25px;margin:0 0 4px;position:relative}
+.dh p{color:#e5e9f5;font-size:15px;max-width:460px;margin:0 auto 12px;position:relative}
+.dh-pill{display:inline-block;background:rgba(255,255,255,.2);border-radius:14px;padding:4px 12px;font-size:12.5px;font-weight:600;position:relative}
+.shots2{display:flex;gap:14px;overflow-x:auto;padding:18px 20px 8px;scroll-snap-type:x mandatory;max-width:820px;margin:0 auto;scrollbar-width:none}
+.shots2::-webkit-scrollbar{display:none}
+.shots2 img,.shots2 .ph{flex:0 0 160px;width:160px;height:284px;object-fit:cover;object-position:top;border-radius:22px;border:4px solid #1b2236;box-shadow:0 10px 24px rgba(20,33,61,.28);scroll-snap-align:center;background:#fff;cursor:zoom-in}
+.shots2 .ph{display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;color:var(--muted);cursor:default;padding:10px}
+.dhint{text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.det2{max-width:700px;margin:0 auto;padding:6px 18px 8px}
+.sec{font-size:19px;margin:18px 0 10px}
+.bcards{display:grid;gap:10px}
+.bc{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;align-items:flex-start}
+.bn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font:800 15px 'Baloo 2',sans-serif}
+.bc b{display:block;font-size:16px}
+.bc span{color:var(--muted);font-size:14.5px}
+.ftags{display:flex;flex-wrap:wrap;gap:8px}
+.ft{background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 12px 6px 10px;font-size:14px}
+.ft:before{content:"\2713";color:var(--c);font-weight:800;margin-right:6px}
+.cta2{position:sticky;bottom:0;max-width:700px;margin:0 auto;padding:22px 18px 14px;background:linear-gradient(rgba(244,246,251,0),var(--bg) 28%);display:grid;gap:10px}
+.cta2 .btn{padding:14px 18px;font-size:16px;border-radius:12px}
+@media(min-width:760px){.cta2{grid-template-columns:1fr 1fr}.cta2 .note{grid-column:1/3}.shots2{justify-content:center}.shots2 img,.shots2 .ph{flex-basis:190px;width:190px;height:338px}}
+#zoom{position:fixed;inset:0;z-index:80;background:rgba(10,16,32,.93);display:none;align-items:center;justify-content:center;padding:14px}
+#zoom img{max-width:100%;max-height:100%;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+#zoom.open{display:flex}
+.bc .bn{color:#fff;font-size:15px}
 </style>
 </head>
 <body>
@@ -223,6 +263,8 @@ html{scroll-snap-type:y proximity;scroll-padding-top:58px}
 <p style="margin-top:18px"><a class="btn btn-wa" id="waFoot" href="#" onclick="openForm('','general');return false">Chat on WhatsApp</a></p>
 <p class="fine">&copy; App Mitra &middot; Nagpur, Maharashtra</p></div></section>
 </main>
+
+<div id="zoom" role="dialog" aria-label="Screenshot" onclick="closeZoom()"><img alt=""></div>
 
 <div id="sheet" role="dialog" aria-modal="true" aria-label="App details"></div>
 
@@ -381,19 +423,23 @@ document.querySelectorAll("section.car").forEach(makeSection);
 var sheet=document.getElementById("sheet");
 function openApp(id,fromHash){
  var a=APPS.filter(function(x){return x.id===id})[0];if(!a)return;
- var shots=a.images.map(function(src,i){return '<img src="'+src+'" alt="'+a.name+' screenshot '+(i+1)+'" loading="lazy" onerror="this.outerHTML=\'<div class=ph>Add photo:<br>'+src+'</div>\'">'}).join("");
- var ben=a.benefits.map(function(x){return '<div class="chip"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join("");
- var feat=a.features.map(function(x){return "<li>"+x+"</li>"}).join("");
+ var shots=a.images.map(function(src,i){return '<img src="'+src+'" alt="'+a.name+' screenshot '+(i+1)+'" loading="lazy" onclick="zoomImg(this)" onerror="this.outerHTML=\'<div class=ph>Photo coming soon</div>\'">'}).join("");
+ var ben=a.benefits.map(function(x,i){return '<div class="bc"><span class="bn">'+(i+1)+'</span><div><b>'+x[0]+'</b><span>'+x[1]+'</span></div></div>'}).join("");
+ var feat=a.features.map(function(x){return '<span class="ft">'+x+'</span>'}).join("");
  var demo=a.demoUrl?'<a class="btn btn-main" href="'+a.demoUrl+'">'+(a.demoLabel||"Start 3-day demo")+'</a>':'<button class="btn btn-main" onclick="openForm(\''+a.id+'\',\'demo\')">Get 3-day demo</button>';
+ var buy='<button class="btn btn-wa" onclick="openForm(\''+a.id+'\',\''+(a.buyIntent||"buy")+'\')">'+(a.buyLabel||"Buy 1-year license")+'</button>';
  sheet.style.setProperty("--c",a.color);
- sheet.innerHTML='<div class="bar"><button onclick="closeApp()">\u2039 Back</button><b>'+a.name+'</b></div>'+
- '<div class="shots">'+shots+'</div><div class="det"><h2>'+a.tag+'</h2>'+
- '<div class="chips">'+ben+'</div><h3>Features</h3><ul class="feat">'+feat+'</ul>'+
- '<div class="cta">'+demo+'<button class="btn btn-wa" onclick="openForm(\''+a.id+'\',\''+(a.buyIntent||"buy")+'\')">'+(a.buyLabel||"Buy 1-year license")+'</button></div>'+
- '<p class="note">'+(a.note||"Demo runs for 3 days with sample data.")+'</p></div>';
+ sheet.innerHTML='<div class="bar"><button onclick="closeApp()">&#8249; Back</button><b>'+a.name+'</b></div>'+
+ '<div class="dh"><div class="dh-ic">'+a.icon+'</div><h2>'+a.name+'</h2><p>'+a.tag+'</p><span class="dh-pill">'+(a.group==="project"?"Project software":"Ready-to-use app")+'</span></div>'+
+ '<div class="shots2">'+shots+'</div><div class="dhint">Tap a screenshot to enlarge</div>'+
+ '<div class="det2"><h3 class="sec">Why you will like it</h3><div class="bcards">'+ben+'</div><h3 class="sec">What is inside</h3><div class="ftags">'+feat+'</div></div>'+
+ '<div class="cta2">'+demo+buy+'<p class="note">'+(a.note||"Demo runs for 3 days with sample data.")+'</p></div>';
  sheet.className="open";sheet.scrollTop=0;document.body.style.overflow="hidden";
  if(!fromHash)history.pushState(null,"","#"+id);
 }
+function zoomImg(img){var z=document.getElementById("zoom");z.querySelector("img").src=img.src;z.className="open"}
+function closeZoom(){document.getElementById("zoom").className=""}
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeZoom()});
 function closeApp(){sheet.className="";document.body.style.overflow="";if(location.hash)history.pushState(null,"",location.pathname)}
 window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(APPS.some(function(x){return x.id===h}))openApp(h,true);else if(["how","apps","projects","license","top"].indexOf(h)<0){sheet.className="";document.body.style.overflow=""}});
 if(APPS.some(function(x){return x.id===location.hash.slice(1)}))openApp(location.hash.slice(1),true);
