@@ -4,472 +4,203 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#14213d">
-<title>App Mitra &#8211; Ready-made apps for your business</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+<title>App Mitra – Ready-made apps for your business</title>
 <style>
-:root{--ink:#14213d;--muted:#55607a;--bg:#f4f6fb;--card:#fff;--line:#dfe4ef;--saffron:#ff9f1c;--wa:#1faa59}
+:root{--navy:#14213d;--gold:#fca311;--bg:#f7f7f2;--ink:#1b1f2a;--mute:#5b6270;--card:#fff;--line:#e3e3da}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1626;--ink:#eef0f5;--mute:#a4abba;--card:#18233a;--line:#2a3652}}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:'Hind',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;font-size:16px}
-h1,h2,h3{font-family:'Baloo 2',system-ui,sans-serif;line-height:1.15}
-.wrap{max-width:1050px;margin:0 auto;padding:0 18px}
-header{background:var(--ink);color:#fff;position:sticky;top:0;z-index:20}
-header .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
-.logo{font-family:'Baloo 2';font-weight:800;font-size:22px}
-.logo span{color:var(--saffron)}
-.btn{display:inline-block;border:0;border-radius:10px;padding:12px 18px;font:600 15px 'Hind',sans-serif;cursor:pointer;text-decoration:none;text-align:center}
-.btn-wa{background:var(--wa);color:#fff}
-.btn-main{background:var(--saffron);color:var(--ink)}
-.btn-line{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
-.btn:focus-visible,.card:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
-.hero{background:var(--ink);color:#fff;padding:34px 0 46px}
-.hero .wrap{display:grid;gap:30px;align-items:center}
-.hero h1{font-size:clamp(32px,7vw,52px);font-weight:800}
-.hero p{color:#c9d2ea;margin:14px 0 22px;max-width:460px}
-.hero .row{display:flex;gap:10px;flex-wrap:wrap}
-.phone{justify-self:center;width:230px;background:#0b1429;border:6px solid #2a3a63;border-radius:30px;padding:14px 12px 16px}
-.phone small{display:block;color:#9fb0d9;font-size:11px;margin-bottom:8px}
-.phone b{font-family:'Baloo 2';font-size:14px}
-.seats{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}
-.seats i{aspect-ratio:1;border-radius:5px;background:#2e7d5b}
-.seats i.o{background:#d6453d}
-.seats i.h{background:#e9a825}
-.legend{display:flex;gap:10px;font-size:11px;color:#9fb0d9;margin-top:10px}
-.legend u{text-decoration:none;display:flex;align-items:center;gap:4px}
-.legend u:before{content:"";width:9px;height:9px;border-radius:3px;background:#2e7d5b}
-.legend u:nth-child(2):before{background:#d6453d}
-.legend u:nth-child(3):before{background:#e9a825}
-section{padding:44px 0 6px}
-h2{font-size:28px;font-weight:800;margin-bottom:6px}
-.sub{color:var(--muted);margin-bottom:22px}
-.steps{display:grid;gap:12px}
-.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
-.step em{font:800 26px 'Baloo 2';color:var(--saffron);font-style:normal;min-width:26px}
-.step h3{font-size:18px}
-.step p{color:var(--muted);font-size:15px}
-.grid{display:grid;gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-left:7px solid var(--c);border-radius:6px 16px 16px 6px;padding:18px;cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;display:block}
-.card .ic{font-size:30px}
-.card h3{font-size:21px;margin:4px 0 2px}
-.card p{color:var(--muted);font-size:15px;margin-bottom:10px}
-.card .go{font-weight:600;color:var(--c)}
-.card:active{transform:scale(.99)}
-.pricebox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:6px}
-.pricebox ul{list-style:none;margin-top:8px}
-.pricebox li{padding:5px 0 5px 26px;position:relative}
-.pricebox li:before{content:"\2713 ";position:absolute;left:0;color:var(--wa);font-weight:800}
-footer{margin-top:50px;background:var(--ink);color:#c9d2ea;padding:30px 0;text-align:center;font-size:14px}
-footer .btn{margin-bottom:14px}
-/* detail sheet */
-#sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;display:none}
-#sheet.open{display:block;animation:up .25s ease-out}
-@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
-.bar{position:sticky;top:0;background:var(--c);color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:2}
-.bar button{background:rgba(255,255,255,.2);border:0;color:#fff;border-radius:8px;padding:7px 13px;font:600 15px 'Hind'}
-.bar b{font-family:'Baloo 2';font-size:19px}
-.shots{display:flex;gap:10px;overflow-x:auto;padding:16px 18px;scroll-snap-type:x mandatory}
-.shots img,.shots .ph{flex:0 0 62%;max-width:260px;aspect-ratio:9/16;object-fit:cover;border-radius:14px;border:1px solid var(--line);scroll-snap-align:start;background:#fff}
-.shots .ph{display:flex;align-items:center;justify-content:center;text-align:center;padding:14px;color:var(--muted);font-size:13px;background:repeating-linear-gradient(45deg,#eef1f8,#eef1f8 10px,#e6eaf4 10px,#e6eaf4 20px)}
-.det{padding:0 18px 30px;max-width:700px;margin:0 auto}
-.det h2{margin-top:6px}
-.chips{display:grid;gap:8px;margin:14px 0 20px}
-.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.chip b{display:block}
-.chip span{color:var(--muted);font-size:14.5px}
-.feat{columns:1;list-style:none;margin:10px 0 22px}
-.feat li{padding:4px 0 4px 24px;position:relative;break-inside:avoid}
-.feat li:before{content:"\2022 ";position:absolute;left:6px;color:var(--c);font-weight:800}
-.cta{display:grid;gap:10px;position:sticky;bottom:0;background:var(--bg);padding:12px 0}
-.note{font-size:13.5px;color:var(--muted);text-align:center}
-#form{position:fixed;inset:0;z-index:60;background:rgba(20,33,61,.6);display:none;align-items:flex-end;justify-content:center}
-#form.open{display:flex}
-.fbox{background:var(--bg);width:100%;max-width:520px;max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px 18px 24px}
-.fbox h2{font-size:23px}
-.fbox label{display:block;font-weight:600;font-size:14.5px;margin:12px 0 4px}
-.fbox input,.fbox select,.fbox textarea{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
-.fbox textarea{min-height:76px;resize:vertical}
-.fbox input:focus,.fbox select:focus,.fbox textarea:focus{outline:3px solid var(--saffron);outline-offset:1px}
-.frow{display:flex;gap:10px;margin-top:16px}
-.frow .btn{flex:1}
-.err{color:#c0392b;font-size:14px;margin-top:8px;min-height:20px}
-@media(min-width:760px){#form{align-items:center}.fbox{border-radius:20px}}
-@media(min-width:760px){
-.hero .wrap{grid-template-columns:1.3fr 1fr}
-.steps{grid-template-columns:repeat(3,1fr)}
-.grid{grid-template-columns:repeat(2,1fr)}
-.feat{columns:2}
-.cta{grid-template-columns:1fr 1fr}
-.shots img,.shots .ph{flex-basis:200px}
-}
-@media(prefers-reduced-motion:reduce){#sheet.open{animation:none}}
-
-.hero{padding:26px 0 30px}
-.hero .wrap{grid-template-columns:1fr}
-.car{padding:30px 0 6px}
-.carwrap{position:relative;max-width:1100px;margin:0 auto}
-.track{position:relative;display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 18px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.track::-webkit-scrollbar{display:none}
-.slide{flex:0 0 78%;max-width:320px;scroll-snap-align:center;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;font:inherit;color:inherit;padding:0;display:block;position:relative;box-shadow:0 2px 10px rgba(20,33,61,.07)}
-.slide:focus-visible,.track:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
-.mk{height:150px;background:linear-gradient(160deg,var(--c),#14213d);display:flex;align-items:center;justify-content:center;padding:14px}
-.slide .bd{padding:14px 16px 16px;border-top:4px solid var(--c)}
-.slide .t{display:flex;align-items:center;gap:8px}
-.slide .ic{font-size:24px}
-.slide h3{font-size:19px}
-.slide p{color:var(--muted);font-size:14.5px;margin:4px 0 10px}
-.slide .go{font-weight:600;color:var(--c);font-size:14.5px}
-.badge{position:absolute;top:10px;right:10px;background:var(--saffron);color:var(--ink);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:12px}
-.dots{display:flex;justify-content:center;gap:7px;margin-top:2px}
-.dots button{width:8px;height:8px;border-radius:8px;border:0;background:#c3cbe0;padding:0;cursor:pointer;transition:width .2s,background .2s}
-.dots button.on{background:var(--ink);width:22px}
-.arr{display:none;position:absolute;top:42%;z-index:3;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:26px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.arr.l{left:8px}.arr.r{right:8px}
-.m-seats{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;width:78%}
-.m-seats i{aspect-ratio:1;border-radius:4px;background:#2e7d5b}.m-seats i.o{background:#d6453d}.m-seats i.h{background:#e9a825}
-.m-rows{width:82%;display:grid;gap:8px}
-.m-rows p{margin:0;background:rgba(255,255,255,.92);color:var(--ink);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px}
-.m-rows b{height:8px;width:42%;background:#c3cbe0;border-radius:4px}.m-rows u{text-decoration:none}
-.m-inst{width:82%;display:grid;gap:9px}
-.m-inst .av{display:flex;gap:8px}.m-inst .av span{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9)}
-.m-inst .bar{height:10px;border-radius:5px;background:rgba(255,255,255,.3)}.m-inst .bar i{display:block;height:100%;border-radius:5px;background:var(--saffron)}
-.m-chips{width:82%;display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end}
-.m-chips em{font-style:normal;font-size:12px;font-weight:600;background:rgba(255,255,255,.92);color:var(--ink);border-radius:12px;padding:3px 10px}
-.m-chips em.a{background:#ffd27a}.m-chips em.g{background:#9fe3b9}
-.m-chips .bars{display:flex;gap:7px;align-items:flex-end;height:64px;width:100%;margin-top:8px}
-.m-chips .bars i{flex:1;background:rgba(255,255,255,.85);border-radius:4px 4px 0 0}
-.m-cal{width:82%;display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.m-cal i{aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.22)}.m-cal i.h{background:var(--saffron)}.m-cal i.d{background:rgba(255,255,255,.85)}
-.m-card{width:70%;aspect-ratio:3/4;max-height:122px;border:3px double #f3d9a0;border-radius:10px;background:rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#ffd27a;font-size:22px}
-.m-card b{height:7px;width:62%;background:#f3d9a0;border-radius:4px}.m-card b.s{width:40%}
-@media(min-width:760px){.slide{flex-basis:300px}.arr{display:block}.track{padding-left:60px;padding-right:60px}}
-@media(max-width:759px){.hero{padding:14px 0 16px}.hero h1{font-size:26px}.hero p{font-size:14.5px;margin:6px 0 12px}.hero .btn{padding:9px 14px}.car{padding:16px 0 4px}.car h2{font-size:22px}.car .sub{margin-bottom:8px;font-size:14px}.mk{height:128px}.slide p{margin:3px 0 8px}}
-
-html{scroll-snap-type:y proximity;scroll-padding-top:58px}
-.screen{min-height:calc(100vh - 58px);min-height:calc(100svh - 58px);scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:20px 0}
-.hero.screen{background:var(--ink);color:#fff}
-.hero.screen .wrap{width:100%}
-.hero h1{font-size:clamp(30px,8vw,52px)}
-.hero p{margin:12px 0 20px;max-width:520px;color:#c9d2ea}
-.tiles{display:grid;gap:12px;max-width:560px}
-.tile{display:grid;grid-template-columns:auto 1fr auto;column-gap:12px;align-items:center;background:#fff;color:var(--ink);border-radius:16px;padding:14px 16px;text-decoration:none}
-.tile .ti{grid-row:span 2;font-size:30px}.tile b{font-family:'Baloo 2',sans-serif;font-size:20px;line-height:1.1}.tile small{color:var(--muted);font-size:13.5px}.tile .tg{grid-row:span 2;font-weight:600;color:var(--saffron)}
-.tile:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
-.tog{display:inline-flex;background:#e4e9f4;border-radius:12px;padding:3px;margin-bottom:12px}
-.tog button{border:0;background:transparent;font:600 14px 'Hind',sans-serif;color:var(--muted);padding:7px 18px;border-radius:10px;cursor:pointer}
-.tog button.on{background:var(--ink);color:#fff}
-.tog button:focus-visible{outline:3px solid var(--saffron);outline-offset:1px}
-.car{padding:20px 0 16px}
-.car .sub{margin-bottom:10px}
-[data-view=list] .carwrap,[data-view=list] .dots{display:none}
-[data-view=swipe] .list{display:none}
-.list{display:grid;gap:10px;align-content:start}
-.lrow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-left:6px solid var(--c);border-radius:6px 14px 14px 6px;padding:11px 14px;text-align:left;font:inherit;color:inherit;width:100%;cursor:pointer}
-.lrow .ri{font-size:26px}.lrow .rt{flex:1;display:flex;flex-direction:column}.lrow b{font-size:16px}.lrow small{color:var(--muted);font-size:13.5px;line-height:1.3}.lrow .rg{font-size:22px;color:var(--c)}
-.lrow .bg{background:var(--saffron);color:var(--ink);font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;margin-left:6px}
-.lrow:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
-.fine{margin-top:16px;color:var(--muted);font-size:13.5px}
-.m-queue{width:78%;display:grid;gap:8px}
-.m-queue p{margin:0;background:rgba(255,255,255,.92);color:var(--ink);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
-.m-queue b{background:var(--c);color:#fff;border-radius:8px;min-width:36px;text-align:center;padding:4px 0;font-size:16px}
-.m-queue i{height:8px;flex:1;background:#c3cbe0;border-radius:4px}
-@media(max-width:759px){.mk{height:118px}.car h2{font-size:22px}.hero p{font-size:14.5px}.step{padding:13px 15px}.pricebox{padding:16px}}
-@media(min-width:760px){.tiles{grid-template-columns:1fr 1fr}.steps{margin-top:6px}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-.m-queue p{padding:7px 12px}.lrow b{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.lrow .bg{white-space:nowrap;margin-left:0}
-.tile{grid-template-areas:"ti b tg" "ti sm tg"}.tile .ti{grid-area:ti;grid-row:auto}.tile b{grid-area:b}.tile small{grid-area:sm}.tile .tg{grid-area:tg;grid-row:auto;align-self:center}
-@media(max-height:700px){.lrow small{display:none}.lrow{padding:9px 12px}.car .sub{margin-bottom:6px}.car{padding:12px 0 10px}}
-
-/* v4: layout fix + nicer look */
-.carwrap{width:100%;min-width:0}
-.track{min-width:0;width:100%}
-.screen>*{min-width:0}
-.hero.screen{background:radial-gradient(circle at 88% 8%,rgba(255,159,28,.28),transparent 42%),radial-gradient(circle at 0% 100%,rgba(91,58,155,.35),transparent 45%),linear-gradient(160deg,#14213d,#1d2f5c)}
-.hero h1{letter-spacing:-.5px}
-.tile{box-shadow:0 8px 22px rgba(0,0,0,.25);transition:transform .15s}
-.tile:active{transform:scale(.98)}
-#how{background:#fff}
-.slide{transition:transform .15s,box-shadow .15s}
-.slide:active{transform:scale(.985)}
-.dh{background:linear-gradient(160deg,var(--c),#14213d);color:#fff;text-align:center;padding:22px 18px 24px;border-radius:0 0 26px 26px;position:relative;overflow:hidden}
-.dh:before{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08)}
-.dh-ic{width:66px;height:66px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 10px;position:relative}
-.dh h2{font-size:25px;margin:0 0 4px;position:relative}
-.dh p{color:#e5e9f5;font-size:15px;max-width:460px;margin:0 auto 12px;position:relative}
-.dh-pill{display:inline-block;background:rgba(255,255,255,.2);border-radius:14px;padding:4px 12px;font-size:12.5px;font-weight:600;position:relative}
-.shots2{display:flex;gap:14px;overflow-x:auto;padding:18px 20px 8px;scroll-snap-type:x mandatory;max-width:820px;margin:0 auto;scrollbar-width:none}
-.shots2::-webkit-scrollbar{display:none}
-.shots2 img,.shots2 .ph{flex:0 0 160px;width:160px;height:284px;object-fit:cover;object-position:top;border-radius:22px;border:4px solid #1b2236;box-shadow:0 10px 24px rgba(20,33,61,.28);scroll-snap-align:center;background:#fff;cursor:zoom-in}
-.shots2 .ph{display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;color:var(--muted);cursor:default;padding:10px}
-.dhint{text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:6px}
-.det2{max-width:700px;margin:0 auto;padding:6px 18px 8px}
-.sec{font-size:19px;margin:18px 0 10px}
-.bcards{display:grid;gap:10px}
-.bc{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;align-items:flex-start}
-.bn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font:800 15px 'Baloo 2',sans-serif}
-.bc b{display:block;font-size:16px}
-.bc span{color:var(--muted);font-size:14.5px}
-.ftags{display:flex;flex-wrap:wrap;gap:8px}
-.ft{background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 12px 6px 10px;font-size:14px}
-.ft:before{content:"\2713";color:var(--c);font-weight:800;margin-right:6px}
-.cta2{position:sticky;bottom:0;max-width:700px;margin:0 auto;padding:22px 18px 14px;background:linear-gradient(rgba(244,246,251,0),var(--bg) 28%);display:grid;gap:10px}
-.cta2 .btn{padding:14px 18px;font-size:16px;border-radius:12px}
-@media(min-width:760px){.cta2{grid-template-columns:1fr 1fr}.cta2 .note{grid-column:1/3}.shots2{justify-content:center}.shots2 img,.shots2 .ph{flex-basis:190px;width:190px;height:338px}}
-#zoom{position:fixed;inset:0;z-index:80;background:rgba(10,16,32,.93);display:none;align-items:center;justify-content:center;padding:14px}
-#zoom img{max-width:100%;max-height:100%;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
-#zoom.open{display:flex}
-.bc .bn{color:#fff;font-size:15px}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 16px}
+.logo{font-weight:800;font-size:20px;letter-spacing:.3px}
+.logo span{color:var(--gold)}
+.btn{display:inline-block;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:10px;padding:10px 16px;background:var(--gold);color:#14213d}
+.btn.ghost{background:transparent;border:1.5px solid currentColor;color:inherit}
+.hero{background:var(--navy);color:#fff;padding:44px 18px 52px}
+.hero h1{font-size:clamp(30px,8vw,48px);line-height:1.1;max-width:14ch}
+.hero p{margin:14px 0 22px;max-width:44ch;color:#d5d9e3}
+.tiles{display:grid;gap:12px;grid-template-columns:1fr 1fr;max-width:520px}
+.tile{background:#1f3057;border-radius:14px;padding:14px;display:block}
+.tile b{display:block;font-size:15px}.tile small{color:var(--gold);font-weight:600}
+section{padding:36px 16px}
+h2{font-size:26px}
+.sub{color:var(--mute);margin:4px 0 16px}
+.row{display:flex;justify-content:space-between;align-items:end;gap:10px}
+.nav button{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:20px;cursor:pointer}
+.list{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px;scrollbar-width:none}
+.list::-webkit-scrollbar{display:none}
+.card{flex:0 0 78%;max-width:300px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.card .ic{font-size:34px}
+.card h3{font-size:18px}
+.card p{color:var(--mute);font-size:14px;flex:1}
+.card ul{list-style:none;font-size:13px;color:var(--mute)}
+.card ul li::before{content:"✓ ";color:#2a9d5c;font-weight:700}
+.steps{display:grid;gap:12px;margin-top:14px}
+.step{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.step i{flex:0 0 34px;height:34px;border-radius:50%;background:var(--navy);color:var(--gold);font-style:normal;font-weight:800;display:grid;place-items:center}
+.step p{color:var(--mute);font-size:14px}
+.lic{background:var(--navy);color:#fff;border-radius:18px;padding:22px;margin-top:6px}
+.lic ul{list-style:none;margin:12px 0 18px}
+.lic li{padding:5px 0}.lic li::before{content:"✓ ";color:var(--gold);font-weight:700}
+footer{text-align:center;color:var(--mute);font-size:13px;padding:24px 16px 40px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:480px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:20px}
+.sheet h2{font-size:22px}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:var(--bg);color:var(--ink)}
+.acts{display:flex;gap:10px;margin-top:18px}.acts .btn{flex:1}
+.wa{background:#25d366;color:#fff}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media(min-width:700px){.card{flex-basis:300px}.modal{align-items:center}.sheet{border-radius:20px}.steps{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
 
-<header><div class="wrap"><div class="logo">App<span>Mitra</span></div><a class="btn btn-wa" id="waTop" href="#" onclick="openForm('','general');return false">WhatsApp us</a></div></header>
+<header>
+  <div class="logo">App<span>Mitra</span></div>
+  <a class="btn" href="#" data-wa>WhatsApp us</a>
+</header>
 
-<main>
-<section class="hero screen" id="top"><div class="wrap">
-<h1>Your business, ready on one app.</h1>
-<p>Library, society, institute, clinic and case-monitoring software built in Nagpur. Try any app free for 3 days. Like it? Take the 1-year license.</p>
-<div class="tiles">
-<a class="tile" href="#apps"><span class="ti">&#128241;</span><b>Applications</b><small id="cntApps"></small><span class="tg">Explore &#8250;</span></a>
-<a class="tile" href="#projects"><span class="ti">&#128188;</span><b>Project Software</b><small id="cntProj"></small><span class="tg">Explore &#8250;</span></a>
-</div></div></section>
+<div class="hero">
+  <h1>Your business, ready on one app.</h1>
+  <p>Library, society, institute, clinic and case-monitoring software built in Nagpur. Try any app free for 3 days. Like it? Take the 1-year license.</p>
+  <div class="tiles">
+    <a class="tile" href="#apps"><span style="font-size:24px">📱</span><b>Applications</b><small>Explore ›</small></a>
+    <a class="tile" href="#projects"><span style="font-size:24px">💼</span><b>Project Software</b><small>Explore ›</small></a>
+  </div>
+</div>
 
-<section class="screen car" id="apps" data-view="swipe" data-group="app"><div class="wrap">
-<h2>Applications</h2><p class="sub">Ready-to-use apps. Try any app free for 3 days.</p>
-<div class="tog" role="group" aria-label="Choose view"><button class="on" data-v="swipe">Swipe</button><button data-v="list">List</button></div></div>
-<div class="carwrap"><button class="arr l" aria-label="Previous app">&#8249;</button><div class="track" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Applications"></div><button class="arr r" aria-label="Next app">&#8250;</button></div>
-<div class="dots"></div><div class="wrap list"></div></section>
+<section id="apps">
+  <div class="row"><div><h2>Applications</h2><p class="sub">Ready-to-use apps. Try any app free for 3 days.</p></div>
+  <div class="nav"><button data-scroll="apps-list" data-dir="-1" aria-label="Previous">‹</button> <button data-scroll="apps-list" data-dir="1" aria-label="Next">›</button></div></div>
+  <div class="list" id="apps-list"></div>
+</section>
 
-<section class="screen car" id="projects" data-view="swipe" data-group="project"><div class="wrap">
-<h2>Project Software</h2><p class="sub">Built around your project. Try the demo free for 3 days.</p>
-<div class="tog" role="group" aria-label="Choose view"><button class="on" data-v="swipe">Swipe</button><button data-v="list">List</button></div></div>
-<div class="carwrap"><button class="arr l" aria-label="Previous software">&#8249;</button><div class="track" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Project software"></div><button class="arr r" aria-label="Next software">&#8250;</button></div>
-<div class="dots"></div><div class="wrap list"></div></section>
+<section id="projects">
+  <div class="row"><div><h2>Project Software</h2><p class="sub">Built around your project. Try the demo free for 3 days.</p></div>
+  <div class="nav"><button data-scroll="proj-list" data-dir="-1" aria-label="Previous">‹</button> <button data-scroll="proj-list" data-dir="1" aria-label="Next">›</button></div></div>
+  <div class="list" id="proj-list"></div>
+</section>
 
-<section class="screen" id="how"><div class="wrap"><h2>How it works</h2><p class="sub">Three simple steps. No payment to start.</p>
-<div class="steps">
-<div class="step"><em>1</em><div><h3>Pick an app</h3><p>Open any app, see photos and benefits.</p></div></div>
-<div class="step"><em>2</em><div><h3>Try 3 days free</h3><p>Use the demo with sample data and check every feature.</p></div></div>
-<div class="step"><em>3</em><div><h3>Buy 1-year license</h3><p>Pay once, get your own app set up with your name and data.</p></div></div>
-</div></div></section>
+<section id="how">
+  <h2>How it works</h2>
+  <p class="sub">Three simple steps. No payment to start.</p>
+  <div class="steps">
+    <div class="step"><i>1</i><div><h3>Pick an app</h3><p>Open any app, see photos and benefits.</p></div></div>
+    <div class="step"><i>2</i><div><h3>Try 3 days free</h3><p>Use the demo with sample data and check every feature.</p></div></div>
+    <div class="step"><i>3</i><div><h3>Buy 1-year license</h3><p>Pay once, get your own app set up with your name and data.</p></div></div>
+  </div>
+</section>
 
-<section class="screen" id="license"><div class="wrap"><h2>What you get with the license</h2>
-<div class="pricebox"><ul>
-<li>Your own app with your name, logo and colours</li>
-<li>Works on mobile like an installed app</li>
-<li>Setup help and training on WhatsApp</li>
-<li>1 year of support and fixes</li>
-</ul></div>
-<p style="margin-top:18px"><a class="btn btn-wa" id="waFoot" href="#" onclick="openForm('','general');return false">Chat on WhatsApp</a></p>
-<p class="fine">&copy; App Mitra &middot; Nagpur, Maharashtra</p></div></section>
-</main>
+<section>
+  <div class="lic">
+    <h2>What you get with the license</h2>
+    <ul>
+      <li>Your own app with your name, logo and colours</li>
+      <li>Works on mobile like an installed app</li>
+      <li>Setup help and training on WhatsApp</li>
+      <li>1 year of support and fixes</li>
+    </ul>
+    <a class="btn" href="#" data-wa>Chat on WhatsApp</a>
+  </div>
+</section>
 
-<div id="zoom" role="dialog" aria-label="Screenshot" onclick="closeZoom()"><img alt=""></div>
+<footer>© App Mitra · Nagpur, Maharashtra</footer>
 
-<div id="sheet" role="dialog" aria-modal="true" aria-label="App details"></div>
-
-<div id="form" role="dialog" aria-modal="true" aria-label="Enquiry form"><div class="fbox">
-<h2 id="fTitle">Tell us what you need</h2>
-<p class="sub" style="margin-bottom:0">Takes 1 minute. We reply on WhatsApp.</p>
-<label for="fName">Your name *</label><input id="fName" autocomplete="name">
-<label for="fPhone">Mobile number *</label><input id="fPhone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="10-digit number">
-<label for="fApp">Which app? *</label><select id="fApp"></select>
-<label for="fBiz">Business name</label><input id="fBiz">
-<label for="fCity">City</label><input id="fCity" autocomplete="address-level2">
-<label for="fBudget">Budget</label>
-<select id="fBudget"><option value="">Select budget</option><option>Under &#8377;5,000</option><option>&#8377;5,000&#8211;&#8377;15,000</option><option>&#8377;15,000&#8211;&#8377;30,000</option><option>&#8377;30,000 and above</option><option>Not sure yet</option></select>
-<label for="fReq">What do you need?</label><textarea id="fReq" placeholder="Example: 80 students, 3 halls, fee reminders on WhatsApp"></textarea>
-<div class="err" id="fErr" role="alert"></div>
-<div class="frow"><button class="btn btn-line" type="button" onclick="closeForm()">Cancel</button><button class="btn btn-wa" id="fSend" type="button" onclick="sendForm()">Send on WhatsApp</button></div>
-</div></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="sheet">
+    <h2 id="mt">Tell us what you need</h2>
+    <p class="sub">Takes 1 minute. We reply on WhatsApp.</p>
+    <label for="f-name">Your name *</label><input id="f-name" autocomplete="name">
+    <label for="f-mob">Mobile number *</label><input id="f-mob" type="tel" inputmode="numeric" autocomplete="tel">
+    <label for="f-app">Which app? *</label><input id="f-app">
+    <label for="f-biz">Business name</label><input id="f-biz">
+    <label for="f-city">City</label><input id="f-city">
+    <label for="f-bud">Budget</label>
+    <select id="f-bud"><option value="">Select budget</option><option>Under ₹5,000</option><option>₹5,000–₹15,000</option><option>₹15,000–₹30,000</option><option>₹30,000 and above</option><option>Not sure yet</option></select>
+    <label for="f-need">What do you need?</label><textarea id="f-need" rows="3"></textarea>
+    <div class="acts"><button class="btn ghost" id="cancel" type="button">Cancel</button><button class="btn wa" id="send" type="button">Send on WhatsApp</button></div>
+  </div>
+</div>
 
 <script>
-/* ====== EDIT THIS PART ====== */
-var WHATSAPP = "917276124898"; // your number with country code, no + or spaces
+/* ====== SETTINGS ====== */
+var WA_NUMBER = "917276124898";            // admin WhatsApp (country code ke saath)
+var NTFY_TOPIC = "appmitra-x7k29qpz";      // ntfy app mein yahi topic subscribe karo
+
+/* ====== APPS (naam/detail yahan badlo) ====== */
 var APPS = [
- {group:"app", id:"library", icon:"\ud83d\udcda", name:"Library & Study Circle App", color:"#1a3a6b",
-  tag:"Seats, fees and attendance without the register.",
-  demoUrl:"library-demo/",
-  images:["images/library-1.jpg","images/library-2.jpg","images/library-3.jpg"],
-  benefits:[["Save daily time","Attendance and seat status in a few taps."],["Never miss a fee","Due, expiring and expired lists with one-tap WhatsApp reminders."],["Know your profit","Income, expenses and monthly reports in one place."]],
-  features:["Hall-wise seat map","Student admission and ID card QR","Online admission form","Daily attendance","Fee receipts on WhatsApp","Expense and inventory tracking","Staff logins","Month-wise reports"]},
- {group:"app", id:"society", icon:"\ud83c\udfe6", name:"Society & Credit App", color:"#1d6b4a",
-  tag:"Shares, loans and interest, always correct.",
-  demoUrl:"society-demo/", images:["images/society-1.jpg","images/society-2.jpg","images/society-3.jpg"],
-  benefits:[["No calculation mistakes","Interest and instalments are calculated for you."],["Members stay informed","Hindi reminders for due dates."],["Clear records","Every share and loan entry is stored and searchable."]],
-  features:["Member and share register","Loan and interest tracking","Hindi reminders","Collection reports","Multiple staff logins","Backup of all data"]},
- {group:"app", id:"institute", icon:"\ud83c\udf93", name:"Institute Management App", color:"#5b3a9b",
-  tag:"Admissions, fees and receipts in one app.",
-  demoUrl:"institute-demo/", note:"Demo is a preview with sample data. Saving works in the full app.", images:["images/institute-1.jpg","images/institute-2.jpg","images/institute-3.jpg"],
-  benefits:[["Never lose an enquiry","Track enquiries and turn them into admissions in one step."],["Fees under control","Pending fees and a fee tracker show who owes what."],["Professional paperwork","Printable admission forms and PDF fee receipts."]],
-  features:["Enquiry tracking","Course and fee management","Student admission with photo","Fee payments with PDF receipts","Pending fees report","Fee tracker","Printable admission and enquiry forms","Dashboard with fee and enrollment charts","Admin and staff users","Activity log"]},
- {group:"app", id:"custom", icon:"\ud83d\udc8c", name:"Custom App & Invitations", color:"#b3326b",
-  tag:"Wedding invitations and apps made for you.",
-  demoUrl:"invitations/", demoLabel:"View sample invitations", buyLabel:"Order your invitation", buyIntent:"order", note:"Samples use placeholder names and photos.",
-  images:["images/custom-1.jpg","images/custom-2.jpg","images/custom-3.jpg"],
-  benefits:[["Made your way","Your design, your names, your language."],["Share anywhere","One link works on WhatsApp and every phone."],["Quick delivery","Invitations ready fast, apps built to your needs."]],
-  features:["Animated wedding invitations","Festival greeting cards","Countdown, maps and add-to-calendar","Blessings wall and WhatsApp helper","Custom business apps","Hindi, Marathi and English"]},
- {group:"project", id:"cases", icon:"\ud83d\udee1\ufe0f", name:"Case Monitoring System", color:"#7a1f2b",
-  tag:"Disciplinary cases, inquiries and deadlines in one view.",
-  demoUrl:"case-demo/", note:"Demo is a preview with sample data. Saving works in the full app.", images:["images/cases-1.jpg","images/cases-2.jpg","images/cases-3.jpg"],
-  benefits:[["Deadlines never missed","Inquiry and action deadlines are highlighted before they pass."],["One view of all cases","Status, rule and penalty summaries on a single dashboard."],["Reports ready","Monthly, unit-wise and delay reports without manual work."]],
-  features:["Case register with event timeline","Inquiry (COI) tracking with deadline alerts","Suspension tracking","Gazetted officer case module","Honorarium records","Dashboard with status, rule and penalty charts","Pending actions list","Monthly, unit-wise and COI-delay reports","Role-based users","Activity log"]},
- {group:"project", id:"clinic", icon:"\ud83e\ude7a", name:"Clinic Queue Software", color:"#0f6b6b",
-  tag:"Patient tokens and live queue, without the crowd at the counter.",
-  demoUrl:"clinic-demo/", images:["images/clinic-1.jpg","images/clinic-2.jpg","images/clinic-3.jpg"],
-  benefits:[["No crowd at the counter","Patients book a token from their own phone."],["Fair and clear queue","Each slot has a patient limit and a visible queue status."],["Easy for staff","Mark patients treated or cancelled from one admin panel."]],
-  features:["Token booking by slot","Patient limit per slot","Queue status check for patients","Hindi and English screens","Staff login and admin panel","Mark patients treated or cancelled","Notice board for patients","Holiday and closure dates","Add staff users"]}
+  {i:"📚",t:"Library & Study Circle",d:"Seat map, attendance, fee receipts aur WhatsApp reminders.",b:["Seat booking","Fee receipts","Reminders"]},
+  {i:"🏦",t:"Society / Credit Society",d:"Shares, loans, interest tracking aur Hindi reminders.",b:["Loan ledger","Interest auto-calc","Hindi reminders"]},
+  {i:"🎓",t:"Computer Institute",d:"Students, fees aur certificate generator ek jagah.",b:["Certificates","Fee tracking","Chatbot"]},
+  {i:"🩺",t:"Clinic Queue & Token",d:"QR entry, token system, Hindi/English, admin panel.",b:["QR entry","Slots","Admin panel"]}
 ];
-/* ====== END EDIT ====== */
+var PROJECTS = [
+  {i:"⚖️",t:"Case Command",d:"Case aur vigilance monitoring, court tracking aur dashboard.",b:["Case tracker","Reports","Dashboard"]},
+  {i:"🌾",t:"Agro ERP",d:"Roles, 2FA, crop trading, WhatsApp aur reporting.",b:["Role access","Trading","Reports"]},
+  {i:"💍",t:"Invitation Website",d:"Wedding aur event ke liye custom animated invitation.",b:["Animations","Visitor counter","Share link"]},
+  {i:"🛠️",t:"Custom App",d:"Aapke business ke hisaab se bana hua software.",b:["Your workflow","Your branding","Support"]}
+];
 
-function wa(msg){return "https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg)}
+/* ====== ADMIN ALERT (ntfy) ====== */
+function alertAdmin(title, message){
+  try{
+    fetch("https://ntfy.sh",{method:"POST",keepalive:true,
+      body:JSON.stringify({topic:NTFY_TOPIC,title:title,message:message,priority:4})});
+  }catch(e){}
+}
+try{
+  if(!sessionStorage.getItem("seen")){
+    sessionStorage.setItem("seen","1");
+    alertAdmin("👀 Website opened","Kisi ne App Mitra khola. Device: "+(/Android|iPhone/i.test(navigator.userAgent)?"Mobile":"Desktop"));
+  }
+}catch(e){}
 
-/* Optional: paste Firebase details to save every enquiry in a leads list. Leave empty to skip. */
-var FIREBASE={projectId:"app-mitra-90078",apiKey:"AIzaSyCEXC0FoKqcuIYpg8sHc9tSulktIi2D68o"};
-var fIntent="general";
-function $(id){return document.getElementById(id)}
-function greet(){var h=new Date().getHours();return h<12?"Good morning":h<17?"Good afternoon":"Good evening"}
-function openForm(appId,intent){
- fIntent=intent||"general";
- var sel=$("fApp");
- sel.innerHTML='<option value="">Select app</option>'+APPS.map(function(a){return '<option value="'+a.name+'">'+a.name+'</option>'}).join("")+'<option value="Not sure yet">Not sure yet</option>';
- var a=APPS.filter(function(x){return x.id===appId})[0];
- if(a)sel.value=a.name;
- $("fTitle").textContent=fIntent==="demo"?"Get your 3-day demo":fIntent==="buy"?"Buy the 1-year license":fIntent==="order"?"Order your invitation":"Tell us what you need";
- $("fErr").textContent="";
- $("form").className="open";
- if(cur.s.indexOf("form")<0)pushLayer("form");
+/* ====== CARDS ====== */
+function render(list,el,tag){
+  document.getElementById(el).innerHTML=list.map(function(a){
+    return '<div class="card"><div class="ic">'+a.i+'</div><h3>'+a.t+'</h3><p>'+a.d+'</p><ul>'+
+      a.b.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'+
+      '<button class="btn" data-demo="'+a.t+'" data-tag="'+tag+'">Try 3 days free</button></div>';
+  }).join('');
 }
-function closeForm(){popLayer("form")}
-function hideFormDirect(){hideLayer("form");if(cur.s.indexOf("form")>-1){cur={s:cur.s.filter(function(x){return x!=="form"}),a:cur.a,deep:cur.deep};try{history.replaceState(cur,"",location.href)}catch(e){}}}
-document.addEventListener("keydown",function(e){if(e.key==="Escape")closeForm()});
-function fail(m){$("fErr").textContent=m}
-function saveLead(d){
- if(!FIREBASE.projectId||!FIREBASE.apiKey)return Promise.resolve();
- var f={};Object.keys(d).forEach(function(k){f[k]={stringValue:d[k]}});
- f.createdAt={timestampValue:new Date().toISOString()};
- return fetch("https://firestore.googleapis.com/v1/projects/"+FIREBASE.projectId+"/databases/(default)/documents/leads?key="+FIREBASE.apiKey,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields:f})}).catch(function(){});
-}
-function sendForm(){
- var name=$("fName").value.trim(),ph=$("fPhone").value.replace(/\D/g,"").replace(/^91(?=\d{10}$)/,""),app=$("fApp").value;
- if(!name)return fail("Please enter your name.");
- if(!/^[6-9]\d{9}$/.test(ph))return fail("Enter a valid 10-digit mobile number.");
- if(!app)return fail("Please select an app.");
- var d={name:name,phone:ph,app:app,business:$("fBiz").value.trim(),city:$("fCity").value.trim(),budget:$("fBudget").value,requirement:$("fReq").value.trim(),intent:fIntent};
- var what=fIntent==="demo"?"I want a 3-day demo of: "+app:fIntent==="buy"?"I want to buy the 1-year license of: "+app:fIntent==="order"?"I want to order: "+app:"I want to know about: "+app;
- var L=["Namaste App Mitra! "+greet()+".",what,"Name: "+name,"Mobile: "+ph];
- if(d.business)L.push("Business: "+d.business);
- if(d.city)L.push("City: "+d.city);
- if(d.budget)L.push("Budget: "+d.budget);
- if(d.requirement)L.push("Requirement: "+d.requirement);
- var btn=$("fSend");btn.disabled=true;btn.textContent="Opening WhatsApp\u2026";fail("");
- Promise.race([saveLead(d),new Promise(function(r){setTimeout(r,1500)})]).then(function(){
-  btn.disabled=false;btn.textContent="Send on WhatsApp";hideFormDirect();
-  location.href=wa(L.join("\n"));
- });
-}
+render(APPS,"apps-list","App");
+render(PROJECTS,"proj-list","Project");
 
-// sections: swipe + list per group
-function mock(id){
- var h="",i,k;
- if(id==="library"){for(i=0;i<28;i++){k=(i*7+3)%11;h+='<i class="'+(k<4?"o":k==5?"h":"")+'"></i>'}return '<div class="m-seats">'+h+'</div>'}
- if(id==="society")return '<div class="m-rows"><p><b></b><u>&#8377;2,000</u></p><p><b></b><u>&#8377;1,500</u></p><p><b></b><u>&#8377;3,200</u></p></div>';
- if(id==="institute")return '<div class="m-inst"><div class="av"><span></span><span></span><span></span></div><div class="bar"><i style="width:80%"></i></div><div class="bar"><i style="width:55%"></i></div><div class="bar"><i style="width:35%"></i></div></div>';
- if(id==="cases")return '<div class="m-chips"><em>Inquiry</em><em class="a">Pending</em><em class="g">Closed</em><div class="bars"><i style="height:55%"></i><i style="height:90%"></i><i style="height:40%"></i><i style="height:72%"></i><i style="height:60%"></i></div></div>';
- if(id==="clinic")return '<div class="m-queue"><p><b>12</b>Now serving</p><p><b>13</b><i></i></p></div>';
- return '<div class="m-card"><span>&#10084;</span><b></b><b class="s"></b></div>';
-}
-function makeSection(sec){
- var items=APPS.filter(function(a){return a.group===sec.dataset.group}),N=items.length,r;
- var track=sec.querySelector(".track"),dotsEl=sec.querySelector(".dots"),listEl=sec.querySelector(".list"),html="";
- for(r=0;r<3;r++)items.forEach(function(a){
-  var cl=r!==1;
-  html+='<button class="slide" data-id="'+a.id+'" style="--c:'+a.color+'"'+(cl?' aria-hidden="true" tabindex="-1"':'')+' aria-label="'+a.name+': details and demo">'+
-   '<div class="mk">'+mock(a.id)+'</div>'+(a.badge?'<span class="badge">'+a.badge+'</span>':'')+
-   '<div class="bd"><div class="t"><span class="ic">'+a.icon+'</span><h3>'+a.name+'</h3></div><p>'+a.tag+'</p><span class="go">View details and demo \u203a</span></div></button>';
- });
- track.innerHTML=html;
- listEl.innerHTML=items.map(function(a){return '<button class="lrow" data-id="'+a.id+'" style="--c:'+a.color+'"><span class="ri">'+a.icon+'</span><span class="rt"><b>'+a.name+(a.badge?'<span class="bg">On request</span>':'')+'</b><small>'+a.tag+'</small></span><span class="rg">\u203a</span></button>'}).join("");
- listEl.addEventListener("click",function(e){var b=e.target.closest(".lrow");if(b)openApp(b.dataset.id)});
- var sl=track.children;
- items.forEach(function(a,i){var d=document.createElement("button");d.setAttribute("aria-label","Show "+a.name);d.onclick=function(){go(N+i)};dotsEl.appendChild(d)});
- function stepW(){return sl[1].offsetLeft-sl[0].offsetLeft}
- function leftFor(i){var e=sl[i];return e.offsetLeft-(track.clientWidth-e.offsetWidth)/2}
- function cur(){var c=track.scrollLeft+track.clientWidth/2,b=0,bd=1e9,i,d;for(i=0;i<sl.length;i++){d=Math.abs(sl[i].offsetLeft+sl[i].offsetWidth/2-c);if(d<bd){bd=d;b=i}}return b}
- function go(i){track.scrollTo({left:leftFor(i),behavior:"smooth"});hold()}
- function mark(){var i=cur()%N;Array.prototype.forEach.call(dotsEl.children,function(d,k){d.className=k===i?"on":""})}
- function snapOff(fn){track.style.scrollSnapType="none";fn();requestAnimationFrame(function(){requestAnimationFrame(function(){track.style.scrollSnapType=""})})}
- function wrap(){var i=cur(),W=stepW()*N;if(i<N)snapOff(function(){track.scrollLeft+=W});else if(i>=2*N)snapOff(function(){track.scrollLeft-=W})}
- var endT,pauseUntil=0,vis=false;
- function hold(){pauseUntil=Date.now()+7000}
- track.addEventListener("scroll",function(){mark();clearTimeout(endT);endT=setTimeout(wrap,140)},{passive:true});
- ["pointerdown","touchstart","wheel","focusin","mouseenter"].forEach(function(ev){track.addEventListener(ev,hold,{passive:true})});
- track.addEventListener("click",function(e){var b=e.target.closest(".slide");if(b)openApp(b.dataset.id)});
- track.addEventListener("keydown",function(e){if(e.key==="ArrowRight"){e.preventDefault();go(cur()+1)}else if(e.key==="ArrowLeft"){e.preventDefault();go(cur()-1)}});
- sec.querySelector(".arr.l").onclick=function(){go(cur()-1)};
- sec.querySelector(".arr.r").onclick=function(){go(cur()+1)};
- function start(){if(sec.dataset.view!=="swipe")return;snapOff(function(){track.scrollLeft=leftFor(N)});mark()}
- start();window.addEventListener("load",start);window.addEventListener("resize",start);
- sec.querySelectorAll(".tog button").forEach(function(b){b.onclick=function(){
-  sec.dataset.view=b.dataset.v;sec.querySelectorAll(".tog button").forEach(function(x){x.className=x===b?"on":""});
-  if(b.dataset.v==="swipe")requestAnimationFrame(start)}});
- if("IntersectionObserver" in window)new IntersectionObserver(function(en){vis=en[0].isIntersecting},{threshold:.5}).observe(sec);else vis=true;
- var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
- if(!still&&N>1)setInterval(function(){if(!vis||sec.dataset.view!=="swipe"||Date.now()<pauseUntil||document.hidden||document.body.style.overflow==="hidden")return;go(cur()+1);pauseUntil=0},3800);
-}
-document.querySelectorAll("section.car").forEach(makeSection);
-(function(){var a=APPS.filter(function(x){return x.group==="app"}).length,p=APPS.length-a;
- document.getElementById("cntApps").textContent=a+" ready-to-use apps";document.getElementById("cntProj").textContent=p+" project-based software"})();
+document.addEventListener("click",function(e){
+  var s=e.target.closest("[data-scroll]");
+  if(s){var l=document.getElementById(s.dataset.scroll);l.scrollBy({left:s.dataset.dir*300,behavior:"smooth"});return;}
+  var d=e.target.closest("[data-demo]");
+  if(d){
+    alertAdmin("🔥 Demo interest","Demo click: "+d.dataset.demo+" ("+d.dataset.tag+")");
+    document.getElementById("f-app").value=d.dataset.demo;
+    openModal();return;
+  }
+  var w=e.target.closest("[data-wa]");
+  if(w){e.preventDefault();alertAdmin("💬 WhatsApp click","Visitor ne WhatsApp button dabaya");openModal();}
+});
 
-// detail sheet
-var sheet=document.getElementById("sheet");
-function renderApp(id){
- var a=APPS.filter(function(x){return x.id===id})[0];if(!a)return false;
- var shots=a.images.map(function(src,i){return '<img src="'+src+'" alt="'+a.name+' screenshot '+(i+1)+'" loading="lazy" onclick="zoomImg(this)" onerror="this.outerHTML=\'<div class=ph>Photo coming soon</div>\'">'}).join("");
- var ben=a.benefits.map(function(x,i){return '<div class="bc"><span class="bn">'+(i+1)+'</span><div><b>'+x[0]+'</b><span>'+x[1]+'</span></div></div>'}).join("");
- var feat=a.features.map(function(x){return '<span class="ft">'+x+'</span>'}).join("");
- var demo=a.demoUrl?'<a class="btn btn-main" href="'+a.demoUrl+'">'+(a.demoLabel||"Start 3-day demo")+'</a>':'<button class="btn btn-main" onclick="openForm(\''+a.id+'\',\'demo\')">Get 3-day demo</button>';
- var buy='<button class="btn btn-wa" onclick="openForm(\''+a.id+'\',\''+(a.buyIntent||"buy")+'\')">'+(a.buyLabel||"Buy 1-year license")+'</button>';
- sheet.style.setProperty("--c",a.color);
- sheet.innerHTML='<div class="bar"><button onclick="closeApp()">&#8249; Back</button><b>'+a.name+'</b></div>'+
- '<div class="dh"><div class="dh-ic">'+a.icon+'</div><h2>'+a.name+'</h2><p>'+a.tag+'</p><span class="dh-pill">'+(a.group==="project"?"Project software":"Ready-to-use app")+'</span></div>'+
- '<div class="shots2">'+shots+'</div><div class="dhint">Tap a screenshot to enlarge</div>'+
- '<div class="det2"><h3 class="sec">Why you will like it</h3><div class="bcards">'+ben+'</div><h3 class="sec">What is inside</h3><div class="ftags">'+feat+'</div></div>'+
- '<div class="cta2">'+demo+buy+'<p class="note">'+(a.note||"Demo runs for 3 days with sample data.")+'</p></div>';
- sheet.className="open";sheet.scrollTop=0;document.body.style.overflow="hidden";
- sheet.setAttribute("data-id",id);return true;
-}
-/* layered history: phone Back button closes photo, then detail page, then form, before leaving the site */
-var cur={s:[],a:null};
-function curTop(){return cur.s[cur.s.length-1]}
-function pushLayer(name,a){cur={s:cur.s.concat([name]),a:a!==undefined?a:cur.a,deep:cur.deep};try{history.pushState(cur,"",name==="app"?"#"+cur.a:location.href)}catch(e){}}
-function hideLayer(n){if(n==="app"){sheet.className="";document.body.style.overflow=""}else if(n==="zoom")document.getElementById("zoom").className="";else if(n==="form")document.getElementById("form").className=""}
-function popLayer(n){
- if(cur.s.indexOf(n)<0){hideLayer(n);return}
- if(curTop()===n&&!(n==="app"&&cur.deep&&cur.s.length===1)){history.back();return}
- hideLayer(n);cur={s:cur.s.filter(function(x){return x!==n}),a:n==="app"?null:cur.a,deep:cur.deep};
- try{history.replaceState(cur,"",n==="app"?location.pathname+location.search:location.href)}catch(e){}
-}
-function applyState(st){
- st=st||{s:[],a:null};var s=st.s||[];
- ["form","zoom"].forEach(function(n){if(s.indexOf(n)<0)hideLayer(n)});
- if(s.indexOf("app")>-1){if(st.a&&(sheet.className!=="open"||sheet.getAttribute("data-id")!==st.a))renderApp(st.a)}else hideLayer("app");
- if(s.indexOf("form")>-1)document.getElementById("form").className="open";
- if(s.indexOf("zoom")>-1)document.getElementById("zoom").className="open";
- cur={s:s.slice(),a:st.a,deep:st.deep};
-}
-window.addEventListener("popstate",function(){applyState(history.state)});
-function openApp(id,fromHash){
- if(!renderApp(id))return;
- if(fromHash){cur={s:["app"],a:id,deep:1};try{history.replaceState(cur,"",location.href)}catch(e){}}
- else pushLayer("app",id);
-}
-function zoomImg(img){var z=document.getElementById("zoom");z.querySelector("img").src=img.src;z.className="open";pushLayer("zoom")}
-function closeZoom(){popLayer("zoom")}
-document.addEventListener("keydown",function(e){if(e.key==="Escape")closeZoom()});
-function closeApp(){popLayer("app")}
-window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(sheet.className==="open"&&sheet.getAttribute("data-id")===h)return;if(APPS.some(function(x){return x.id===h}))openApp(h,true);else if(["how","apps","projects","license","top"].indexOf(h)<0){sheet.className="";document.body.style.overflow=""}});
-if(APPS.some(function(x){return x.id===location.hash.slice(1)}))openApp(location.hash.slice(1),true);
+/* ====== MODAL / FORM ====== */
+var modal=document.getElementById("modal");
+function openModal(){modal.classList.add("open");}
+function closeModal(){modal.classList.remove("open");}
+document.getElementById("cancel").onclick=closeModal;
+modal.addEventListener("click",function(e){if(e.target===modal)closeModal();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
+
+document.getElementById("send").onclick=function(){
+  var v=function(id){return document.getElementById(id).value.trim();};
+  var name=v("f-name"),mob=v("f-mob"),app=v("f-app");
+  if(!name||!mob||!app){alert("Name, mobile number aur app ka naam bharo.");return;}
+  var msg="Hello App Mitra,\nName: "+name+"\nMobile: "+mob+"\nApp: "+app+
+    (v("f-biz")?"\nBusiness: "+v("f-biz"):"")+(v("f-city")?"\nCity: "+v("f-city"):"")+
+    (v("f-bud")?"\nBudget: "+v("f-bud"):"")+(v("f-need")?"\nNeed: "+v("f-need"):"");
+  alertAdmin("📩 New enquiry",name+" | "+mob+" | "+app+(v("f-bud")?" | "+v("f-bud"):""));
+  window.open("https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent(msg),"_blank");
+  closeModal();
+};
 </script>
 </body>
 </html>
