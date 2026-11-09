@@ -338,8 +338,10 @@ function openForm(appId,intent){
  $("fTitle").textContent=fIntent==="demo"?"Get your 3-day demo":fIntent==="buy"?"Buy the 1-year license":fIntent==="order"?"Order your invitation":"Tell us what you need";
  $("fErr").textContent="";
  $("form").className="open";
+ if(cur.s.indexOf("form")<0)pushLayer("form");
 }
-function closeForm(){$("form").className=""}
+function closeForm(){popLayer("form")}
+function hideFormDirect(){hideLayer("form");if(cur.s.indexOf("form")>-1){cur={s:cur.s.filter(function(x){return x!=="form"}),a:cur.a,deep:cur.deep};try{history.replaceState(cur,"",location.href)}catch(e){}}}
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeForm()});
 function fail(m){$("fErr").textContent=m}
 function saveLead(d){
@@ -362,7 +364,7 @@ function sendForm(){
  if(d.requirement)L.push("Requirement: "+d.requirement);
  var btn=$("fSend");btn.disabled=true;btn.textContent="Opening WhatsApp\u2026";fail("");
  Promise.race([saveLead(d),new Promise(function(r){setTimeout(r,1500)})]).then(function(){
-  btn.disabled=false;btn.textContent="Send on WhatsApp";closeForm();
+  btn.disabled=false;btn.textContent="Send on WhatsApp";hideFormDirect();
   location.href=wa(L.join("\n"));
  });
 }
@@ -421,8 +423,8 @@ document.querySelectorAll("section.car").forEach(makeSection);
 
 // detail sheet
 var sheet=document.getElementById("sheet");
-function openApp(id,fromHash){
- var a=APPS.filter(function(x){return x.id===id})[0];if(!a)return;
+function renderApp(id){
+ var a=APPS.filter(function(x){return x.id===id})[0];if(!a)return false;
  var shots=a.images.map(function(src,i){return '<img src="'+src+'" alt="'+a.name+' screenshot '+(i+1)+'" loading="lazy" onclick="zoomImg(this)" onerror="this.outerHTML=\'<div class=ph>Photo coming soon</div>\'">'}).join("");
  var ben=a.benefits.map(function(x,i){return '<div class="bc"><span class="bn">'+(i+1)+'</span><div><b>'+x[0]+'</b><span>'+x[1]+'</span></div></div>'}).join("");
  var feat=a.features.map(function(x){return '<span class="ft">'+x+'</span>'}).join("");
@@ -435,13 +437,38 @@ function openApp(id,fromHash){
  '<div class="det2"><h3 class="sec">Why you will like it</h3><div class="bcards">'+ben+'</div><h3 class="sec">What is inside</h3><div class="ftags">'+feat+'</div></div>'+
  '<div class="cta2">'+demo+buy+'<p class="note">'+(a.note||"Demo runs for 3 days with sample data.")+'</p></div>';
  sheet.className="open";sheet.scrollTop=0;document.body.style.overflow="hidden";
- if(!fromHash)history.pushState(null,"","#"+id);
+ sheet.setAttribute("data-id",id);return true;
 }
-function zoomImg(img){var z=document.getElementById("zoom");z.querySelector("img").src=img.src;z.className="open"}
-function closeZoom(){document.getElementById("zoom").className=""}
+/* layered history: phone Back button closes photo, then detail page, then form, before leaving the site */
+var cur={s:[],a:null};
+function curTop(){return cur.s[cur.s.length-1]}
+function pushLayer(name,a){cur={s:cur.s.concat([name]),a:a!==undefined?a:cur.a,deep:cur.deep};try{history.pushState(cur,"",name==="app"?"#"+cur.a:location.href)}catch(e){}}
+function hideLayer(n){if(n==="app"){sheet.className="";document.body.style.overflow=""}else if(n==="zoom")document.getElementById("zoom").className="";else if(n==="form")document.getElementById("form").className=""}
+function popLayer(n){
+ if(cur.s.indexOf(n)<0){hideLayer(n);return}
+ if(curTop()===n&&!(n==="app"&&cur.deep&&cur.s.length===1)){history.back();return}
+ hideLayer(n);cur={s:cur.s.filter(function(x){return x!==n}),a:n==="app"?null:cur.a,deep:cur.deep};
+ try{history.replaceState(cur,"",n==="app"?location.pathname+location.search:location.href)}catch(e){}
+}
+function applyState(st){
+ st=st||{s:[],a:null};var s=st.s||[];
+ ["form","zoom"].forEach(function(n){if(s.indexOf(n)<0)hideLayer(n)});
+ if(s.indexOf("app")>-1){if(st.a&&(sheet.className!=="open"||sheet.getAttribute("data-id")!==st.a))renderApp(st.a)}else hideLayer("app");
+ if(s.indexOf("form")>-1)document.getElementById("form").className="open";
+ if(s.indexOf("zoom")>-1)document.getElementById("zoom").className="open";
+ cur={s:s.slice(),a:st.a,deep:st.deep};
+}
+window.addEventListener("popstate",function(){applyState(history.state)});
+function openApp(id,fromHash){
+ if(!renderApp(id))return;
+ if(fromHash){cur={s:["app"],a:id,deep:1};try{history.replaceState(cur,"",location.href)}catch(e){}}
+ else pushLayer("app",id);
+}
+function zoomImg(img){var z=document.getElementById("zoom");z.querySelector("img").src=img.src;z.className="open";pushLayer("zoom")}
+function closeZoom(){popLayer("zoom")}
 document.addEventListener("keydown",function(e){if(e.key==="Escape")closeZoom()});
-function closeApp(){sheet.className="";document.body.style.overflow="";if(location.hash)history.pushState(null,"",location.pathname)}
-window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(APPS.some(function(x){return x.id===h}))openApp(h,true);else if(["how","apps","projects","license","top"].indexOf(h)<0){sheet.className="";document.body.style.overflow=""}});
+function closeApp(){popLayer("app")}
+window.addEventListener("hashchange",function(){var h=location.hash.slice(1);if(sheet.className==="open"&&sheet.getAttribute("data-id")===h)return;if(APPS.some(function(x){return x.id===h}))openApp(h,true);else if(["how","apps","projects","license","top"].indexOf(h)<0){sheet.className="";document.body.style.overflow=""}});
 if(APPS.some(function(x){return x.id===location.hash.slice(1)}))openApp(location.hash.slice(1),true);
 </script>
 </body>
