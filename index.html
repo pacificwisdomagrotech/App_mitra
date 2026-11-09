@@ -13,10 +13,10 @@ html{scroll-behavior:smooth}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
 a{color:inherit;text-decoration:none}
 header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 16px}
-.logo{font-weight:800;font-size:20px;letter-spacing:.3px}
-.logo span{color:var(--gold)}
+.logo{font-weight:800;font-size:20px}.logo span{color:var(--gold)}
 .btn{display:inline-block;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:10px;padding:10px 16px;background:var(--gold);color:#14213d}
 .btn.ghost{background:transparent;border:1.5px solid currentColor;color:inherit}
+.btn.sm{padding:8px 12px;font-size:14px}
 .hero{background:var(--navy);color:#fff;padding:44px 18px 52px}
 .hero h1{font-size:clamp(30px,8vw,48px);line-height:1.1;max-width:14ch}
 .hero p{margin:14px 0 22px;max-width:44ch;color:#d5d9e3}
@@ -31,8 +31,7 @@ h2{font-size:26px}
 .list{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px;scrollbar-width:none}
 .list::-webkit-scrollbar{display:none}
 .card{flex:0 0 78%;max-width:300px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:8px}
-.card .ic{font-size:34px}
-.card h3{font-size:18px}
+.card .ic{font-size:34px}.card h3{font-size:18px}
 .card p{color:var(--mute);font-size:14px;flex:1}
 .card ul{list-style:none;font-size:13px;color:var(--mute)}
 .card ul li::before{content:"✓ ";color:#2a9d5c;font-weight:700}
@@ -40,7 +39,7 @@ h2{font-size:26px}
 .step{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
 .step i{flex:0 0 34px;height:34px;border-radius:50%;background:var(--navy);color:var(--gold);font-style:normal;font-weight:800;display:grid;place-items:center}
 .step p{color:var(--mute);font-size:14px}
-.lic{background:var(--navy);color:#fff;border-radius:18px;padding:22px;margin-top:6px}
+.lic{background:var(--navy);color:#fff;border-radius:18px;padding:22px}
 .lic ul{list-style:none;margin:12px 0 18px}
 .lic li{padding:5px 0}.lic li::before{content:"✓ ";color:var(--gold);font-weight:700}
 footer{text-align:center;color:var(--mute);font-size:13px;padding:24px 16px 40px}
@@ -52,6 +51,15 @@ label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
 input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;font:inherit;background:var(--bg);color:var(--ink)}
 .acts{display:flex;gap:10px;margin-top:18px}.acts .btn{flex:1}
 .wa{background:#25d366;color:#fff}
+.note{font-size:13px;color:var(--mute);margin-top:8px}
+/* demo viewer */
+#viewer{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column}
+#viewer.open{display:flex}
+#vbar{background:var(--navy);color:#fff;display:flex;align-items:center;gap:8px;padding:8px 10px;flex-wrap:wrap}
+#vbar b{flex:1;font-size:14px;min-width:120px}
+#vbar small{flex-basis:100%;color:#d5d9e3;font-size:12px}
+#frame{flex:1;width:100%;border:0;background:#fff}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#14213d;color:#fff;padding:12px 18px;border-radius:12px;z-index:99;display:none;max-width:90%;text-align:center}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @media(min-width:700px){.card{flex-basis:300px}.modal{align-items:center}.sheet{border-radius:20px}.steps{grid-template-columns:repeat(3,1fr)}}
 </style>
@@ -60,7 +68,7 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
 
 <header>
   <div class="logo">App<span>Mitra</span></div>
-  <a class="btn" href="#" data-wa>WhatsApp us</a>
+  <a class="btn sm" href="#" data-wa>WhatsApp us</a>
 </header>
 
 <div class="hero">
@@ -88,7 +96,7 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
   <h2>How it works</h2>
   <p class="sub">Three simple steps. No payment to start.</p>
   <div class="steps">
-    <div class="step"><i>1</i><div><h3>Pick an app</h3><p>Open any app, see photos and benefits.</p></div></div>
+    <div class="step"><i>1</i><div><h3>Pick an app</h3><p>Open any app, see benefits.</p></div></div>
     <div class="step"><i>2</i><div><h3>Try 3 days free</h3><p>Use the demo with sample data and check every feature.</p></div></div>
     <div class="step"><i>3</i><div><h3>Buy 1-year license</h3><p>Pay once, get your own app set up with your name and data.</p></div></div>
   </div>
@@ -109,6 +117,19 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
 
 <footer>© App Mitra · Nagpur, Maharashtra</footer>
 
+<!-- Demo start (name + mobile) -->
+<div class="modal" id="dm" role="dialog" aria-modal="true" aria-labelledby="dmt">
+  <div class="sheet">
+    <h2 id="dmt">Start your 3-day demo</h2>
+    <p class="sub" id="dm-app"></p>
+    <label for="d-name">Your name *</label><input id="d-name" autocomplete="name">
+    <label for="d-mob">Mobile number *</label><input id="d-mob" type="tel" inputmode="numeric" autocomplete="tel">
+    <p class="note">Demo me sample data hai. Login: <b>admin</b> / <b>demo123</b> (jahan login maange).</p>
+    <div class="acts"><button class="btn ghost" id="d-cancel" type="button">Cancel</button><button class="btn" id="d-go" type="button">Open demo</button></div>
+  </div>
+</div>
+
+<!-- Enquiry form -->
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
   <div class="sheet">
     <h2 id="mt">Tell us what you need</h2>
@@ -125,31 +146,42 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
   </div>
 </div>
 
+<!-- In-site demo viewer -->
+<div id="viewer">
+  <div id="vbar">
+    <button class="btn sm ghost" id="v-back" type="button">← Back</button>
+    <b id="v-title"></b>
+    <button class="btn sm" id="v-enq" type="button">Buy / Enquire</button>
+    <small id="v-note"></small>
+  </div>
+  <iframe id="frame" title="Demo"></iframe>
+</div>
+<div id="toast"></div>
+
 <script>
 /* ====== SETTINGS ====== */
-var WA_NUMBER = "917276124898";            // admin WhatsApp (country code ke saath)
-var NTFY_TOPIC = "appmitra-x7k29qpz";      // ntfy app mein yahi topic subscribe karo
+var WA_NUMBER = "917276124898";
+var NTFY_TOPIC = "appmitra-x7k29qpz";
+var DEMO_DAYS = 3;
 
-/* ====== APPS (naam/detail yahan badlo) ====== */
+/* ====== APPS ====== */
+/* u = demo folder (khali ho to sirf enquiry) */
 var APPS = [
-  {i:"📚",t:"Library & Study Circle",d:"Seat map, attendance, fee receipts aur WhatsApp reminders.",b:["Seat booking","Fee receipts","Reminders"]},
-  {i:"🏦",t:"Society / Credit Society",d:"Shares, loans, interest tracking aur Hindi reminders.",b:["Loan ledger","Interest auto-calc","Hindi reminders"]},
-  {i:"🎓",t:"Computer Institute",d:"Students, fees aur certificate generator ek jagah.",b:["Certificates","Fee tracking","Chatbot"]},
-  {i:"🩺",t:"Clinic Queue & Token",d:"QR entry, token system, Hindi/English, admin panel.",b:["QR entry","Slots","Admin panel"]}
+  {i:"📚",t:"Library & Study Circle",u:"library-demo/",d:"Seat map, attendance, fee receipts aur WhatsApp reminders.",b:["Seat booking","Fee receipts","Reminders"],n:"Login: admin / demo123"},
+  {i:"🏦",t:"Society / Credit Society",u:"society-demo/",d:"Shares, loans, interest tracking aur Hindi reminders.",b:["Loan ledger","Interest auto-calc","Hindi reminders"],n:"Login: admin / demo123"},
+  {i:"🎓",t:"Computer Institute",u:"institute-demo/",d:"Students, fees aur certificate generator ek jagah.",b:["Certificates","Fee tracking","Reports"],n:"Sample data preview"},
+  {i:"💍",t:"Invitation Website",u:"invitations/",d:"Wedding aur event ke liye custom animated invitation.",b:["Animations","Visitor counter","Share link"],n:"Sample invitations"}
 ];
 var PROJECTS = [
-  {i:"⚖️",t:"Case Command",d:"Case aur vigilance monitoring, court tracking aur dashboard.",b:["Case tracker","Reports","Dashboard"]},
-  {i:"🌾",t:"Agro ERP",d:"Roles, 2FA, crop trading, WhatsApp aur reporting.",b:["Role access","Trading","Reports"]},
-  {i:"💍",t:"Invitation Website",d:"Wedding aur event ke liye custom animated invitation.",b:["Animations","Visitor counter","Share link"]},
-  {i:"🛠️",t:"Custom App",d:"Aapke business ke hisaab se bana hua software.",b:["Your workflow","Your branding","Support"]}
+  {i:"🩺",t:"Clinic Queue & Token",u:"clinic-demo/",d:"QR entry, token system, Hindi/English, admin panel.",b:["QR entry","Slots","Admin panel"],n:"Fully interactive demo"},
+  {i:"⚖️",t:"Case Monitoring System",u:"case-demo/",d:"Case aur vigilance monitoring, reports aur dashboard.",b:["Case tracker","Reports","Dashboard"],n:"Sample data preview"},
+  {i:"🛠️",t:"Custom App",u:"",d:"Aapke business ke hisaab se bana hua software.",b:["Your workflow","Your branding","Support"]}
 ];
 
-/* ====== ADMIN ALERT (ntfy) ====== */
-function alertAdmin(title, message){
-  try{
-    fetch("https://ntfy.sh",{method:"POST",keepalive:true,
-      body:JSON.stringify({topic:NTFY_TOPIC,title:title,message:message,priority:4})});
-  }catch(e){}
+/* ====== ntfy ALERT ====== */
+function alertAdmin(title,message){
+  try{fetch("https://ntfy.sh",{method:"POST",keepalive:true,
+    body:JSON.stringify({topic:NTFY_TOPIC,title:title,message:message,priority:4})});}catch(e){}
 }
 try{
   if(!sessionStorage.getItem("seen")){
@@ -159,47 +191,107 @@ try{
 }catch(e){}
 
 /* ====== CARDS ====== */
-function render(list,el,tag){
-  document.getElementById(el).innerHTML=list.map(function(a){
+var ALL = APPS.concat(PROJECTS);
+function render(list,el,off){
+  document.getElementById(el).innerHTML=list.map(function(a,k){
+    var btn=a.u?'<button class="btn" data-demo="'+(off+k)+'">Try 3 days free</button>'
+               :'<button class="btn" data-enq="'+a.t+'">Enquire now</button>';
     return '<div class="card"><div class="ic">'+a.i+'</div><h3>'+a.t+'</h3><p>'+a.d+'</p><ul>'+
-      a.b.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'+
-      '<button class="btn" data-demo="'+a.t+'" data-tag="'+tag+'">Try 3 days free</button></div>';
+      a.b.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'+btn+'</div>';
   }).join('');
 }
-render(APPS,"apps-list","App");
-render(PROJECTS,"proj-list","Project");
+render(APPS,"apps-list",0);
+render(PROJECTS,"proj-list",APPS.length);
 
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(function(){t.style.display="none"},3500);}
+function $(id){return document.getElementById(id);}
+
+/* ====== DEMO GATE (3 din, is phone me yaad rahega) ====== */
+var cur=null;
+function getTrials(){try{return JSON.parse(localStorage.getItem("am_trials")||"{}");}catch(e){return {};}}
+function setTrials(o){try{localStorage.setItem("am_trials",JSON.stringify(o));}catch(e){}}
+function openViewer(a){
+  $("v-title").textContent=a.t;
+  $("v-note").textContent=a.n||"";
+  $("frame").src=a.u;
+  $("viewer").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeViewer(){
+  $("viewer").classList.remove("open");
+  $("frame").src="about:blank";
+  document.body.style.overflow="";
+}
+function startDemo(idx){
+  var a=ALL[idx];cur=a;
+  var tr=getTrials(), p=tr._p;
+  if(p){ /* user ne pehle naam/mobile diya hai */
+    var t=tr[a.u]||Date.now();
+    if(!tr[a.u]){tr[a.u]=t;setTrials(tr);alertAdmin("🔥 Demo started",p.n+" | "+p.m+" | "+a.t);}
+    if(Date.now()-t>DEMO_DAYS*86400000){
+      alertAdmin("⏰ Demo expired click",p.n+" | "+p.m+" | "+a.t);
+      $("f-app").value=a.t;$("f-name").value=p.n;$("f-mob").value=p.m;
+      toast("Is app ka 3-din ka demo khatam ho gaya. License ke liye enquiry bhejo.");
+      openModal();return;
+    }
+    openViewer(a);return;
+  }
+  $("dm-app").textContent=a.t;
+  $("dm").classList.add("open");
+}
+$("d-cancel").onclick=function(){$("dm").classList.remove("open");};
+$("d-go").onclick=function(){
+  var n=$("d-name").value.trim(),m=$("d-mob").value.trim();
+  if(!n||m.replace(/\D/g,"").length<10){alert("Naam aur 10 digit ka mobile number bharo.");return;}
+  var tr=getTrials();tr._p={n:n,m:m};setTrials(tr);
+  $("dm").classList.remove("open");
+  startDemo(ALL.indexOf(cur));
+};
+
+/* ====== CLICKS ====== */
 document.addEventListener("click",function(e){
   var s=e.target.closest("[data-scroll]");
-  if(s){var l=document.getElementById(s.dataset.scroll);l.scrollBy({left:s.dataset.dir*300,behavior:"smooth"});return;}
+  if(s){$(s.dataset.scroll).scrollBy({left:s.dataset.dir*300,behavior:"smooth"});return;}
   var d=e.target.closest("[data-demo]");
-  if(d){
-    alertAdmin("🔥 Demo interest","Demo click: "+d.dataset.demo+" ("+d.dataset.tag+")");
-    document.getElementById("f-app").value=d.dataset.demo;
-    openModal();return;
-  }
+  if(d){startDemo(+d.dataset.demo);return;}
+  var q=e.target.closest("[data-enq]");
+  if(q){alertAdmin("🔥 Enquiry interest","Click: "+q.dataset.enq);$("f-app").value=q.dataset.enq;openModal();return;}
   var w=e.target.closest("[data-wa]");
   if(w){e.preventDefault();alertAdmin("💬 WhatsApp click","Visitor ne WhatsApp button dabaya");openModal();}
 });
 
-/* ====== MODAL / FORM ====== */
-var modal=document.getElementById("modal");
+/* ====== VIEWER BUTTONS ====== */
+$("v-back").onclick=closeViewer;
+$("v-enq").onclick=function(){
+  if(cur){$("f-app").value=cur.t;}
+  var p=getTrials()._p;if(p){$("f-name").value=p.n;$("f-mob").value=p.m;}
+  alertAdmin("💰 Buy/Enquire from demo",(cur?cur.t:""));
+  openModal();
+};
+/* phone ka Back button: pehle demo band ho, site se bahar na jaye */
+window.addEventListener("popstate",function(){if($("viewer").classList.contains("open"))closeViewer();});
+var _open=openViewer;
+openViewer=function(a){history.pushState({v:1},"");_open(a);};
+
+/* ====== ENQUIRY FORM ====== */
+var modal=$("modal");
 function openModal(){modal.classList.add("open");}
 function closeModal(){modal.classList.remove("open");}
-document.getElementById("cancel").onclick=closeModal;
+$("cancel").onclick=closeModal;
 modal.addEventListener("click",function(e){if(e.target===modal)closeModal();});
-document.addEventListener("keydown",function(e){if(e.key==="Escape")closeModal();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();$("dm").classList.remove("open");}});
 
-document.getElementById("send").onclick=function(){
-  var v=function(id){return document.getElementById(id).value.trim();};
+$("send").onclick=function(){
+  var v=function(id){return $(id).value.trim();};
   var name=v("f-name"),mob=v("f-mob"),app=v("f-app");
   if(!name||!mob||!app){alert("Name, mobile number aur app ka naam bharo.");return;}
   var msg="Hello App Mitra,\nName: "+name+"\nMobile: "+mob+"\nApp: "+app+
     (v("f-biz")?"\nBusiness: "+v("f-biz"):"")+(v("f-city")?"\nCity: "+v("f-city"):"")+
     (v("f-bud")?"\nBudget: "+v("f-bud"):"")+(v("f-need")?"\nNeed: "+v("f-need"):"");
   alertAdmin("📩 New enquiry",name+" | "+mob+" | "+app+(v("f-bud")?" | "+v("f-bud"):""));
-  window.open("https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent(msg),"_blank");
   closeModal();
+  toast("Enquiry save ho gayi. WhatsApp khul raha hai, wapas aakar demo dekhte rahiye.");
+  window.open("https://wa.me/"+WA_NUMBER+"?text="+encodeURIComponent(msg),"_blank");
 };
 </script>
 </body>
