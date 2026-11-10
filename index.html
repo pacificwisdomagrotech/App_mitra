@@ -52,6 +52,16 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
 .acts{display:flex;gap:10px;margin-top:18px}.acts .btn{flex:1}
 .wa{background:#25d366;color:#fff}
 .note{font-size:13px;color:var(--mute);margin-top:8px}
+.thumb{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top;border-radius:10px;border:1px solid var(--line);background:var(--line);cursor:pointer;display:block}
+.pics{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin:10px 0 6px;scrollbar-width:none}
+.pics::-webkit-scrollbar{display:none}
+.pics img{flex:0 0 72%;max-width:260px;scroll-snap-align:center;border-radius:14px;border:1px solid var(--line);background:var(--line);display:block}
+.hint{font-size:12px;color:var(--mute);text-align:center;margin-bottom:8px}
+.dots{display:flex;justify-content:center;gap:6px;margin-bottom:10px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--gold)}
+#sm .sheet ul{list-style:none;font-size:14px;color:var(--mute);margin:6px 0}
+#sm .sheet ul li::before{content:"✓ ";color:#2a9d5c;font-weight:700}
 /* demo viewer */
 #viewer{position:fixed;inset:0;z-index:80;background:var(--bg);display:none;flex-direction:column}
 #viewer.open{display:flex}
@@ -73,7 +83,7 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
 
 <div class="hero">
   <h1>Your business, ready on one app.</h1>
-  <p>Library, society, institute, clinic and case-monitoring software built in Nagpur. Try any app free for 3 days. Like it? Take the 1-year license.</p>
+  <p>Library, society, institute, clinic and case-monitoring software built in Nagpur. Pehle samples dekho, phir 3 din free demo try karo. Like it? Take the 1-year license.</p>
   <div class="tiles">
     <a class="tile" href="#apps"><span style="font-size:24px">📱</span><b>Applications</b><small>Explore ›</small></a>
     <a class="tile" href="#projects"><span style="font-size:24px">💼</span><b>Project Software</b><small>Explore ›</small></a>
@@ -81,7 +91,7 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
 </div>
 
 <section id="apps">
-  <div class="row"><div><h2>Applications</h2><p class="sub">Ready-to-use apps. Try any app free for 3 days.</p></div>
+  <div class="row"><div><h2>Applications</h2><p class="sub">Ready-to-use apps. Pehle samples dekho, phir 3 din free demo try karo.</p></div>
   <div class="nav"><button data-scroll="apps-list" data-dir="-1" aria-label="Previous">‹</button> <button data-scroll="apps-list" data-dir="1" aria-label="Next">›</button></div></div>
   <div class="list" id="apps-list"></div>
 </section>
@@ -117,15 +127,18 @@ input,select,textarea{width:100%;padding:11px;border:1.5px solid var(--line);bor
 
 <footer>© App Mitra · Nagpur, Maharashtra</footer>
 
-<!-- Demo start (name + mobile) -->
-<div class="modal" id="dm" role="dialog" aria-modal="true" aria-labelledby="dmt">
+<!-- Sample sheet -->
+<div class="modal" id="sm" role="dialog" aria-modal="true" aria-labelledby="smt">
   <div class="sheet">
-    <h2 id="dmt">Start your 3-day demo</h2>
-    <p class="sub" id="dm-app"></p>
-    <label for="d-name">Your name *</label><input id="d-name" autocomplete="name">
-    <label for="d-mob">Mobile number *</label><input id="d-mob" type="tel" inputmode="numeric" autocomplete="tel">
-    <p class="note">Demo me sample data hai. Login: <b>admin</b> / <b>demo123</b> (jahan login maange).</p>
-    <div class="acts"><button class="btn ghost" id="d-cancel" type="button">Cancel</button><button class="btn" id="d-go" type="button">Open demo</button></div>
+    <h2 id="smt"></h2>
+    <p class="sub" id="sm-d"></p>
+    <div class="pics" id="sm-pics"></div>
+    <div class="dots" id="sm-dots"></div>
+    <p class="hint" id="sm-hint">Swipe karke sample screens dekho</p>
+    <ul id="sm-b"></ul>
+    <p class="note" id="sm-n"></p>
+    <div class="acts"><button class="btn ghost" id="sm-close" type="button">Close</button><button class="btn" id="sm-demo" type="button">Try 3 days free</button></div>
+    <div class="acts" style="margin-top:10px"><button class="btn ghost" id="sm-enq" type="button">Enquire / Buy license</button></div>
   </div>
 </div>
 
@@ -167,21 +180,21 @@ var DEMO_DAYS = 3;
 /* ====== APPS ====== */
 /* u = demo folder (khali ho to sirf enquiry) */
 var APPS = [
-  {i:"📚",t:"Library & Study Circle",u:"library-demo/",d:"Seat map, attendance, fee receipts aur WhatsApp reminders.",b:["Seat booking","Fee receipts","Reminders"],n:"Login: admin / demo123"},
-  {i:"🏦",t:"Society / Credit Society",u:"society-demo/",d:"Shares, loans, interest tracking aur Hindi reminders.",b:["Loan ledger","Interest auto-calc","Hindi reminders"],n:"Login: admin / demo123"},
-  {i:"🎓",t:"Computer Institute",u:"institute-demo/",d:"Students, fees aur certificate generator ek jagah.",b:["Certificates","Fee tracking","Reports"],n:"Sample data preview"},
-  {i:"💍",t:"Invitation Website",u:"invitations/",d:"Wedding aur event ke liye custom animated invitation.",b:["Animations","Visitor counter","Share link"],n:"Sample invitations"}
+  {k:"library",i:"📚",t:"Library & Study Circle",u:"library-demo/",d:"Seat map, attendance, fee receipts aur WhatsApp reminders.",b:["Seat booking","Fee receipts","Reminders"],n:"Login: admin / demo123"},
+  {k:"society",i:"🏦",t:"Society / Credit Society",u:"society-demo/",d:"Shares, loans, interest tracking aur Hindi reminders.",b:["Loan ledger","Interest auto-calc","Hindi reminders"],n:"Login: admin / demo123"},
+  {k:"institute",i:"🎓",t:"Computer Institute",u:"institute-demo/",d:"Students, fees aur certificate generator ek jagah.",b:["Certificates","Fee tracking","Reports"],n:"Sample data preview"},
+  {k:"custom",i:"💍",t:"Invitation Website",u:"invitations/",d:"Wedding aur event ke liye custom animated invitation.",b:["Animations","Visitor counter","Share link"],n:"Sample invitations"}
 ];
 var PROJECTS = [
-  {i:"🩺",t:"Clinic Queue & Token",u:"clinic-demo/",d:"QR entry, token system, Hindi/English, admin panel.",b:["QR entry","Slots","Admin panel"],n:"Fully interactive demo"},
-  {i:"⚖️",t:"Case Monitoring System",u:"case-demo/",d:"Case aur vigilance monitoring, reports aur dashboard.",b:["Case tracker","Reports","Dashboard"],n:"Sample data preview"},
+  {k:"clinic",i:"🩺",t:"Clinic Queue & Token",u:"clinic-demo/",d:"QR entry, token system, Hindi/English, admin panel.",b:["QR entry","Slots","Admin panel"],n:"Fully interactive demo"},
+  {k:"cases",i:"⚖️",t:"Case Monitoring System",u:"case-demo/",d:"Case aur vigilance monitoring, reports aur dashboard.",b:["Case tracker","Reports","Dashboard"],n:"Sample data preview"},
   {i:"🛠️",t:"Custom App",u:"",d:"Aapke business ke hisaab se bana hua software.",b:["Your workflow","Your branding","Support"]}
 ];
 
 /* ====== ntfy ALERT ====== */
 function alertAdmin(title,message){
   try{fetch("https://ntfy.sh",{method:"POST",keepalive:true,
-    body:JSON.stringify({topic:NTFY_TOPIC,title:title,message:message,priority:4})});}catch(e){}
+    body:JSON.stringify({topic:NTFY_TOPIC,title:title,message:message,priority:4})}).catch(function(){});}catch(e){}
 }
 try{
   if(!sessionStorage.getItem("seen")){
@@ -194,9 +207,11 @@ try{
 var ALL = APPS.concat(PROJECTS);
 function render(list,el,off){
   document.getElementById(el).innerHTML=list.map(function(a,k){
-    var btn=a.u?'<button class="btn" data-demo="'+(off+k)+'">Try 3 days free</button>'
+    var idx=off+k;
+    var img=a.k?'<img class="thumb" loading="lazy" data-view="'+idx+'" src="images/'+a.k+'-1.jpg" alt="'+a.t+' sample" onerror="this.style.display=\'none\'">':'';
+    var btn=a.u?'<button class="btn" data-view="'+idx+'">See samples</button>'
                :'<button class="btn" data-enq="'+a.t+'">Enquire now</button>';
-    return '<div class="card"><div class="ic">'+a.i+'</div><h3>'+a.t+'</h3><p>'+a.d+'</p><ul>'+
+    return '<div class="card">'+img+'<div class="ic">'+a.i+'</div><h3>'+a.t+'</h3><p>'+a.d+'</p><ul>'+
       a.b.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'+btn+'</div>';
   }).join('');
 }
@@ -206,10 +221,8 @@ render(PROJECTS,"proj-list",APPS.length);
 function toast(m){var t=document.getElementById("toast");t.textContent=m;t.style.display="block";setTimeout(function(){t.style.display="none"},3500);}
 function $(id){return document.getElementById(id);}
 
-/* ====== DEMO GATE (3 din, is phone me yaad rahega) ====== */
+/* ====== SAMPLES + DEMO (demo ke andar apna naam/mobile gate hai) ====== */
 var cur=null;
-function getTrials(){try{return JSON.parse(localStorage.getItem("am_trials")||"{}");}catch(e){return {};}}
-function setTrials(o){try{localStorage.setItem("am_trials",JSON.stringify(o));}catch(e){}}
 function openViewer(a){
   $("v-title").textContent=a.t;
   $("v-note").textContent=a.n||"";
@@ -222,38 +235,44 @@ function closeViewer(){
   $("frame").src="about:blank";
   document.body.style.overflow="";
 }
-function startDemo(idx){
+function showSamples(idx){
   var a=ALL[idx];cur=a;
-  var tr=getTrials(), p=tr._p;
-  if(p){ /* user ne pehle naam/mobile diya hai */
-    var t=tr[a.u]||Date.now();
-    if(!tr[a.u]){tr[a.u]=t;setTrials(tr);alertAdmin("🔥 Demo started",p.n+" | "+p.m+" | "+a.t);}
-    if(Date.now()-t>DEMO_DAYS*86400000){
-      alertAdmin("⏰ Demo expired click",p.n+" | "+p.m+" | "+a.t);
-      $("f-app").value=a.t;$("f-name").value=p.n;$("f-mob").value=p.m;
-      toast("Is app ka 3-din ka demo khatam ho gaya. License ke liye enquiry bhejo.");
-      openModal();return;
-    }
-    openViewer(a);return;
-  }
-  $("dm-app").textContent=a.t;
-  $("dm").classList.add("open");
+  $("smt").textContent=a.t;
+  $("sm-d").textContent=a.d;
+  $("sm-b").innerHTML=a.b.map(function(x){return "<li>"+x+"</li>"}).join("");
+  $("sm-n").textContent=a.n||"";
+  var pics="";for(var i=1;i<=3;i++){pics+='<img loading="lazy" src="images/'+a.k+'-'+i+'.jpg" alt="'+a.t+' screen '+i+'" onerror="this.remove()">';}
+  $("sm-pics").innerHTML=pics;
+  $("sm-dots").innerHTML='<i class="on"></i><i></i><i></i>';
+  $("sm-pics").scrollLeft=0;
+  $("sm").classList.add("open");
+  alertAdmin("🖼️ Samples viewed",a.t);
 }
-$("d-cancel").onclick=function(){$("dm").classList.remove("open");};
-$("d-go").onclick=function(){
-  var n=$("d-name").value.trim(),m=$("d-mob").value.trim();
-  if(!n||m.replace(/\D/g,"").length<10){alert("Naam aur 10 digit ka mobile number bharo.");return;}
-  var tr=getTrials();tr._p={n:n,m:m};setTrials(tr);
-  $("dm").classList.remove("open");
-  startDemo(ALL.indexOf(cur));
+$("sm-pics").addEventListener("scroll",function(){
+  var el=this,w=el.scrollWidth/3,n=Math.min(2,Math.round(el.scrollLeft/(w||1)));
+  [].forEach.call($("sm-dots").children,function(d,i){d.className=i===n?"on":"";});
+});
+$("sm-close").onclick=function(){$("sm").classList.remove("open");};
+$("sm").addEventListener("click",function(e){if(e.target===$("sm"))$("sm").classList.remove("open");});
+$("sm-demo").onclick=function(){
+  if(!cur)return;
+  $("sm").classList.remove("open");
+  alertAdmin("🔥 Demo opened",cur.t);
+  openViewer(cur);
+};
+$("sm-enq").onclick=function(){
+  if(cur)$("f-app").value=cur.t;
+  $("sm").classList.remove("open");
+  alertAdmin("💰 Enquiry from samples",cur?cur.t:"");
+  openModal();
 };
 
 /* ====== CLICKS ====== */
 document.addEventListener("click",function(e){
   var s=e.target.closest("[data-scroll]");
   if(s){$(s.dataset.scroll).scrollBy({left:s.dataset.dir*300,behavior:"smooth"});return;}
-  var d=e.target.closest("[data-demo]");
-  if(d){startDemo(+d.dataset.demo);return;}
+  var d=e.target.closest("[data-view]");
+  if(d){showSamples(+d.dataset.view);return;}
   var q=e.target.closest("[data-enq]");
   if(q){alertAdmin("🔥 Enquiry interest","Click: "+q.dataset.enq);$("f-app").value=q.dataset.enq;openModal();return;}
   var w=e.target.closest("[data-wa]");
@@ -264,8 +283,7 @@ document.addEventListener("click",function(e){
 $("v-back").onclick=closeViewer;
 $("v-enq").onclick=function(){
   if(cur){$("f-app").value=cur.t;}
-  var p=getTrials()._p;if(p){$("f-name").value=p.n;$("f-mob").value=p.m;}
-  alertAdmin("💰 Buy/Enquire from demo",(cur?cur.t:""));
+    alertAdmin("💰 Buy/Enquire from demo",(cur?cur.t:""));
   openModal();
 };
 /* phone ka Back button: pehle demo band ho, site se bahar na jaye */
@@ -279,7 +297,7 @@ function openModal(){modal.classList.add("open");}
 function closeModal(){modal.classList.remove("open");}
 $("cancel").onclick=closeModal;
 modal.addEventListener("click",function(e){if(e.target===modal)closeModal();});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();$("dm").classList.remove("open");}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeModal();$("sm").classList.remove("open");}});
 
 $("send").onclick=function(){
   var v=function(id){return $(id).value.trim();};
